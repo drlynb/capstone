@@ -2,6 +2,7 @@
 /*
  The queue() function makes sure that we have all the data transferred to the browser before drawing the graphs. 
 */
+
 queue()
     .defer(d3.json, "/data")
     .await(makeGraphs);
@@ -23,9 +24,10 @@ function makeGraphs(error, data) {
     });
 
 	var ndx = crossfilter(data);
-    var total = ndx.groupAll();
+    var totalrecs = ndx.groupAll();
 	
-	//var totalDimension = ndx.dimension(function(d)){return }
+	var totalDimension = ndx.dimension(function(d) {return d;});
+	var totalGroup = totalDimension.group();
 	
 	var yearDimension = ndx.dimension(function (d) {
 		return d3.time.year(d.dd).getFullYear();
@@ -81,7 +83,7 @@ function makeGraphs(error, data) {
 	
 	eventcount // dc.dataCount('.dc-data-count', 'chartGroup');
         .dimension(ndx)
-        .group(total)
+        .group(totalGroup)
 		.html({
             some: '<strong>%filter-count</strong> selected out of <strong>%total-count</strong> records' +
                 ' | <a href=\'javascript:dc.filterAll(); dc.renderAll();\'>Reset All</a>',
@@ -95,34 +97,11 @@ function makeGraphs(error, data) {
         .height(40)
         .margins({top: 0, right: 50, bottom: 20, left: 40})
         .dimension(dateDimension)
-        .group(total)
+        .group(totalGroup)
         .x(d3.time.scale().domain([new Date(2016, 0, 1), new Date(2016, 11, 31)]))
         .round(d3.time.month.round)
         .xUnits(d3.time.months);
 	
-	
-	
-	/*sbc // dc.barChart('#volume-month-chart', 'chartGroup')
-        .width(768)
-		.height(480)
-        .margins({top: 10, right: 50, bottom: 30, left: 40})
-        .dimension(deathDimension)
-        .group(totalEvents)
-        .elasticY(true)
-		.centerBar(true)
-		.gap(1)
-		.rangeChart(brusher)
-		.x(d3.scale.linear().domain([new Date(2016, 0, 1), new Date(2016, 11, 31)]))
-		.round(d3.time.month.round)
-		.xUnits(d3.time.months)
-		.filterPrinter(function (filters) {
-			var filter = filters[0], s = '';
-			s += numberFormat(filter[0]) + '% -> ' + numberFormat(filter[1]) + '%';
-			return s;
-        });
-	sbc.xAxis().tickFormat(
-        function (v) { return v + '%'; });
-	sbc.yAxis().ticks(5);*/
 	sbc
 		.width(768)
 		.height(480)
@@ -137,7 +116,7 @@ function makeGraphs(error, data) {
 			return d.key + '[' + this.layer + ']: ' + d.value[this.layer];
 		})
 		.dimension(deathDimension)
-		.group(total, "1", sel_stack('1'))
+		.group(totalGroup, "1", sel_stack('1'))
 		.renderLabel(true);
 	sbc.legend(dc.legend());
 	dc.override(sbc, 'legendables', function() {
@@ -145,21 +124,8 @@ function makeGraphs(error, data) {
 		return items.reverse();
 	});
 	for(var i = 2; i<6; ++i)
-		sbc.stack(total, ''+i, sel_stack(i));
+		sbc.stack(totalGroup, ''+i, sel_stack(i));
 
 	dc.renderAll();
   });
 };
-
-/*
-volumeChart.width(990) /* dc.barChart('#monthly-volume-chart', 'chartGroup'); 
-        .height(40)
-        .margins({top: 0, right: 50, bottom: 20, left: 40})
-        .dimension(moveMonths)
-        .group(volumeByMonthGroup)
-        .centerBar(true)
-        .gap(1)
-        .x(d3.time.scale().domain([new Date(1985, 0, 1), new Date(2012, 11, 31)]))
-        .round(d3.time.month.round)
-        .alwaysUseRounding(true)
-        .xUnits(d3.time.months);*/
