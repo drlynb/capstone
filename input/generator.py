@@ -38,7 +38,7 @@ city = ['Anmore', 'Delta', 'Abbotsford', 'Belcarra', 'Langley', 'Agassiz', 'Burn
 
 #lng = []
 
-building = ['private', 'townhouse', 'apartment', 'outside']
+building = ['private residence', 'other residence', 'other inside', 'outside', 'unknown']
 
 #Event
 substance = ['fentanyl', 'crack', 'heroine']
@@ -104,7 +104,7 @@ with open(output, 'w') as out:
 		temp = choose(dead)
 		row += str(temp)									#Dead
 		#TODO: Fix- if is always true
-		if bool(temp[:-1]) == True:							#if they're dead
+		if 'True' in temp:							#if they're dead
 			row += str(random.uniform(49.2, 49.3))+','		#DeathLat
 			row += str(random.uniform(-123.0, -123.2))+','	#DeathLng
 			row += choose(substance)						#ConfirmedSubstance
@@ -113,7 +113,7 @@ with open(output, 'w') as out:
 			row += str('NA') +','+str('NA') +','+str('NA') +','
         
 		row += choose(naloxone)								#ReceivedNaloxone
-		row += randomDate("1/1/2016 11:59 PM", "12/31/2016 1:00 AM", random.random())
+		row += randomDate("1/1/2007 1:00 AM", "12/31/2016 11:59 PM", random.random())
 		row +='\n'
 	out.write(row)
     

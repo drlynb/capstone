@@ -7,10 +7,24 @@ import json
 
 app = Flask(__name__)
 
+# visualization names with associated js files
+CHARTS = {'map' : 'map.js',
+            'stacked-bar-chart' : 'charts.js',
+            'brush-chart' : 'charts.js',
+            'count' : 'charts.js'}
+
 @app.route("/")
 def index():
-    return render_template("index.html")
-
+    #return render_template("index.html", charts=CHARTS)
+    return render_template("charts.html")
+    
+'''@app.route("/<key>")
+def get_chart(key):
+    getchart = CHARTS[key]
+    if not product:
+        abort(404)
+    return render_template('charts.html', vis=getchart, js=key)'''
+    
 @app.route("/data")
 def get_data():
 

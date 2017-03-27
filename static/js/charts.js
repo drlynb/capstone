@@ -8,6 +8,8 @@ queue()
 
 //can use to toggle categories?
 //https://dc-js.github.io/dc.js/examples/complex-reduce.html
+
+//https://github.com/austinlyons/dcjs-leaflet-untappd
 	
 function makeGraphs(error, data) {
 	//get data from flask server
@@ -61,6 +63,9 @@ function makeGraphs(error, data) {
 	//define charts
 	var sbc = dc.barChart("#stacked-bar-chart");
 	var brusher = dc.lineChart("#brush-chart");
+	//var barbrusher = dc.lineChart("#block-brush-chart");
+	//console.log(data[0].Datetime);
+	makeBarbrush(data);
 	var eventcount = dc.numberDisplay("#count");
 
 	
@@ -77,6 +82,17 @@ function makeGraphs(error, data) {
         .formatNumber(d3.format("d"))
 		.valueAccessor(function(d) {return d;})
         .group(all);
+	
+	/*barbrusher
+		.width(650)
+		.height(100)
+		.margins({top: 10, right: 50, bottom: 20, left: 20})
+		.dimension(dateDim)
+		.group(numRecordsByDate)
+		.transitionDuration(500)
+		.x(d3.time.scale().domain([new Date(2016, 0, 1), new Date(2016, 11, 31)]))
+		.elasticY(true)
+		.renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 1.0});*/
 	
 	brusher
 		.width(650)
