@@ -90,7 +90,7 @@ def titles():
 with open(output, 'w') as out:
 	out.write(titles()+'\n')
 	row = ''
-	for i in range(1000):
+	for i in range(5000):
 		row += str(uuid.uuid4())+','						#id
 		row += choose(gender)								#Gender
 		row += choose(ages)									#age

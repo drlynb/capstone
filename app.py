@@ -3,6 +3,7 @@ import datetime as dt
 import os
 from flask import Flask
 from flask import render_template
+import geojson
 import json
 
 app = Flask(__name__)
@@ -31,11 +32,30 @@ def get_data():
 	#read data and put into dataframe
 	df = pd.read_csv(('input/mock.csv')) 
 	df['Datetime'] = df['Datetime'].apply(lambda x: dt.datetime.strptime(x,'%m/%d/%Y %I:%M %p').date())
-
 	
 	return df.to_json(orient='records')
 
-
+@app.route("/geo")
+def getgeo():
+    #df = geopandas.read_file('input/geojson/British_Columbia_AL4.GeoJson')
+    #df = pd.read_json(('input/geojson/British_Columbia_AL4.GeoJson'))
+    #return df_to_geojson(df, df.columns.values)
+    geo = geojson.loads('/input/geojson/British_Columbia_AL4.GeoJson')
+    print(geo)
+    return geo
+    
+def df_to_geojson(df, properties, lat='latitude', lon='longitude'):
+    geojson = {'type':'FeatureCollection', 'features':[]}
+    for _, row in df.iterrows():
+        feature = {'type':'Feature',
+                   'properties':{},
+                   'geometry':{'type':'Point',
+                               'coordinates':[]}}
+        feature['geometry']['coordinates'] = [row[lon],row[lat]]
+        for prop in properties:
+            feature['properties'][prop] = row[prop]
+        geojson['features'].append(feature)
+    return geojson
 
 if __name__ == '__main__':
     app.run(host=os.getenv('IP', '0.0.0.0'), port=int(os.getenv('PORT', 8080)))

@@ -1,21 +1,57 @@
-var map = L.map('map');
-
-//add new death marker
-var deathMarkers = new L.FeatureGroup();
-
-L.geoJSON('../../input/geojson/British_Columbia_AL4.GeoJson', {
-  maxZoom: 16
-} ).addTo(map);
-
-.on('renderlet', function (table) {
-  deathMarkers.clearLayers();
-  _.each(allDim.top(Infinity), function (d) {
-    var loc = d.brewery.location;
-    var name = d.brewery.brewery_name;
-    var marker = L.marker([loc.lat, loc.lng]);
-    marker.bindPopup("<p>" + name + " " + loc.brewery_city + " " + loc.brewery_state + "</p>");
-    breweryMarkers.addLayer(marker);
-  });
-  map.addLayer(breweryMarkers);
-  map.fitBounds(breweryMarkers.getBounds());
+function makeMap(data){
+  // Create the Google Map…
+  var map = new google.maps.Map(d3.select("#map").node(), {
+  zoom: 8,
+  center: new google.maps.LatLng(49.159, -122.979),
+  mapTypeId: google.maps.MapTypeId.TERRAIN
 });
+
+// Load the station data. When the data comes back, create an overlay.
+
+  var overlay = new google.maps.OverlayView();
+
+  // Add the container when the overlay is added to the map.
+  overlay.onAdd = function() {
+    var layer = d3.select(this.getPanes().overlayLayer).append("div")
+        .attr("class", "events");
+
+    // Draw each marker as a separate SVG element.
+    // We could use a single SVG, but what size would it have?
+    overlay.draw = function() {
+      var projection = this.getProjection(),
+          padding = 10;
+      var marker = layer.selectAll("svg")
+          .data(d3.entries(data))
+          .each(transform) // update existing markers
+          .enter().append("svg")
+          .each(transform)
+          .attr("class", "marker");
+
+      // Add a circle.
+      marker.append("circle")
+          .attr("r", 4.5)
+          .attr("cx", padding)
+          .attr("cy", padding);
+
+      // Add a label.
+      marker.append("text")
+          .attr("x", padding + 7)
+          .attr("y", padding)
+          .attr("dy", ".31em")
+          .text(function(d) { return d.key; });
+
+      function transform(d) {
+        //console.log(d.value.EventLat);
+        d = new google.maps.LatLng(d.value.EventLat, d.value.EventLng);
+        d = projection.fromLatLngToDivPixel(d);
+        return d3.select(this)
+            .style("left", (d.x - padding) + "px")
+            .style("top", (d.y - padding) + "px");
+      }
+    };
+  };
+
+  // Bind our overlay to the map…
+  overlay.setMap(map);
+
+}

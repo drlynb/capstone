@@ -4,6 +4,7 @@
 */
 queue()
     .defer(d3.json, "/data")
+    //.defer(d3.json, "/geo")
     .await(makeGraphs);
 
 //can use to toggle categories?
@@ -14,7 +15,8 @@ queue()
 function makeGraphs(error, data) {
 	//get data from flask server
 	d3.json("/data", function(error, data) {
-
+			//d3.json("/geo", function(error2, cityJson){
+	//console.log(data[0].EventLat);
 	//datetime passed is a unix timestamp. convert to readable date
 	data.forEach(function (d) {
         d.dd= new Date(d.Datetime);
@@ -29,6 +31,7 @@ function makeGraphs(error, data) {
 	var ageDim = ndx.dimension(function(d) {return d["Age"]; });
 	var cityDim = ndx.dimension(function(d) {return d["City"]; });
 	var deadDim = ndx.dimension(function(d) {return d["Dead"]; });
+	var suspectedSubstanceDim = ndx.dimension(function(d) {return d["SuspectedSubstance"]});
 	//...
 	var allDim = ndx.dimension(function(d) {return d;});
 	
@@ -37,6 +40,7 @@ function makeGraphs(error, data) {
 	var ageGroup = ageDim.group();
 	var cityGroup = cityDim.group();
 	var deadGroup = deadDim.group();
+	var suspectedSubstanceGroup = suspectedSubstanceDim.group();
 	//...
 	var all = ndx.groupAll();
 	
@@ -65,9 +69,53 @@ function makeGraphs(error, data) {
 	var brusher = dc.lineChart("#brush-chart");
 	//var barbrusher = dc.lineChart("#block-brush-chart");
 	//console.log(data[0].Datetime);
-	makeBarbrush(data);
+	//makeBarbrush(data);
 	var eventcount = dc.numberDisplay("#count");
+	makeMap(data);
+	
+	
+	//var mymap = dc.geoChoroplethChart("#map");
+	var eventGroup = deadDim.group().reduceSum(function(d){ return d.Dead})
 
+	//var projection = d3.geo.mercator().scale(120).translate([400,200]);
+
+	/*var mapheight = 600;
+	var mapwidth = 900;
+	var mymap = d3.select("#map")
+					.append("svg")
+					.attr("width", mapwidth)
+					.attr("height",mapheight);
+	var places = mymap.append("g");
+	var albersProjection = d3.geo.albers()
+		 .scale( 120 )
+		.rotate( [71.057,0] )
+		 .center( [0, 42.313] )
+		 .translate( [mapwidth/2,mapheight/2] );
+
+	var geoPath = d3.geo.path()
+		.projection( albersProjection );
+
+	places.selectAll( "path" )
+		 .data( cityJson.features )
+		  .enter()
+		  .append( "path" )
+		  .attr( "fill", "#ccc" )
+		  .attr( "d", geoPath );
+	console.log(cityJson);
+		/*mymap
+			.width(900)
+			.height(600)
+			.dimension(deadDim)
+			.projection(projection)
+			.group(eventGroup)
+			.colors(d3.scale.category10())
+			.colorDomain([false,true])
+			.colors(function(d){ return d ? map.colors()(d) : '#ccc'})
+			.overlayGeoJson(cityJson.features, "", function(d){ return d.properties.name;});*/
+  
+  
+
+		
 	
 	//highlights bar segment?
 	function sel_stack(i) {
@@ -78,6 +126,9 @@ function makeGraphs(error, data) {
 
 	
 	// define chart parameters
+	
+	
+	
 	eventcount
         .formatNumber(d3.format("d"))
 		.valueAccessor(function(d) {return d;})
@@ -126,5 +177,16 @@ function makeGraphs(error, data) {
 
 
 	dc.renderAll();
-  });
+	
+		/*var places = [];
+		places[0] = ["Surrey", -122.78, 49.12];
+  
+		 d3.select("#map").selectAll("circle")
+    		.data(places)
+    		.enter().append("circle")
+    		.attr("cx",0)
+        	.attr("cy",0)
+        	.attr("r",15);*/
+	});
+//  });
 };

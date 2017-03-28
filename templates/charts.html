@@ -10,11 +10,12 @@
 </div>
 
 <div class="row">
-   <div class="col-md-12"><div id="map">Map</div></div>
+   <div class="col-md-12"><div id="map">Map</div>
 </div>
 
-<script src='./static/js/barbrush.js' type='text/javascript'></script>
-<script src='./static/js/charts.js' type='text/javascript'></script>
-
+<script type="text/javascript" src="{{ url_for('static', filename='js/barbrush.js') }}"></script>
+<script src="https://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/charts.js') }}"></script>
 
 {% endblock %}
