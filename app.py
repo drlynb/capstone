@@ -3,7 +3,7 @@ import datetime as dt
 import os
 from flask import Flask
 from flask import render_template
-import geojson
+#import geojson
 import json
 
 app = Flask(__name__)
@@ -35,14 +35,14 @@ def get_data():
 	
 	return df.to_json(orient='records')
 
-@app.route("/geo")
-def getgeo():
+#@app.route("/geo")
+#def getgeo():
     #df = geopandas.read_file('input/geojson/British_Columbia_AL4.GeoJson')
     #df = pd.read_json(('input/geojson/British_Columbia_AL4.GeoJson'))
     #return df_to_geojson(df, df.columns.values)
-    geo = geojson.loads('/input/geojson/British_Columbia_AL4.GeoJson')
-    print(geo)
-    return geo
+#    geo = geojson.loads('/input/geojson/British_Columbia_AL4.GeoJson')
+#    print(geo)
+#    return geo
     
 def df_to_geojson(df, properties, lat='latitude', lon='longitude'):
     geojson = {'type':'FeatureCollection', 'features':[]}

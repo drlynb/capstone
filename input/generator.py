@@ -86,7 +86,8 @@ def titles():
             'SuspectedSubstance,' + 'FirstEvent,' + 'Dead,' + 'DeathLat,' + 'DeathLng,' + 'ConfirmedSubstance,' + \
             'ReceivedNaloxone,' + 'Datetime'
 
-
+lats = [49.2893, 49.0111]
+longs = [-123.0246, -122.1270]
 with open(output, 'w') as out:
 	out.write(titles()+'\n')
 	row = ''
@@ -96,8 +97,8 @@ with open(output, 'w') as out:
 		row += choose(ages)									#age
 		row += choose(homeless)								#homeless
 		row += choose(city)									#city
-		row += str(random.uniform(49.2, 49.3))+','			#EventLat
-		row += str(random.uniform(-123.0, -123.2))+','		#EventLng
+		row += str(random.uniform(lats[1], lats[0]))+','			#EventLat
+		row += str(random.uniform(longs[1], longs[0]))+','		#EventLng
 		row += choose(building)								#Building
 		row += choose(substance)							#SuspectedSubstance
 		row += choose(firstevent)							#FirstEvent
@@ -105,8 +106,8 @@ with open(output, 'w') as out:
 		row += str(temp)									#Dead
 		#TODO: Fix- if is always true
 		if 'True' in temp:							#if they're dead
-			row += str(random.uniform(49.2, 49.3))+','		#DeathLat
-			row += str(random.uniform(-123.0, -123.2))+','	#DeathLng
+			row += str(random.uniform(lats[1], lats[0]))+','		#DeathLat
+			row += str(random.uniform(longs[1], longs[0]))+','	#DeathLng
 			row += choose(substance)						#ConfirmedSubstance
 
 		else:												#if not decieced no confirmed substance and death loc

@@ -1,7 +1,7 @@
 function makeMap(data){
   // Create the Google Map…
   var map = new google.maps.Map(d3.select("#map").node(), {
-  zoom: 8,
+  zoom: 10,
   center: new google.maps.LatLng(49.159, -122.979),
   mapTypeId: google.maps.MapTypeId.TERRAIN
 });
