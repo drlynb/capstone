@@ -17,7 +17,7 @@ CHARTS = {'map' : 'map.js',
 @app.route("/")
 def index():
     #return render_template("index.html", charts=CHARTS)
-    return render_template("charts.html")
+    return render_template("index.html")
     
 '''@app.route("/<key>")
 def get_chart(key):
