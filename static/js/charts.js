@@ -72,6 +72,7 @@ function makeGraphs(error, data) {
 	//makeBarbrush(data);
 	var eventcount = dc.numberDisplay("#count");
 	makeMap(data);
+	makeSlider(data);
 	
 	
 	//var mymap = dc.geoChoroplethChart("#map");
