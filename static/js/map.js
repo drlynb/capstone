@@ -1,3 +1,6 @@
+// https://github.com/thesentinelproject/threatwiki_node/blob/master/public/javascript/visualization.js
+// https://vast-journey-7849.herokuapp.com/burmavisualization
+//https://developers.google.com/maps/documentation/javascript/marker-clustering
 function makeMap(data){
   // Create the Google Map…
   var map = new google.maps.Map(d3.select("#map").node(), {
@@ -6,8 +9,31 @@ function makeMap(data){
   mapTypeId: google.maps.MapTypeId.TERRAIN
 });
 
+        
+        // Add some markers to the map.
+        // Note: The code uses the JavaScript Array.prototype.map() method to
+        // create an array of markers based on a given "locations" array.
+        // The map() method here has nothing to do with the Google Maps API.
+        /*var markers = locations.map(function(location, i) {
+          return new google.maps.Marker({
+            position: location,
+            label: labels[i % labels.length]
+          });
+        });*/
+        var markers = []
+        data.forEach(function(d){
+          //console.log(d.location);
+          markers.push(new google.maps.Marker({
+            position: d.location
+          }));
+        });
+        console.log(markers);
+    // Add a marker clusterer to manage the markers.
+        var markerCluster = new MarkerClusterer(map, markers,
+            {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+      
 // Load the station data. When the data comes back, create an overlay.
-
+/*
   var overlay = new google.maps.OverlayView();
 
   // Add the container when the overlay is added to the map.
@@ -48,10 +74,27 @@ function makeMap(data){
             .style("left", (d.x - padding) + "px")
             .style("top", (d.y - padding) + "px");
       }
-    };
-  };
+      
 
-  // Bind our overlay to the map…
-  overlay.setMap(map);
+    };
+  };*/
+  
+ 
+  
+      makeMap.dimension = function(_) {
+          if (!arguments.length) return dimension;
+          dimension = _;
+          return makeMap;
+        };
+        
+        makeMap.group = function(_) {
+          if (!arguments.length) return group;
+          group = _;
+          return makeMap;
+        };
+
+    // Bind our overlay to the map…
+  //overlay.setMap(map); 
+  return makeMap;
 
 }

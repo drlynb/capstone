@@ -3,7 +3,6 @@ import datetime as dt
 import os
 from flask import Flask
 from flask import render_template
-#import geojson
 import json
 
 app = Flask(__name__)
@@ -34,6 +33,16 @@ def get_data():
 	df['Datetime'] = df['Datetime'].apply(lambda x: dt.datetime.strptime(x,'%m/%d/%Y %I:%M %p').date())
 	
 	return df.to_json(orient='records')
+
+@app.route("/motor")
+def get_motor():
+
+	#read data and put into dataframe
+	df = pd.read_csv(('input/motor.csv')) 
+	#df['Date'] = df['Date'].apply(lambda x: dt.datetime.strptime(x,'%m/%d/%Y %I:%M %p').date())
+	
+	return df.to_json(orient='records')	
+
 
 #@app.route("/geo")
 #def getgeo():

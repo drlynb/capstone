@@ -22,7 +22,7 @@ TF = [True, False]
 
 #People data
 gender = ['M']*6 + ['F']*4          # 60% male 40% Female
-ages = list(range(16,65))           # patients between ages of 16 and 65
+ages = ['<16']*1 + ['16-25']*8 + ['26-35']*6 + ['36-45']*7 + ['46-55']*6 + ['56-65']*6+ ['66-75']*6 + ['76-85']*12 + ['86+']*14
 homeless = TF                       #
 
 

@@ -12,15 +12,7 @@ TF = [True, False]
 
 #People data
 gender = ['M']*7 + ['F']*3          # 60% male 40% Female
-ages = ['<16'*1,
-        '16-25'*8,
-        '26-35'*6,
-        '36-45'*7,
-        '46-55'*6,
-        '56-65'*6,
-        '66-75'*6,
-        '76-85'*12,
-        '86+'*14,]
+ages = ['<16']*1 + ['16-25']*8 + ['26-35']*6 + ['36-45']*7 + ['46-55']*6 + ['56-65']*6+ ['66-75']*6 + ['76-85']*12 + ['86+']*14
 
 
 # https://stackoverflow.com/questions/553303/generate-a-random-date-between-two-other-dates

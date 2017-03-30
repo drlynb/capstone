@@ -1,7 +1,14 @@
-body { padding-top: 70px; }
-div {color: white;}
+body {
+  padding-top: 70px;
+}
+
+div {
+  color: white;
+}
+
 
 /* 1st stacked bar and time brush/zoom */
+
 .area {
   fill: steelblue;
   clip-path: url(#clip);
@@ -13,7 +20,9 @@ div {color: white;}
   pointer-events: all;
 }
 
+
 /* map */
+
 #map {
   width: 900px;
   height: 600px;
@@ -21,7 +30,8 @@ div {color: white;}
   padding: 0;
 }
 
-.events, .events svg {
+.events,
+.events svg {
   position: absolute;
 }
 
@@ -38,7 +48,9 @@ div {color: white;}
   stroke-width: 1.5px;
 }
 
+
 /* slider */
+
 body {
   background-color: #393939;
   font-size: 14px;
@@ -67,15 +79,14 @@ a {
   stroke-linecap: round;
 }
 
-.slider .handle path {
+.handle path {
   stroke: white;
   stroke-width: 3px;
   stroke-linecap: round;
   pointer-events: none;
 }
 
-.slider .handle text {
+.handle text {
   fill: white;
   text-align: center;
-  font-size: 18px;
 }
