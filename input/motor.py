@@ -40,7 +40,7 @@ def choose(mylist):
     return str(random.choice(mylist))+ ','
     
 def titles():
-    return 'Date, AgeGroup, Gender'
+    return 'Date,AgeGroup,Gender'
 
 # 2007 - 2015
 motordeathsperyear = [423, 376, 390, 382, 311, 292, 288, 307, 300]
@@ -65,8 +65,10 @@ with open(output, 'w') as out:
     for month,deaths in enumerate(motordeathsbymonth):
         for year in range(10):
             for j in range(deaths[year]):
-                rows += randomDate(str(month+1)+"/1/"+str(year+2007)+" 1:00 AM", str(month+1)+"/28/"+str(year+2007)+" 11:59 PM", random.random())
+                rows += randomDate(str(month+1)+"/1/"+str(year+2007)+" 1:00 AM", str(month+1)+"/28/"+str(year+2007)+" 11:59 PM", random.random()) + ','
                 rows += choose(ages)								#age
                 rows += choose(gender)							#Gender
+                rows = rows[:-1]
                 rows +='\n'
+    print(rows)
     out.write(rows)
