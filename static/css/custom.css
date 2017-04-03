@@ -1,23 +1,12 @@
 body {
   padding-top: 70px;
+  background-color: #393939;
+  font-size: 14px;
+  font-family: 'Raleway', sans-serif;
 }
 
 div {
   color: white;
-}
-
-
-/* 1st stacked bar and time brush/zoom */
-
-.area {
-  fill: steelblue;
-  clip-path: url(#clip);
-}
-
-.zoom {
-  cursor: move;
-  fill: none;
-  pointer-events: all;
 }
 
 
@@ -51,12 +40,6 @@ div {
 
 /* slider */
 
-body {
-  background-color: #393939;
-  font-size: 14px;
-  font-family: 'Raleway', sans-serif;
-}
-
 p {
   color: white;
   margin: 50px;
@@ -86,7 +69,43 @@ a {
   pointer-events: none;
 }
 
-.handle text {
+text {
   fill: white;
   text-align: center;
+}
+
+
+/* stacked bar chart */
+
+/*.bar {
+  font: 10px sans-serif;
+  fill: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}*/
+
+.bar:hover {
+  fill: brown;
+}
+
+.toolTip {
+  position: absolute;
+  display: none;
+  width: auto;
+  height: auto;
+  background: none repeat scroll 0 0 white;
+  border: 0 none;
+  border-radius: 8px 8px 8px 8px;
+  box-shadow: -3px 3px 15px #888888;
+  color: black;
+  font: 12px sans-serif;
+  padding: 5px;
+  text-align: center;
+}
+
+.legend {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 60%;
 }

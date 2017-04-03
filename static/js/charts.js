@@ -18,7 +18,10 @@
  		data.forEach(function(d) {
  			d.dd = new Date(d.Datetime);
  			d.month = formatMonth(d.dd); // pre-calculate month for better performance
- 			d.location = { lat: d.EventLat, lng: d.EventLng };
+ 			d.location = {
+ 				lat: d.EventLat,
+ 				lng: d.EventLng
+ 			};
  		});
 
  		var ndx = crossfilter(data);
@@ -36,12 +39,16 @@
  		var cityDim = ndx.dimension(function(d) {
  			return d["City"];
  		});
- 		var deadDim = ndx.dimension(function(d) {
+
+ 		/*var deadDim = ndx.dimension(function(d) {
  			return d["Dead"];
  		});
  		var suspectedSubstanceDim = ndx.dimension(function(d) {
  			return d["SuspectedSubstance"]
- 		});
+ 		});*/
+ 		var mapDim = ndx.dimension(function(d) {
+ 		    return {date: d.dd, lat: d["EventLat"], lng: d["EventLng"]};
+ 		})
  		var locDim = ndx.dimension(function(d) {
  			return [d["EventLat"], d["EventLng"]];
  		});
@@ -55,12 +62,12 @@
  		var sexGroup = sexDim.group();
  		var ageGroup = ageDim.group();
  		var cityGroup = cityDim.group();
- 		var deadGroup = deadDim.group();
- 		var suspectedSubstanceGroup = suspectedSubstanceDim.group();
+ 		//var mapGroup = mapDim.group();
+ 		//var deadGroup = deadDim.group();
+ 		//var suspectedSubstanceGroup = suspectedSubstanceDim.group();
  		var locGroup = locDim.group();
  		//...
  		var all = ndx.groupAll();
-
 
  		var cityDeadGroup = cityDim.group().reduce(
  			function(p, v) {
@@ -90,66 +97,94 @@
  					total: 0
  				};
  			});
- 			
- 		var eventGroup = deadDim.group().reduceSum(function(d) {
+
+ 		/*var eventGroup = deadDim.group().reduceSum(function(d) {
  			return d.Dead
- 		})
+ 		})*/
 
 
  		//define charts
  		var eventcount = d3.selectAll("#count").text(all.reduceCount().value());
+
  		//var sbc = dc.barChart("#stacked-bar-chart");
  		//var brusher = dc.lineChart("#brush-chart");
  		//var barbrusher = dc.lineChart("#block-brush-chart");
- 		//makeBarbrush(data);
  		//var eventcount = dc.numberDisplay("#count");
- 		//makeLines(data);
- 		makeSlider(data)
- 			.dimension(dateDim)
- 			.group(numRecordsByDate)
- 			.x(d3.scaleTime().domain([new Date(2016, 0), new Date(2016, 11)]));
 
- 		makeMap(data)
+
+ 		//console.log(ageGroup.top(Infinity));
+ 		makeLines(ageGroup.top(Infinity))
+ 			.dimension(ageDim)
+ 			.group(ageGroup);
+
+ 		//console.log(cityGroup.top(Infinity));
+ 		makeSlideBars(cityDeadGroup.top(Infinity))
  			.dimension(cityDim)
  			.group(cityDeadGroup);
 
+		/*console.log(mapDim.filterFunction(function(d){
+			return d.date > new Date("2014");
+		}).top(Infinity));*/
+		/*console.log(mapDim.top(Infinity));
+		var sort = crossfilter.quicksort.by(function(d){
+			console.log(d);
+			return d.Datetime;
+		});
+		
+		console.log(sort(mapDim.top(Infinity),0,mapDim.length));*/
+		
+ 		var mymap = makeMap(mapDim.top(Infinity))
+ 			.dimension(mapDim);
 
-
-
- 		/*barbrusher
- 			.width(650)
- 			.height(100)
- 			.margins({top: 10, right: 50, bottom: 20, left: 20})
+		makeSlider(mapDim)
  			.dimension(dateDim)
  			.group(numRecordsByDate)
- 			.transitionDuration(500)
- 			.x(d3.time.scale().domain([new Date(2016, 0, 1), new Date(2016, 11, 31)]))
- 			.elasticY(true)
- 			.renderDataPoints({radius: 2, fillOpacity: 0.8, strokeOpacity: 1.0});
-	
- 		sbc
- 			.width(1050)
- 			.height(140)
- 			.margins({top: 10, right: 50, bottom: 20, left: 20})
- 			.dimension(cityDim)
- 			.group(cityDeadGroup, "Living", sel_stack('1'))
- 			.valueAccessor(function(d) {
- 				return d.value.living;
- 			})
- 			.stack(cityDeadGroup, "Dead", function(d){return d.value.fatalities;})
- 			.renderLabel(true)
- 			//.rangeChart(brusher)
- 			.transitionDuration(500)
- 			.x(d3.scale.ordinal())
- 			.xUnits(dc.units.ordinal)
- 			//.elasticX(true)
- 			.elasticY(true);
- 		sbc.legend(dc.legend());
+ 			
+ 			
+		//console.log(mymap.dimension.filter());
+ 		// slider and linking?
+ 		/*var charts = [
+ 			makeSlider(data, mymap)
+ 			.dimension(dateDim)
+ 			.group(numRecordsByDate)
+ 			.x(d3.scaleTime()
+ 				.domain([new Date(2007, 0), new Date(2016, 11)])
+ 				.rangeRound([0, 10 * 90]))
+ 			.filter([new Date(2010, 1, 1), new Date(2011, 2, 1)])
+ 		];
+
+ 		var chart = d3.selectAll("#slider")
+ 			.data(charts)
+ 			.each(function(chart) {
+ 				chart
+ 					.on("brush", function() {
+ 						renderAll();
+ 					})
+ 					.on("brushend", function() {
+ 						renderAll();
+ 					});
+ 			});*/
 
 
+// Renders the specified chart or list.
+        function render(method) {
+            d3.select(this).call(method);
+        }
+        
+        function renderAll() {
+            chart.each(render);
+            d3.select("#count").text((all.value()));
+        }
+		
+ 		/*makeSlider(data, charts)
+ 			.dimension(dateDim)
+ 			.group(numRecordsByDate)
+ 			.x(d3.scaleTime()
+ 				.domain([new Date(2007, 0), new Date(2016, 11)])
+ 				.rangeRound([0, 10 * 90]))
+ 			.filter([new Date(2010, 1, 1), new Date(2011, 2, 1)]);*/
 
- 		dc.renderAll();*/
- 		
+
  		/*
  		var hide = false;
 		var clicktoshow = false;

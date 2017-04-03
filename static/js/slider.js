@@ -1,7 +1,12 @@
+// https://stackoverflow.com/questions/39081668/how-to-redraw-chart-d3-js-chaining-function-and-crossfilter-filtering
 function makeSlider(data) {
 
     var begin = new Date('2007-01');
     var end = new Date('2016-12');
+    var dimension;
+    var group;
+    var brushDirty;
+
     var margin = {
             top: 50,
             right: 50,
@@ -9,11 +14,11 @@ function makeSlider(data) {
             left: 50
         },
         width = 960 - margin.left - margin.right,
-        height = 300 - margin.bottom - margin.top;
+        height = 200 - margin.bottom - margin.top;
 
 
     // scale function
-    var timeScale = d3.scaleTime()
+    var x = d3.scaleTime()
         .domain([begin, end])
         .range([0, width])
         .clamp(true);
@@ -22,13 +27,9 @@ function makeSlider(data) {
 
     var svg = d3.select("#slider").append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        // classic transform to position g
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
-            g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("height", height + margin.top + margin.bottom);
 
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var brush = d3.brushX()
         .extent([
@@ -37,57 +38,25 @@ function makeSlider(data) {
         ])
         .on("start brush end", brushmoved);
 
+
     g.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(timeScale));
-
-
-    /*var slider = svg.append("rect")
-        .style("pointer-events", "all")
-        .style("fill", "none")
-        .attr("width", width)
-        .attr("height", height)
-        .style("cursor", "crosshair")
-        .on("mousedown", function() {
-            updatePos(this);
-        })
-        .on("mousemove", function() {
-            if (d3.event.which === 1) {
-                updatePos(this);
-            }
-        });*/
-
-
-    svg.append("g")
-        .attr("class", "x axis")
-        // put in middle of screen
-        .attr("transform", "translate(0," + height / 2 + ")")
-        // inroduce axis
-        .call(d3.axisBottom()
-            .scale(timeScale)
-            .tickFormat(function(d) {
-                return formatDate(d);
-            })
-            .tickSize(0)
-            .tickPadding(12)
-            .tickValues([timeScale.domain()[0], timeScale.domain()[1]]))
-        .select(".domain")
-        .attr("class", "halo");
-
-
-    function updatePos(elem) {
-        var xPos = d3.mouse(elem)[0];
-        handle.attr('transform', 'translate(' + xPos + ",0)");
-        text.text(formatDate(timeScale.invert(xPos)));
-    }
+        .call(d3.axisBottom(x));
 
     var gBrush = g.append("g")
         .attr("class", "brush")
         .call(brush);
-    /* var handle = svg.append("g")
-         .attr("class", "brush")*/
 
+
+    // style brush resize handle
+    // https://github.com/crossfilter/crossfilter/blob/gh-pages/index.html#L466
+    var brushResizePath = function(d) {
+        var e = +(d.type == "e"),
+            x = e ? 1 : -1,
+            y = height / 2;
+        return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "Z" + "M" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
+    }
 
     var handle = gBrush.selectAll(".handle--custom")
         .data([{
@@ -97,48 +66,42 @@ function makeSlider(data) {
         }])
         .enter().append("path")
         .attr("class", "handle--custom")
-        .attr("fill", "#666")
-        .attr("fill-opacity", 0.8)
         .attr("stroke", "#000")
-        .attr("stroke-width", 0.5)
         .attr("cursor", "ew-resize")
-        .attr("d", d3.arc()
-            .innerRadius(0)
-            .outerRadius(100 / 2)
-            .startAngle(0)
-            .endAngle(function(d, i) {
-                return i ? Math.PI : -Math.PI;
-            }));
+        .attr("d", brushResizePath);
 
-    gBrush.call(brush.move, [0.3, 0.5].map(timeScale));
+    gBrush.call(brush.move, [0.3, 0.5].map(x));
+
+    g.append("text")
+        .attr("class", "chart-label")
+        .attr("transform", "translate(" + width / 2.5 + ",-10" + ")")
+        .text("Click and drag on chart to filter a date range");
 
     function brushmoved() {
         var s = d3.event.selection;
-        //console.log(s);
+        //start and end dates
+        //console.log(x.invert(s[0]));
+        //console.log(x.invert(s[1]));
         if (s == null) {
-            handle.attr("display", "visible");
-            //circle.classed("active", false);
+            //no dates selected
+            handle.attr("display", "none");
+            d3.select(".chart-label").text("Click and drag on chart to filter a date range");
         }
         else {
-            var sx = s.map(x.invert);
-            /*circle.classed("active", function(d) {
-                return sx[0] <= d && d <= sx[1];
-            });*/
+            //console.log(data.top(Infinity));
+            data.filterFunction(function(d) {
+                return d.date >= x.invert(s[0]) && d.date <= x.invert(s[1]);
+            });
+            makeMap(data.top(Infinity));
+            d3.select(".chart-label").text(formatDate(x.invert(s[0])) + " -- " + formatDate(x.invert([s[1]])));
             handle.attr("display", null).attr("transform", function(d, i) {
-                return "translate(" + s[i] + "," + height / 2 + ")";
+                return "translate(" + [s[i], -height / 4] + ")";
             });
         }
     }
 
-    handle.append("path")
-        .attr("transform", "translate(0," + height / 2 + ")")
-        .attr("d", "M 0 -20 V 20")
 
-    var text = handle.append('text')
-        .text(formatDate(timeScale.domain()[0]))
-        .attr("transform", "translate(" + (-18) + " ," + (height / 2 - 25) + ")");
-
-
+    // crossfilter stuff
     makeSlider.dimension = function(_) {
         if (!arguments.length) return dimension;
         dimension = _;
@@ -154,6 +117,7 @@ function makeSlider(data) {
 
     makeSlider.filter = function(_) {
         if (!_) dimension.filterAll();
+        console.log("in filter")
         brushDirty = _;
         return makeSlider;
     };
@@ -165,6 +129,5 @@ function makeSlider(data) {
     };
 
     //console.log(makeSlider);
-    return makeSlider; //.data(data);
-
+    return makeSlider;
 }

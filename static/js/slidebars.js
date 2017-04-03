@@ -1,91 +1,61 @@
 // https://bl.ocks.org/mbostock/b5935342c6d21928111928401e2c8608
+// https://bl.ocks.org/mbostock/3885304
+// https://stackoverflow.com/questions/42173318/d3v4-stacked-barchart-tooltip
 function makeSlideBars(data) {
 
-    var data = [{
-        month: "Q1-2016",
-        apples: 3840,
-        bananas: 1920,
-        cherries: -1960,
-        dates: -400
-    }, {
-        month: "Q2-2016",
-        apples: 1600,
-        bananas: 1440,
-        cherries: -960,
-        dates: -400
-    }, {
-        month: "Q3-2016",
-        apples: 640,
-        bananas: 960,
-        cherries: -640,
-        dates: -600
-    }, {
-        month: "Q4-2016",
-        apples: 320,
-        bananas: 480,
-        cherries: -640,
-        dates: -400
-    }];
-
-    var series = d3.stack()
-        .keys(["apples", "bananas", "cherries", "dates"])
-        .offset(stackOffsetDiverging)
-        (data);
-
-    var svg = d3.select("svg"),
-        margin = {
+    var margin = {
             top: 20,
-            right: 30,
+            right: 20,
             bottom: 30,
-            left: 60
+            left: 40,
+            height: 300,
+            width: 1200
         },
-        width = +svg.attr("width"),
-        height = +svg.attr("height");
+        svg = d3.select("#stacked-bar-chart").append("svg")
+        .attr("width", margin.width)
+        .attr("height", margin.height)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")"),
+        width = margin.width - margin.left - margin.right,
+        height = margin.height - margin.top - margin.bottom;
 
-    var x = d3.scaleBand()
-        .domain(data.map(function(d) {
-            return d.month;
-        }))
-        .rangeRound([margin.left, width - margin.right])
-        .padding(0.1);
+    var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+        y = d3.scaleLinear().rangeRound([height - margin.bottom, margin.top]),
+        z = d3.scaleOrdinal(d3.schemeCategory20); //colour
 
-    var y = d3.scaleLinear()
-        .domain([d3.min(series, stackMin), d3.max(series, stackMax)])
-        .rangeRound([height - margin.bottom, margin.top]);
+    var xAxis = d3.axisBottom().scale(x);
 
-    var z = d3.scaleOrdinal(d3.schemeCategory10);
+    var yAxis = d3.axisLeft().scale(y).ticks(10, "d");
 
-    svg.append("g")
-        .selectAll("g")
-        .data(series)
-        .enter().append("g")
-        .attr("fill", function(d) {
-            return z(d.key);
-        })
-        .selectAll("rect")
-        .data(function(d) {
-            return d;
-        })
-        .enter().append("rect")
-        .attr("width", x.bandwidth)
-        .attr("x", function(d) {
-            return x(d.data.month);
-        })
-        .attr("y", function(d) {
-            return y(d[1]);
-        })
-        .attr("height", function(d) {
-            return y(d[0]) - y(d[1]);
-        })
+    var cities = [];
 
-    svg.append("g")
-        .attr("transform", "translate(0," + y(0) + ")")
-        .call(d3.axisBottom(x));
+    // stack cant accept nested objects, need to modify data
+    // https://stackoverflow.com/questions/42039506/d3-stack-vs-nested-objects
+    var newData = [];
 
-    svg.append("g")
-        .attr("transform", "translate(" + margin.left + ",0)")
-        .call(d3.axisLeft(y));
+    data.forEach(function(d) {
+        //console.log(d);
+        var tempObj = {};
+        tempObj["cities"] = d.key;
+        tempObj["fatalities"] = -d.value.fatalities;
+        tempObj["living"] = d.value.living;
+        tempObj["total"] = d.value.total;
+        newData.push(tempObj);
+        cities.push(d.key);
+    });
 
+
+    var stack = d3.stack()
+        .keys(["fatalities", "living"])
+        .offset(stackOffsetDiverging)
+        (newData);
+        
+    y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true);
+    
+    x.domain(newData.map(function(d) {
+        return d.cities;
+    }));
+    
     function stackMin(serie) {
         return d3.min(serie, function(d) {
             return d[0];
@@ -97,6 +67,71 @@ function makeSlideBars(data) {
             return d[1];
         });
     }
+
+    var serie = svg.selectAll(".serie")
+        .data(stack)
+        .enter().append("g")
+        .attr("class", "serie")
+        .attr("fill", function(d) {
+            return z(d.key);
+        });
+
+    var rects = serie.selectAll("rect")
+        .data(function(d) {
+            return d;
+        })
+        .enter().append("rect")
+        .attr("class", "bar");
+
+    rects.attr("x", function(d) {
+            //console.log(d);
+            return x(d.data.cities);
+        })
+        .attr("y", function(d) {
+            return y(d[1]);
+        })
+        .attr("height", function(d) {
+            return y(d[0]) - y(d[1]);
+        })
+        .attr("width", x.bandwidth())
+        .on("click", function(d, i){ // shift clicked bar to x axis
+            //console.log(d);
+            var bigbar = d3.selectAll(".bar");
+            if(d[0] == 0){// d[0] == 0 for top bars
+                console.log(this);
+                bigbar.each(function(d,i){
+                    var mybar = d3.select(this);
+                    mybar.attr("transform", "translate(0," + d[1] + ")");
+                });
+                bigbar.attr("transform", "translate(0," + -d[1] + ")");
+            }
+            else{
+                console.log(this);
+                bigbar.attr("transform", "translate(0,"+ d[0] + ")");
+                bigbar.each(function(d,i){
+                    var mybar = d3.select(this);
+                    mybar.attr("transform", "translate(0," + d[0] + ")");
+                });
+                
+            }
+            
+        });
+
+    //midline
+    svg.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + y(0) + ")")
+        .call(xAxis);
+    
+    //axes
+    svg.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + y(-Infinity) + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "axis axis--y")
+        .call(yAxis);
 
     function stackOffsetDiverging(series, order) {
         if (!((n = series.length) > 1)) return;
@@ -114,4 +149,19 @@ function makeSlideBars(data) {
             }
         }
     }
+
+    // crossfilter stuff
+    makeSlideBars.dimension = function(_) {
+        if (!arguments.length) return dimension;
+        dimension = _;
+        return makeSlideBars;
+    };
+
+    makeSlideBars.group = function(_) {
+        if (!arguments.length) return group;
+        group = _;
+        return makeSlideBars;
+    };
+
+    return makeSlideBars;
 }

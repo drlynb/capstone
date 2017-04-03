@@ -39,7 +39,7 @@ def get_motor():
 
 	#read data and put into dataframe
 	df = pd.read_csv(('input/motor.csv')) 
-	#df['Date'] = df['Date'].apply(lambda x: dt.datetime.strptime(x,'%m/%d/%Y %I:%M %p').date())
+	df['Date'] = df['Date'].apply(lambda x: dt.datetime.strptime(x,'%m/%d/%Y %I:%M %p').date())
 	
 	return df.to_json(orient='records')	
 
