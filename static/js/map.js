@@ -15,6 +15,13 @@ function makeMap(data) {
     mapTypeId: google.maps.MapTypeId.TERRAIN
   });
 
+  // https://stackoverflow.com/questions/6795414/creating-a-selectable-clickable-overlay-on-google-maps
+  var areadata = [
+    {
+      "name": "Surrey",
+      "coords": []
+    }];
+    var areas= [];
 
   // Add some markers to the map.
   // Note: The code uses the JavaScript Array.prototype.map() method to
@@ -38,26 +45,26 @@ function makeMap(data) {
 
 
   // crossfilter stuff
-/*
-  //filter dimension if set and update the brush range or reset filter on the dimension
-  makeMap.filter = function(value) {
-    if (value) {
-      brush.extent(value);
-      dimension.filterRange(value);
-    }
-    else {
-      brush.clear();
-      dimension.filterAll();
-    }
-    brushDirty = true;
-    return makeMap;
-  };*/
+  /*
+    //filter dimension if set and update the brush range or reset filter on the dimension
+    makeMap.filter = function(value) {
+      if (value) {
+        brush.extent(value);
+        dimension.filterRange(value);
+      }
+      else {
+        brush.clear();
+        dimension.filterAll();
+      }
+      brushDirty = true;
+      return makeMap;
+    };*/
   makeMap.dimension = function(_) {
     if (!arguments.length) return dimension;
     dimension = _;
     return makeMap;
   };
-  
+
   // Bind our overlay to the map…
   //overlay.setMap(map); 
   return makeMap;

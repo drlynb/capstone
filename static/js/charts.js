@@ -47,7 +47,11 @@
  			return d["SuspectedSubstance"]
  		});*/
  		var mapDim = ndx.dimension(function(d) {
- 		    return {date: d.dd, lat: d["EventLat"], lng: d["EventLng"]};
+ 			return {
+ 				date: d.dd,
+ 				lat: d["EventLat"],
+ 				lng: d["EventLng"]
+ 			};
  		})
  		var locDim = ndx.dimension(function(d) {
  			return [d["EventLat"], d["EventLng"]];
@@ -60,14 +64,58 @@
  		//define groups
  		var numRecordsByDate = dateDim.group();
  		var sexGroup = sexDim.group();
- 		var ageGroup = ageDim.group();
  		var cityGroup = cityDim.group();
- 		//var mapGroup = mapDim.group();
+ 		var mapGroup = mapDim.group();
  		//var deadGroup = deadDim.group();
  		//var suspectedSubstanceGroup = suspectedSubstanceDim.group();
  		var locGroup = locDim.group();
  		//...
  		var all = ndx.groupAll();
+ 		
+ 		var ageGroup = ageDim.group().reduce(
+ 			function(p,v){
+ 				++p.total;
+ 				
+ 				if(v.Gender == "M"){
+ 					++p.male;
+ 				}else{
+ 					++p.female;
+ 				}
+ 				if(v.Dead == true){
+ 					++p.dead;
+ 				}else{
+ 					++p.living;
+ 				}
+ 				
+ 				return p;
+ 			},
+ 			function(p,v){
+ 				--p.total;
+ 				
+ 				if(v.Gender == "M"){
+ 					--p.male;
+ 				}else{
+ 					--p.female;
+ 				}
+ 				if(v.Dead == true){
+ 					--p.dead;
+ 				}else{
+ 					--p.living;
+ 				}
+ 				
+ 				return p;
+ 				
+ 			},
+ 			function(){
+ 				return {
+ 					total: 0,
+ 					male: 0,
+ 					female: 0,
+ 					living: 0,
+ 					dead: 0
+ 				};
+ 			}
+ 		);
 
  		var cityDeadGroup = cityDim.group().reduce(
  			function(p, v) {
@@ -104,44 +152,33 @@
 
 
  		//define charts
+
  		var eventcount = d3.selectAll("#count").text(all.reduceCount().value());
-
- 		//var sbc = dc.barChart("#stacked-bar-chart");
- 		//var brusher = dc.lineChart("#brush-chart");
- 		//var barbrusher = dc.lineChart("#block-brush-chart");
- 		//var eventcount = dc.numberDisplay("#count");
-
 
  		//console.log(ageGroup.top(Infinity));
  		makeLines(ageGroup.top(Infinity))
  			.dimension(ageDim)
  			.group(ageGroup);
 
+ 		makeSlideBars2(ageGroup.top(Infinity))
+ 			.dimension(cityDim)
+ 			.group(cityDeadGroup);
+
+
  		//console.log(cityGroup.top(Infinity));
  		makeSlideBars(cityDeadGroup.top(Infinity))
  			.dimension(cityDim)
  			.group(cityDeadGroup);
 
-		/*console.log(mapDim.filterFunction(function(d){
-			return d.date > new Date("2014");
-		}).top(Infinity));*/
-		/*console.log(mapDim.top(Infinity));
-		var sort = crossfilter.quicksort.by(function(d){
-			console.log(d);
-			return d.Datetime;
-		});
-		
-		console.log(sort(mapDim.top(Infinity),0,mapDim.length));*/
-		
  		var mymap = makeMap(mapDim.top(Infinity))
  			.dimension(mapDim);
 
-		makeSlider(mapDim)
+ 		makeSlider(mapDim)
  			.dimension(dateDim)
  			.group(numRecordsByDate)
- 			
- 			
-		//console.log(mymap.dimension.filter());
+
+
+ 		//console.log(mymap.dimension.filter());
  		// slider and linking?
  		/*var charts = [
  			makeSlider(data, mymap)
@@ -166,16 +203,16 @@
  			});*/
 
 
-// Renders the specified chart or list.
-        function render(method) {
-            d3.select(this).call(method);
-        }
-        
-        function renderAll() {
-            chart.each(render);
-            d3.select("#count").text((all.value()));
-        }
-		
+ 		// Renders the specified chart or list.
+ 		function render(method) {
+ 			d3.select(this).call(method);
+ 		}
+
+ 		function renderAll() {
+ 			chart.each(render);
+ 			d3.select("#count").text((all.value()));
+ 		}
+
  		/*makeSlider(data, charts)
  			.dimension(dateDim)
  			.group(numRecordsByDate)

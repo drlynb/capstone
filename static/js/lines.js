@@ -2,12 +2,12 @@
 function makeLines(data) {
     var margin = {
             top: 20,
-            right: 20,
+            right: 50,
             bottom: 50,
             left: 50
         },
         svg = d3.select("#line-chart").append("svg")
-        .attr("width", 600 + margin.left + margin.right)
+        .attr("width", 500 + margin.left + margin.right)
         .attr("height", 200 + margin.top + margin.bottom),
         width = +svg.attr("width") - margin.left - margin.right,
         height = +svg.attr("height") - margin.top - margin.bottom;
@@ -33,6 +33,7 @@ function makeLines(data) {
             "86+": 0
         };
         motordat.forEach(function(d) {
+            //console.log(d);
             d.dd = new Date(d.Date);
             //console.log(d.AgeGroup);
             groups[d.AgeGroup]++;
@@ -44,13 +45,13 @@ function makeLines(data) {
         // https://stackoverflow.com/questions/23864180/counting-data-items-in-d3-js
         var newData = [];
         data.forEach(function(d, i) {
-            //console.log(d.key);
+            //console.log(d);
             var odObj = {},
                 motorObj = {},
                 totalObj = {};
             odObj["type"] = "overdose";
             odObj["ageGroup"] = d.key;
-            odObj["death"] = d.value;
+            odObj["death"] = d.value.dead;
             newData.push(odObj);
             motorObj["type"] = "motor";
             motorObj["ageGroup"] = d.key;
@@ -58,7 +59,7 @@ function makeLines(data) {
             newData.push(motorObj);
             totalObj["type"] = "total";
             totalObj["ageGroup"] = d.key;
-            totalObj["death"] = groups[d.key] + d.value;
+            totalObj["death"] = groups[d.key] + d.value.dead;
             newData.push(totalObj);
         });
         //console.log(newData);
@@ -80,7 +81,7 @@ function makeLines(data) {
         // make a line "function"
         var lineGen = d3.line()
             .x(function(d) {
-                //console.log(x(d.ageGroup));
+                //console.log(d);
                 return x(d.ageGroup);
             })
             .y(function(d) {

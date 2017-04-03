@@ -92,7 +92,9 @@ function makeSlider(data) {
             data.filterFunction(function(d) {
                 return d.date >= x.invert(s[0]) && d.date <= x.invert(s[1]);
             });
-            makeMap(data.top(Infinity));
+            var newdat = data.top(Infinity);
+            makeMap(newdat);
+            d3.selectAll("#count").text(newdat.length);
             d3.select(".chart-label").text(formatDate(x.invert(s[0])) + " -- " + formatDate(x.invert([s[1]])));
             handle.attr("display", null).attr("transform", function(d, i) {
                 return "translate(" + [s[i], -height / 4] + ")";
