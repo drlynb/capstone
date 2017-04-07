@@ -37,8 +37,6 @@ function makeSlideBars2(data) {
         //console.log(d);
         var tempObj = {};
         tempObj["age"] = d.key;
-        tempObj["dead"] = -d.value.dead;
-        tempObj["living"] = d.value.living;
         tempObj["male"] = -d.value.male;
         tempObj["female"] = d.value.female;
         tempObj["total"] = d.value.total;
@@ -48,10 +46,10 @@ function makeSlideBars2(data) {
 
 
     var stack = d3.stack()
-        .keys(["dead", "living", "male", "female"])
+        .keys(["male", "female"])
         .offset(stackOffsetDiverging)
         (newData);
-    console.log(stack);
+    //console.log(stack);
 
     y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true);
 

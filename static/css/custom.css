@@ -77,15 +77,6 @@ text {
 
 /* stacked bar chart */
 
-/*.bar {
-  font: 10px sans-serif;
-  fill: steelblue;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
-}*/
-
 .bar:hover {
   fill: brown;
 }
@@ -108,4 +99,10 @@ text {
 .legend {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 60%;
+}
+
+
+/* stolen years */
+.line-stolen {
+  shape-rendering: crispEdges;
 }

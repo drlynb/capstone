@@ -30,8 +30,11 @@
  		var dateDim = ndx.dimension(function(d) {
  			return d["Datetime"];
  		});
- 		var sexDim = ndx.dimension(function(d) {
+ 		/*var sexDim = ndx.dimension(function(d) {
  			return d["Gender"];
+ 		});*/
+ 		var stolenDim = ndx.dimension(function(d) {
+ 			return d["Age"];
  		});
  		var ageDim = ndx.dimension(function(d) {
  			return d["Age"];
@@ -40,22 +43,16 @@
  			return d["City"];
  		});
 
- 		/*var deadDim = ndx.dimension(function(d) {
- 			return d["Dead"];
- 		});
- 		var suspectedSubstanceDim = ndx.dimension(function(d) {
- 			return d["SuspectedSubstance"]
- 		});*/
  		var mapDim = ndx.dimension(function(d) {
  			return {
  				date: d.dd,
  				lat: d["EventLat"],
  				lng: d["EventLng"]
  			};
- 		})
- 		var locDim = ndx.dimension(function(d) {
- 			return [d["EventLat"], d["EventLng"]];
  		});
+ 		/*var locDim = ndx.dimension(function(d) {
+ 			return [d["EventLat"], d["EventLng"]];
+ 		});*/
  		var allDim = ndx.dimension(function(d) {
  			return d;
  		});
@@ -63,50 +60,54 @@
 
  		//define groups
  		var numRecordsByDate = dateDim.group();
- 		var sexGroup = sexDim.group();
- 		var cityGroup = cityDim.group();
- 		var mapGroup = mapDim.group();
+ 		//var sexGroup = sexDim.group();
+ 		//var cityGroup = cityDim.group();
+ 		//var mapGroup = mapDim.group();
  		//var deadGroup = deadDim.group();
  		//var suspectedSubstanceGroup = suspectedSubstanceDim.group();
- 		var locGroup = locDim.group();
+ 		//var locGroup = locDim.group();
  		//...
  		var all = ndx.groupAll();
- 		
+
  		var ageGroup = ageDim.group().reduce(
- 			function(p,v){
+ 			function(p, v) {
  				++p.total;
- 				
- 				if(v.Gender == "M"){
+
+ 				if (v.Gender == "M") {
  					++p.male;
- 				}else{
+ 				}
+ 				else {
  					++p.female;
  				}
- 				if(v.Dead == true){
+ 				if (v.Dead == true) {
  					++p.dead;
- 				}else{
+ 				}
+ 				else {
  					++p.living;
  				}
- 				
+
  				return p;
  			},
- 			function(p,v){
+ 			function(p, v) {
  				--p.total;
- 				
- 				if(v.Gender == "M"){
+
+ 				if (v.Gender == "M") {
  					--p.male;
- 				}else{
+ 				}
+ 				else {
  					--p.female;
  				}
- 				if(v.Dead == true){
+ 				if (v.Dead == true) {
  					--p.dead;
- 				}else{
+ 				}
+ 				else {
  					--p.living;
  				}
- 				
+
  				return p;
- 				
+
  			},
- 			function(){
+ 			function() {
  				return {
  					total: 0,
  					male: 0,
@@ -146,9 +147,68 @@
  				};
  			});
 
- 		/*var eventGroup = deadDim.group().reduceSum(function(d) {
- 			return d.Dead
- 		})*/
+ 		function determineAge(agegroup, gender) {
+ 			switch (agegroup) {
+ 				case "<16":
+ 					return gender == 'M' ? 80 - 15 : 84 - 15;
+ 				case "16-25":
+ 					return gender == 'M' ? 80 - 20 : 84 - 20;
+ 				case "26-35":
+ 					return gender == 'M' ? 80 - 30 : 84 - 30;
+ 				case "36-45":
+ 					return gender == 'M' ? 80 - 40 : 84 - 40;
+ 				case "46-55":
+ 					return gender == 'M' ? 80 - 50 : 84 - 50;
+ 				case "56-65":
+ 					return gender == 'M' ? 80 - 60 : 84 - 60;
+ 				case "66-75":
+ 					return gender == 'M' ? 80 - 70 : 84 - 70;
+ 				case "76-85":
+ 					return gender == 'M' ? 80 - 80 : 84 - 80;
+ 				case "86+":
+ 					return 0;
+ 			}
+ 		}
+
+
+ 		var stolenGroup = stolenDim.group().reduce(
+ 			function(p, v) {
+ 				if (v.Dead == true) {
+ 					var years = determineAge(v.Age, v.Gender);
+
+ 					if (v.Gender == 'M') {
+ 						p.male += years;
+ 					}
+ 					else {
+ 						p.female += years;
+ 					}
+
+ 					p.total += years;
+ 				}
+ 				return p;
+ 			},
+ 			function(p, v) {
+ 				if (v.Dead == true) {
+ 					var years = determineAge(v.Age, v.Gender);
+
+ 					if (v.Gender == 'M') {
+ 						p.male += years;
+ 					}
+ 					else {
+ 						p.female += years;
+ 					}
+
+ 					p.total += years;
+ 				}
+ 				return p;
+ 			},
+ 			function() {
+ 				return {
+ 					female: 0,
+ 					male: 0,
+ 					total: 0
+ 				};
+ 			});
 
 
  		//define charts
@@ -159,6 +219,8 @@
  		makeLines(ageGroup.top(Infinity))
  			.dimension(ageDim)
  			.group(ageGroup);
+
+ 		makeStolenYears(stolenGroup.top(Infinity));
 
  		makeSlideBars2(ageGroup.top(Infinity))
  			.dimension(cityDim)
