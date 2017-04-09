@@ -69,7 +69,7 @@ function makeStolenYears(data) {
                 .style("left", xPosition + "px")
                 .style("top", yPosition + "px")
             //d3.select("#value")
-                .text("Age: "+d.key+"\n\nYears Stolen: "+d.value.total);
+                .html("Age: "+d.key+"<br>Years Stolen: "+d.value.total);
 
             //Show the tooltip
             d3.select("#tooltip").classed("hidden", false);
