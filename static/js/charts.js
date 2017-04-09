@@ -13,11 +13,12 @@
  		//d3.json("/geo", function(error2, cityJson){
  		//console.log(data[0].EventLat);
  		//datetime passed is a unix timestamp. convert to readable date
- 		var formatDate = d3.timeParse("%b %d %Y");
- 		var formatMonth = d3.timeParse("%b");
+ 		//var formatDate = d3.timeParse("%b %d %Y");
+ 		var formatMY = d3.timeFormat("%b %Y");
  		data.forEach(function(d) {
  			d.dd = new Date(d.Datetime);
- 			d.month = formatMonth(d.dd); // pre-calculate month for better performance
+ 			//d.my = formatMY(d.dd); // pre-calculate month for better performance
+ 			d.my = new Date(d.dd.getFullYear() +"-"+ (d.dd.getMonth()+1)+"-01")
  			d.location = {
  				lat: d.EventLat,
  				lng: d.EventLng
@@ -28,7 +29,7 @@
 
  		//define dimensions
  		var dateDim = ndx.dimension(function(d) {
- 			return d["Datetime"];
+ 			return d.my;
  		});
  		/*var sexDim = ndx.dimension(function(d) {
  			return d["Gender"];
@@ -37,7 +38,7 @@
  			return d["Age"];
  		});
  		var ageDim = ndx.dimension(function(d) {
- 			return d["Age"];
+ 			return d["Agegroup"];
  		});
  		var cityDim = ndx.dimension(function(d) {
  			return d["City"];
@@ -45,7 +46,7 @@
 
  		var mapDim = ndx.dimension(function(d) {
  			return {
- 				date: d.dd,
+ 				date: d.my,
  				lat: d["EventLat"],
  				lng: d["EventLng"]
  			};
@@ -118,7 +119,7 @@
  			}
  		);
 
- 		var cityDeadGroup = cityDim.group().reduce(
+ 		/*var cityDeadGroup = cityDim.group().reduce(
  			function(p, v) {
  				if (v.Dead == true) {
  					++p.fatalities;
@@ -145,9 +146,9 @@
  					living: 0,
  					total: 0
  				};
- 			});
+ 			});*/
 
- 		function determineAge(agegroup, gender) {
+ 		/*function determineAge(agegroup, gender) {
  			switch (agegroup) {
  				case "<16":
  					return gender == 'M' ? 80 - 15 : 84 - 15;
@@ -168,37 +169,39 @@
  				case "86+":
  					return 0;
  			}
- 		}
+ 		}*/
 
 
  		var stolenGroup = stolenDim.group().reduce(
  			function(p, v) {
  				if (v.Dead == true) {
- 					var years = determineAge(v.Age, v.Gender);
-
+ 					if(v.Age > 80){
+ 							return p;
+ 						}
  					if (v.Gender == 'M') {
- 						p.male += years;
+ 						p.male += 80 - v.Age;
+ 						p.total += 80 - v.Age;
  					}
  					else {
- 						p.female += years;
+ 						p.female += 84 - v.Age;
+ 						p.total += 84 - v.Age;
  					}
-
- 					p.total += years;
  				}
  				return p;
  			},
  			function(p, v) {
+ 				if(v.Age > 80){
+ 							return p;
+ 						}
  				if (v.Dead == true) {
- 					var years = determineAge(v.Age, v.Gender);
-
  					if (v.Gender == 'M') {
- 						p.male += years;
+ 						p.male -= 80 - v.Age;
+ 						p.total -= 80 - v.Age;
  					}
  					else {
- 						p.female += years;
+ 						p.female -= 84 - v.Age;
+ 						p.total -= 84 - v.Age;
  					}
-
- 					p.total += years;
  				}
  				return p;
  			},
@@ -214,30 +217,39 @@
  		//define charts
 
  		var eventcount = d3.selectAll("#count").text(all.reduceCount().value());
+ 		var citycount = d3.selectAll("#cities").text("All Areas");
 
  		//console.log(ageGroup.top(Infinity));
- 		makeLines(ageGroup.top(Infinity))
+ 		/*makeLines(ageGroup.top(Infinity))
  			.dimension(ageDim)
- 			.group(ageGroup);
+ 			.group(ageGroup);*/
 
- 		makeStolenYears(stolenGroup.top(Infinity));
+ 		//makeStolenYears(stolenGroup.top(Infinity));
+ 		
+ 		// colour takes 1 array as domain (keys) 1 array as values (colours)
+ 		makeStolenYears(stolenGroup.all());
 
  		makeSlideBars2(ageGroup.top(Infinity))
- 			.dimension(cityDim)
- 			.group(cityDeadGroup);
+ 			.dimension(cityDim);
+ 			//.group(cityDeadGroup);
 
 
  		//console.log(cityGroup.top(Infinity));
- 		makeSlideBars(cityDeadGroup.top(Infinity))
- 			.dimension(cityDim)
- 			.group(cityDeadGroup);
+ 		//makeSlideBars(cityDeadGroup.top(Infinity))
+ 		makeSlideBars(cityDim)
+ 			.dimension(cityDim);
+ 			//.group(cityDeadGroup);
 
- 		var mymap = makeMap(mapDim.top(Infinity))
- 			.dimension(mapDim);
+ 		var mymap = makeMap(dateDim.top(Infinity))
+ 			.dimension(dateDim);
 
- 		makeSlider(mapDim)
+ 		/*makeSlider(mapDim)
  			.dimension(dateDim)
- 			.group(numRecordsByDate)
+ 			.group(numRecordsByDate)*/
+ 			
+ 		makeBrushLines(dateDim)
+ 			.dimension(dateDim)
+ 			.group(numRecordsByDate);
 
 
  		//console.log(mymap.dimension.filter());

@@ -11,7 +11,7 @@ function makeStolenYears(data) {
         width = +svg.attr("width") - margin.left - margin.right,
         height = +svg.attr("height") - margin.top - margin.bottom;
 
-    var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+    var x = d3.scaleLinear().rangeRound([0, width]),
         y = d3.scaleLinear().rangeRound([height, 0]),
         colour = d3.scaleOrdinal(d3.schemeCategory20);
     var g = svg.append("g")
@@ -19,17 +19,7 @@ function makeStolenYears(data) {
 
     //console.log(data);//full record data
 
-    x.domain(["<16",
-        "16-25",
-        "26-35",
-        "36-45",
-        "46-55",
-        "56-65",
-        "66-75",
-        "76-85",
-        "86+"
-    ]);
-
+    x.domain(d3.extent(data, function(d) {return d.key;}));
     y.domain([0, d3.max(data, function(d) {
         return d.value.total;
     })]);
@@ -56,16 +46,18 @@ function makeStolenYears(data) {
     });*/
     g.append("path")
         .attr("d", lineGen(data))
-        .attr("class", "line-stolen")
+        .attr("class", "line stolen-line")
         .attr('stroke', "black")
         .attr('stroke-width', 2)
-        .attr("fill", "grey");
+        .attr("fill", "none");
 
     // append axes
     g.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x));
+        
+        
     svg.append("text")
         .attr("transform",
             "translate(" + (width / 2) + " ," +
@@ -84,10 +76,21 @@ function makeStolenYears(data) {
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Stolen Years");
+        
+    var area = d3.area()
+        .x(function(d){ return d.key;})
+        .y1(function(d) { return d.value.total;})
+        .y0(y(0));
+        
+        
+    g.append("path")
+        .attr("class", "area stolen-area")
+        .attr("d", area(data))
+        .attr("fill", "grey");
 
     // add legend
     // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-    var legendRectSize = 18;
+    /*var legendRectSize = 18;
     var legendSpacing = 4;
     var legend = svg.selectAll(".legend")
         .data(colour.domain())
@@ -112,7 +115,7 @@ function makeStolenYears(data) {
         .attr('y', legendRectSize - legendSpacing)
         .text(function(d) {
             return d.toUpperCase();
-        });
+        });*/
 
     // crossfilter stuff
     makeStolenYears.dimension = function(_) {

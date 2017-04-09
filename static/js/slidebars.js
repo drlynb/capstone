@@ -2,7 +2,39 @@
 // https://bl.ocks.org/mbostock/3885304
 // https://stackoverflow.com/questions/42173318/d3v4-stacked-barchart-tooltip
 function makeSlideBars(data) {
+    var facts = data.top(Infinity);
+    var cityDeadGroup = data.group().reduce(
+ 			function(p, v) {
+ 				if (v.Dead == true) {
+ 					++p.fatalities;
+ 				}
+ 				else {
+ 					++p.living;
+ 				}
+ 				++p.total;
+ 				return p;
+ 			},
+ 			function(p, v) {
+ 				if (v.Dead == true) {
+ 					--p.fatalities;
+ 				}
+ 				else {
+ 					--p.living;
+ 				}
+ 				--p.total;
+ 				return p;
+ 			},
+ 			function() {
+ 				return {
+ 					fatalities: 0,
+ 					living: 0,
+ 					total: 0
+ 				};
+ 			});
 
+    
+    
+    
     var margin = {
             top: 20,
             right: 20,
@@ -21,7 +53,7 @@ function makeSlideBars(data) {
 
     var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
         y = d3.scaleLinear().rangeRound([height - margin.bottom, margin.top]),
-        z = d3.scaleOrdinal(d3.schemeCategory20); //colour
+        colour = d3.scaleOrdinal(d3.schemeCategory20); //colour
 
     var xAxis = d3.axisBottom().scale(x);
 
@@ -33,7 +65,7 @@ function makeSlideBars(data) {
     // https://stackoverflow.com/questions/42039506/d3-stack-vs-nested-objects
     var newData = [];
 
-    data.forEach(function(d) {
+    cityDeadGroup.all().forEach(function(d) {
         //console.log(d);
         var tempObj = {};
         tempObj["cities"] = d.key;
@@ -49,13 +81,13 @@ function makeSlideBars(data) {
         .keys(["fatalities", "living"])
         .offset(stackOffsetDiverging)
         (newData);
-        
+
     y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true);
-    
+
     x.domain(newData.map(function(d) {
         return d.cities;
     }));
-    
+
     function stackMin(serie) {
         return d3.min(serie, function(d) {
             return d[0];
@@ -73,7 +105,7 @@ function makeSlideBars(data) {
         .enter().append("g")
         .attr("class", "serie")
         .attr("fill", function(d) {
-            return z(d.key);
+            return colour(d.key);
         });
 
     var rects = serie.selectAll("rect")
@@ -81,7 +113,11 @@ function makeSlideBars(data) {
             return d;
         })
         .enter().append("rect")
-        .attr("class", "bar");
+        .attr("class", "bar city");
+    
+    //list of seleted cities
+    var selected = []; 
+
 
     rects.attr("x", function(d) {
             //console.log(d);
@@ -94,27 +130,32 @@ function makeSlideBars(data) {
             return y(d[0]) - y(d[1]);
         })
         .attr("width", x.bandwidth())
-        .on("click", function(d, i){ // shift clicked bar to x axis
+        .on("click", function(d, i) { // shift clicked bar to x axis
             //console.log(d);
-            var bigbar = d3.selectAll(".bar");
-            if(d[0] == 0){// d[0] == 0 for top bars
-                console.log(this);
-                bigbar.each(function(d,i){
-                    var mybar = d3.select(this);
-                    mybar.attr("transform", "translate(0," + d[1] + ")");
-                });
-                bigbar.attr("transform", "translate(0," + -d[1] + ")");
-            }
-            else{
-                console.log(this);
-                bigbar.attr("transform", "translate(0,"+ d[0] + ")");
-                bigbar.each(function(d,i){
-                    var mybar = d3.select(this);
-                    mybar.attr("transform", "translate(0," + d[0] + ")");
-                });
-                
-            }
+            //add/remove city from list
+            var temp = selected.indexOf(d.data.cities);
+            if(temp == -1){ selected.push(d.data.cities);}
+            else {selected.splice(temp, 1)} //remove city from list
             
+            
+            var bars = d3.selectAll(".city").each(function(d){
+                //console.log(d);
+                if(selected.indexOf(d.data.cities) >-1){
+                    d3.select(this).attr("fill", "brown");
+                }
+                else{
+                    d3.select(this).attr("fill", "grey");
+                }
+            });
+
+            //data.filter(d.data.cities);
+            data.filterFunction(function(d){
+                //console.log(d);
+                return selected.indexOf(d)>-1;
+            });
+            makeMap(data.top(Infinity));
+            d3.selectAll("#count").text(data.top(Infinity).length);
+            d3.selectAll("#cities").text(selected);
         });
 
     //midline
@@ -122,7 +163,7 @@ function makeSlideBars(data) {
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + y(0) + ")")
         .call(xAxis);
-    
+
     //axes
     svg.append("g")
         .attr("class", "axis axis--x")

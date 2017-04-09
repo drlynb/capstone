@@ -11,17 +11,15 @@ function makeMap(data) {
   // Create the Google Map…
   var map = new google.maps.Map(d3.select("#map").node(), {
     zoom: 10,
-    center: new google.maps.LatLng(49.159, -122.979),
+    center: new google.maps.LatLng(49.160, -122.662),
     mapTypeId: google.maps.MapTypeId.TERRAIN
   });
-
   // https://stackoverflow.com/questions/6795414/creating-a-selectable-clickable-overlay-on-google-maps
-  var areadata = [
-    {
-      "name": "Surrey",
-      "coords": []
-    }];
-    var areas= [];
+  var areadata = [{
+    "name": "Surrey",
+    "coords": []
+  }];
+  var areas = [];
 
   // Add some markers to the map.
   // Note: The code uses the JavaScript Array.prototype.map() method to

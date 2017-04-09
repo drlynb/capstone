@@ -82,7 +82,7 @@ def choose(mylist):
     return str(random.choice(mylist))+ ','
     
 def titles():
-    return 'id,' + 'Gender,' + 'Age,' + 'Homeless,' + 'City,' + 'EventLat,' + 'EventLng,' + 'Building,' + \
+    return 'id,' + 'Gender,' + 'Agegroup,'+ 'Age,' + 'Homeless,' + 'City,' + 'EventLat,' + 'EventLng,' + 'Building,' + \
             'SuspectedSubstance,' + 'FirstEvent,' + 'Dead,' + 'DeathLat,' + 'DeathLng,' + 'ConfirmedSubstance,' + \
             'ReceivedNaloxone,' + 'Datetime'
 
@@ -94,7 +94,8 @@ with open(output, 'w') as out:
 	for i in range(5000):
 		row += str(uuid.uuid4())+','						#id
 		row += choose(gender)								#Gender
-		row += choose(ages)									#age
+		row += choose(ages)									#agegroup
+		row += str(random.randint(16,86)) +','              #age
 		row += choose(homeless)								#homeless
 		row += choose(city)									#city
 		row += str(random.uniform(lats[1], lats[0]))+','			#EventLat
