@@ -25,7 +25,9 @@ function makeSlideBars2(data) {
 
     var xAxis = d3.axisBottom().scale(x);
 
-    var yAxis = d3.axisLeft().scale(y).ticks(10, "d");
+    var yAxis = d3.axisLeft().scale(y)
+        .ticks(10, "d")
+        .tickFormat(Math.abs);
 
     var ages = [];
 
@@ -53,9 +55,19 @@ function makeSlideBars2(data) {
 
     y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true);
 
-    x.domain(newData.map(function(d) {
+    /*x.domain(newData.map(function(d) {
         return d.age;
-    }));
+    }));*/
+    x.domain(["<16",
+        "16-25",
+        "26-35",
+        "36-45",
+        "46-55",
+        "56-65",
+        "66-75",
+        "76-85",
+        "86+"
+    ]);
 
     function stackMin(serie) {
         return d3.min(serie, function(d) {
@@ -131,8 +143,8 @@ function makeSlideBars2(data) {
         .attr('transform', function(d, i) {
             var height = legendRectSize + legendSpacing;
             var offset = height * colour.domain().length / 2;
-            var horz = 2* legendRectSize;
-            var vert = i*height + offset;
+            var horz = 2 * legendRectSize;
+            var vert = i * height + offset;
             return 'translate(' + (margin.width - 85) + ',' + (vert) + ')';
         });
 

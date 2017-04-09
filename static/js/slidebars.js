@@ -4,40 +4,37 @@
 function makeSlideBars(data) {
     var facts = data.top(Infinity);
     var cityDeadGroup = data.group().reduce(
- 			function(p, v) {
- 				if (v.Dead == true) {
- 					++p.fatalities;
- 				}
- 				else {
- 					++p.living;
- 				}
- 				++p.total;
- 				return p;
- 			},
- 			function(p, v) {
- 				if (v.Dead == true) {
- 					--p.fatalities;
- 				}
- 				else {
- 					--p.living;
- 				}
- 				--p.total;
- 				return p;
- 			},
- 			function() {
- 				return {
- 					fatalities: 0,
- 					living: 0,
- 					total: 0
- 				};
- 			});
+        function(p, v) {
+            if (v.Dead == true) {
+                ++p.deaths;
+            }
+            else {
+                ++p.living;
+            }
+            ++p.total;
+            return p;
+        },
+        function(p, v) {
+            if (v.Dead == true) {
+                --p.deaths;
+            }
+            else {
+                --p.living;
+            }
+            --p.total;
+            return p;
+        },
+        function() {
+            return {
+                deaths: 0,
+                living: 0,
+                total: 0
+            };
+        });
 
-    
-    
-    
     var margin = {
             top: 20,
-            right: 20,
+            right: 40,
             bottom: 30,
             left: 40,
             height: 300,
@@ -57,7 +54,9 @@ function makeSlideBars(data) {
 
     var xAxis = d3.axisBottom().scale(x);
 
-    var yAxis = d3.axisLeft().scale(y).ticks(10, "d");
+    var yAxis = d3.axisLeft().scale(y)
+        .ticks(10, "d")
+        .tickFormat(Math.abs);
 
     var cities = [];
 
@@ -69,8 +68,8 @@ function makeSlideBars(data) {
         //console.log(d);
         var tempObj = {};
         tempObj["cities"] = d.key;
-        tempObj["fatalities"] = -d.value.fatalities;
-        tempObj["living"] = d.value.living;
+        tempObj["deaths"] = d.value.deaths;
+        tempObj["living"] = -d.value.living;
         tempObj["total"] = d.value.total;
         newData.push(tempObj);
         cities.push(d.key);
@@ -78,7 +77,7 @@ function makeSlideBars(data) {
 
 
     var stack = d3.stack()
-        .keys(["fatalities", "living"])
+        .keys(["deaths", "living"])
         .offset(stackOffsetDiverging)
         (newData);
 
@@ -114,9 +113,9 @@ function makeSlideBars(data) {
         })
         .enter().append("rect")
         .attr("class", "bar city");
-    
+
     //list of seleted cities
-    var selected = []; 
+    var selected = [];
 
 
     rects.attr("x", function(d) {
@@ -134,26 +133,31 @@ function makeSlideBars(data) {
             //console.log(d);
             //add/remove city from list
             var temp = selected.indexOf(d.data.cities);
-            if(temp == -1){ selected.push(d.data.cities);}
-            else {selected.splice(temp, 1)} //remove city from list
-            
-            
-            var bars = d3.selectAll(".city").each(function(d){
+            if (temp == -1) {
+                selected.push(d.data.cities);
+            }
+            else {
+                selected.splice(temp, 1)
+            } //remove city from list
+
+
+            var bars = d3.selectAll(".city").each(function(d) {
                 //console.log(d);
-                if(selected.indexOf(d.data.cities) >-1){
+                if (selected.indexOf(d.data.cities) > -1) {
                     d3.select(this).attr("fill", "brown");
                 }
-                else{
+                else {
                     d3.select(this).attr("fill", "grey");
                 }
             });
 
             //data.filter(d.data.cities);
-            data.filterFunction(function(d){
+            data.filterFunction(function(d) {
                 //console.log(d);
-                return selected.indexOf(d)>-1;
+                return selected.indexOf(d) > -1;
             });
             makeMap(data.top(Infinity));
+            //makeBrushLines(data);
             d3.selectAll("#count").text(data.top(Infinity).length);
             d3.selectAll("#cities").text(selected);
         });
@@ -173,6 +177,36 @@ function makeSlideBars(data) {
     svg.append("g")
         .attr("class", "axis axis--y")
         .call(yAxis);
+
+
+    // add legend
+    // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
+    var legendRectSize = 18;
+    var legendSpacing = 4;
+    var legend = svg.selectAll(".legend")
+        .data(colour.domain())
+        .enter().append('g')
+        .attr("class", "legend")
+        .attr('transform', function(d, i) {
+            var height = legendRectSize + legendSpacing;
+            var offset = height * colour.domain().length / 2;
+            var horz = 2 * legendRectSize;
+            var vert = i * height + offset;
+            return 'translate(' + (margin.width - 95) + ',' + (vert) + ')';
+        });
+
+    legend.append('rect')
+        .attr('width', legendRectSize)
+        .attr('height', legendRectSize)
+        .style('fill', colour)
+        .style('stroke', colour);
+
+    legend.append('text')
+        .attr('x', legendRectSize + legendSpacing)
+        .attr('y', legendRectSize - legendSpacing)
+        .text(function(d) {
+            return d.toUpperCase();
+        });
 
     function stackOffsetDiverging(series, order) {
         if (!((n = series.length) > 1)) return;
