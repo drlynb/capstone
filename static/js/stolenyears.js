@@ -47,6 +47,7 @@ function makeStolenYears(data) {
             return d.key;
         })
         .enter().append("rect")
+        .attr("clip-path", "url(#stolen-area)") // clip the rectangle
         .attr("class", "bar bar-stolen")
         .attr("x", function(d) {
             return x(d.key);
@@ -131,6 +132,7 @@ function makeStolenYears(data) {
     g.append("path")
         .datum(data)
         .attr("class", "area stolen-area")
+        .attr("id", "stolen-area")
         .attr("d", area)
         .attr("fill", "lightgrey");
 

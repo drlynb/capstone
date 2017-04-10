@@ -116,10 +116,10 @@ text {
 
 .bar-stolen{
   opacity: 0;
-  fill: "grey";
 }
 .bar-stolen:hover{
   opacity: 1;
+  fill: grey;
 }
 
 #tooltip {
