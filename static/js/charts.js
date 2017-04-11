@@ -157,7 +157,7 @@
  		// living - GoldenRod
  		// dead - SaddleBrown
  		// male - DarkKhaki
- 		// female - AntiqueWhite
+ 		// female - OrangeRed
  		// overdose - DarkOrange
  		// motor - FireBrick 
 
@@ -197,5 +197,5 @@
  		}
 
  	});
- };
+ }
  

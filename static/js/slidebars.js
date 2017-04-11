@@ -82,7 +82,7 @@ function makeSlideBars(data) {
         .offset(stackOffsetDiverging)
         (newData);
 
-    y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true);
+    y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
 
     x.domain(newData.map(function(d) {
         return d.cities;

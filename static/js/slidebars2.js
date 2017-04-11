@@ -22,7 +22,7 @@ function makeSlideBars2(data) {
     var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
         y = d3.scaleLinear().rangeRound([height - margin.bottom, margin.top]),
         //colour = d3.scaleOrdinal(d3.schemeCategory20);
-        colour = d3.scaleOrdinal(["DarkKhaki","OrangeRed"]);
+        colour = d3.scaleOrdinal(["DarkKhaki","MediumOrchid"]);
 
     var xAxis = d3.axisBottom().scale(x);
 
@@ -54,7 +54,7 @@ function makeSlideBars2(data) {
         (newData);
     //console.log(stack);
 
-    y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true);
+    y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
 
     /*x.domain(newData.map(function(d) {
         return d.age;

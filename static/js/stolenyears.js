@@ -28,7 +28,7 @@ function makeStolenYears(data) {
     }));
     y.domain([0, d3.max(data, function(d) {
         return d.value.total;
-    })]);
+    })]).nice();
 
     // make a line "function"
     var lineGen = d3.line()

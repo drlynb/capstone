@@ -27,7 +27,7 @@ function makeBrushLines(data) {
         .clamp(true),
         y = d3.scaleLinear().rangeRound([height, 0]),
         //colour = d3.scaleOrdinal(d3.schemeCategory20);
-        colour = d3.scaleOrdinal(["DarkOrange","FireBrick"]);
+        colour = d3.scaleOrdinal(["DarkOrange","Green"]);
 
 
 
@@ -161,7 +161,7 @@ function makeBrushLines(data) {
         y.domain([0, d3.max(motorGroup.top(Infinity), function(d) {
             //console.log(d);
             return d.value;
-        })]);
+        })]).nice();
 
         // make a line "function"
         var lineGen = d3.line()
@@ -254,6 +254,7 @@ function makeBrushLines(data) {
                 //console.log(d);
                 return d >= x.invert(s[0]) && d <= x.invert(s[1]);
             });
+            
             makeMap(data.top(Infinity));
             d3.selectAll("#count").text(data.top(Infinity).length);
             d3.select(".chart-label").text(formatDate(x.invert(s[0])) + " -- " + formatDate(x.invert([s[1]])));
@@ -290,7 +291,5 @@ function makeBrushLines(data) {
         group = _;
         return makeBrushLines;
     };
-
     return makeBrushLines;
-
 }
