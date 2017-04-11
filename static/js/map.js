@@ -27,36 +27,47 @@ function makeMap(data) {
   // The map() method here has nothing to do with the Google Maps API.
 
   var markers = []
-  data.forEach(function(d) {
+  data.forEach(function(d, i) {
     //console.log(d.location);
     markers.push(new google.maps.Marker({
-      position: d.location
+      position: d.location,
+      optimized: false,
+      icon: 'https://www.google.com/mapfiles/marker.png?i=' + (i)
     }));
   });
+  
+  /*markers.forEach(function(m){
+    
+    google.maps.event.addListener(m, 'mouseover', function() {
+    $('img[src="' + this.icon + '"]').stop().animate({
+      opacity: 0
+    });
+  });
+  
+    google.maps.event.addListener(m, 'mouseout', function() {
+    $('img[src="' + this.icon + '"]').stop().animate({
+      opacity: .5
+    });
+  });
+    
+  });*/
 
   // Add a marker clusterer to manage the markers.
   var markerCluster = new MarkerClusterer(map, markers, {
     imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
   });
 
+  markerCluster.addListener("mouseover", function(c){
+      console.log(c);
+  });
 
+  ////////////////////////////////////////////////////
+  /////// use the markers like d3 elements?
+  /////// https://stackoverflow.com/questions/22047466/how-to-add-css-class-to-a-googlemaps-marker
+  /////////////////////////////////////////////////
 
 
   // crossfilter stuff
-  /*
-    //filter dimension if set and update the brush range or reset filter on the dimension
-    makeMap.filter = function(value) {
-      if (value) {
-        brush.extent(value);
-        dimension.filterRange(value);
-      }
-      else {
-        brush.clear();
-        dimension.filterAll();
-      }
-      brushDirty = true;
-      return makeMap;
-    };*/
   makeMap.dimension = function(_) {
     if (!arguments.length) return dimension;
     dimension = _;

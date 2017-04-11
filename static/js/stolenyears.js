@@ -60,7 +60,7 @@ function makeStolenYears(data) {
             return height - y(d.value.total);
         })
         .on("mouseover", function(d) {
-            console.log(d);
+            //console.log(d);
             //Get this bar's x/y values, then augment for the tooltip
             var xPosition = parseFloat(d3.select(this).attr("x")) + x.bandwidth() / 2;
             var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + height / 2;
@@ -95,7 +95,7 @@ function makeStolenYears(data) {
     g.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x).tickValues([16,26,36,46,56,66,76,86]));
 
     //append text and axes
     svg.append("text")

@@ -152,6 +152,14 @@
 
 
  		//define charts
+ 		//colours:
+ 		// stolen years - grey
+ 		// living - GoldenRod
+ 		// dead - SaddleBrown
+ 		// male - DarkKhaki
+ 		// female - AntiqueWhite
+ 		// overdose - DarkOrange
+ 		// motor - FireBrick 
 
  		var eventcount = d3.selectAll("#count").text(all.reduceCount().value());
  		var citycount = d3.selectAll("#cities").text("All Areas");

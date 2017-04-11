@@ -26,7 +26,8 @@ function makeBrushLines(data) {
         .rangeRound([0, width])
         .clamp(true),
         y = d3.scaleLinear().rangeRound([height, 0]),
-        colour = d3.scaleOrdinal(d3.schemeCategory20);
+        //colour = d3.scaleOrdinal(d3.schemeCategory20);
+        colour = d3.scaleOrdinal(["DarkOrange","FireBrick"]);
 
 
 
@@ -219,7 +220,7 @@ function makeBrushLines(data) {
                 var offset = height * colour.domain().length / 2;
                 var horz = 2 * legendRectSize;
                 var vert = i * height + offset;
-                return 'translate(' + (horz + width / 2) + ',' + (vert - 4) + ')';
+                return 'translate(' + (width) + ',' + (vert - 4) + ')';
             });
 
         legend.append('rect')

@@ -1,6 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="row">
+   <div class="col-md-12"><p>In April 2016, the province of British Columbia declared overdoses a public health emergency.
+   The rates of overdoses in B.C. and in Fraser Health are dramatically on the rise to levels never seen before.
+   The B.C. Coroners Service reported that there were 922 illicit drug overdose deaths from January to December 2016 in the province.
+   Overdoses are occurring in all sectors of our communities, at all ages across all social statuses.
+   Overdose is complicated, it is impacted by general health, environmental conditions, the substance taken and what else is
+   also taken at the same time.
+   <br/>
+   The data used here is randomly generated but based off of numbers found on the BC Coroners Report.
+   </p>
+   <p>Stolen Years refers to the years of life stolen by the overdose crisis.</p></div>
+</div>
+<div class="row">
   <div class="col-md-12"><div id="stolen-years">Stolen Years</div>
   <div id="tooltip" class="hidden">
         <p id="value"></p>
@@ -19,6 +31,12 @@
 </div>
 <div class="row">
    <div class="col-md-12"><div id="map">Map</div></div>
+</div>
+
+<div class="row">
+   <div class="col-md-12">
+     Contact us
+   </div>
 </div>
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/barbrush.js') }}"></script>

@@ -27,11 +27,12 @@ homeless = TF                       #
 
 
 #Place data
-city = ['Anmore', 'Delta', 'Abbotsford', 'Belcarra', 'Langley', 'Agassiz', 'Burnaby', 'Surrey',
-       'Chilliwack', 'Coquitlam', 'White Rock', 'Harrison Hot Springs', 'New Westminster',
-       'Hope', 'Maple Ridge', 'District of Kent', 'Pitt Meadows', 'Mission', 'Port Coquitlam',
-       'Boston Bar', 'Port Moody']
-#city = ['Vancouver']
+#city = ['Anmore', 'Delta', 'Abbotsford', 'Belcarra', 'Langley', 'Agassiz', 'Burnaby', 'Surrey',
+#       'Chilliwack', 'Coquitlam', 'White Rock', 'Harrison Hot Springs', 'New Westminster',
+#       'Hope', 'Maple Ridge', 'District of Kent', 'Pitt Meadows', 'Mission', 'Port Coquitlam',
+#       'Boston Bar', 'Port Moody']
+city = ['Burnaby', 'Coquitlam', 'South Surrey/White Rock', 'Surrey', 'New Westminster', 'Delta',
+        'Maple Ridge', 'Chilliwack', 'Langley', 'Abbotsford', 'Mission', 'Hope', 'Agassiz-Harrison']
 
 #Vancouver is ([49.3, 49.2] , [-123.2, -123.0])
 #lat = []

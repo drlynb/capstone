@@ -21,7 +21,8 @@ function makeSlideBars2(data) {
 
     var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
         y = d3.scaleLinear().rangeRound([height - margin.bottom, margin.top]),
-        colour = d3.scaleOrdinal(d3.schemeCategory20);
+        //colour = d3.scaleOrdinal(d3.schemeCategory20);
+        colour = d3.scaleOrdinal(["DarkKhaki","OrangeRed"]);
 
     var xAxis = d3.axisBottom().scale(x);
 
@@ -107,8 +108,8 @@ function makeSlideBars2(data) {
         .attr("height", function(d) {
             return y(d[0]) - y(d[1]);
         })
-        .attr("width", x.bandwidth())
-        .on("click", function(d, i) { // shift clicked bar to x axis
+        .attr("width", x.bandwidth());
+        /*.on("click", function(d, i) { // shift clicked bar to x axis
             //console.log(d);
             var bigbar = d3.selectAll(".bar");
             if (d[0] == 0) { // d[0] == 0 for top bars
@@ -129,7 +130,7 @@ function makeSlideBars2(data) {
 
             }
 
-        });
+        });*/
 
 
     // add legend
