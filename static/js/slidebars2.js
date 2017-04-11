@@ -22,7 +22,7 @@ function makeSlideBars2(data) {
     var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
         y = d3.scaleLinear().rangeRound([height - margin.bottom, margin.top]),
         //colour = d3.scaleOrdinal(d3.schemeCategory20);
-        colour = d3.scaleOrdinal(["DarkKhaki","MediumOrchid"]);
+        colour = d3.scaleOrdinal(["DarkKhaki","Teal"]);
 
     var xAxis = d3.axisBottom().scale(x);
 
