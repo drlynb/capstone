@@ -70,7 +70,7 @@ function makeStolenYears(data) {
                 .style("left", xPosition + "px")
                 .style("top", yPosition + "px")
             //d3.select("#value")
-                .html("Age: "+d.key+"<br>Years Stolen: "+d.value.total);
+                .html("Age: "+d.key+"<br>Years Lost: "+d.value.total);
 
             //Show the tooltip
             d3.select("#tooltip").classed("hidden", false);
@@ -115,7 +115,7 @@ function makeStolenYears(data) {
         .attr("x", 0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Stolen Years");
+        .text("Lost Years");
 
     //append area
     var area = d3.area()

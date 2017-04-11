@@ -157,9 +157,9 @@
  		// living - GoldenRod
  		// dead - SaddleBrown
  		// male - DarkKhaki
- 		// female - OrangeRed
+ 		// female - Teal
  		// overdose - DarkOrange
- 		// motor - FireBrick 
+ 		// motor - Green 
 
  		var eventcount = d3.selectAll("#count").text(all.reduceCount().value());
  		var citycount = d3.selectAll("#cities").text("All Areas");

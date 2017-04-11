@@ -9,7 +9,7 @@ function makeSlideBars(data) {
                 ++p.deaths;
             }
             else {
-                ++p.living;
+                ++p.events;
             }
             ++p.total;
             return p;
@@ -19,7 +19,7 @@ function makeSlideBars(data) {
                 --p.deaths;
             }
             else {
-                --p.living;
+                --p.events;
             }
             --p.total;
             return p;
@@ -27,7 +27,7 @@ function makeSlideBars(data) {
         function() {
             return {
                 deaths: 0,
-                living: 0,
+                events: 0,
                 total: 0
             };
         });
@@ -70,7 +70,7 @@ function makeSlideBars(data) {
         var tempObj = {};
         tempObj["cities"] = d.key;
         tempObj["deaths"] = d.value.deaths;
-        tempObj["living"] = -d.value.living;
+        tempObj["events"] = -d.value.events;
         tempObj["total"] = d.value.total;
         newData.push(tempObj);
         cities.push(d.key);
@@ -78,7 +78,7 @@ function makeSlideBars(data) {
 
 
     var stack = d3.stack()
-        .keys(["deaths", "living"])
+        .keys(["deaths", "events"])
         .offset(stackOffsetDiverging)
         (newData);
 
