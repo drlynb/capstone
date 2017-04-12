@@ -106,7 +106,6 @@ with open(output, 'w') as out:
 		row += choose(firstevent)							#FirstEvent
 		temp = choose(dead)
 		row += str(temp)									#Dead
-		#TODO: Fix- if is always true
 		if 'True' in temp:							#if they're dead
 			row += str(random.uniform(lats[1], lats[0]))+','		#DeathLat
 			row += str(random.uniform(longs[1], longs[0]))+','	#DeathLng
