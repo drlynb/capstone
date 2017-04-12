@@ -96,7 +96,7 @@ with open(output, 'w') as out:
 		row += str(uuid.uuid4())+','						#id
 		row += choose(gender)								#Gender
 		row += choose(ages)									#agegroup
-		row += str(random.randint(16,86)) +','              #age
+		row += str(random.randint(16,100)) +','              #age
 		row += choose(homeless)								#homeless
 		row += choose(city)									#city
 		row += str(random.uniform(lats[1], lats[0]))+','			#EventLat

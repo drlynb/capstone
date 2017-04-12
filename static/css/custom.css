@@ -103,21 +103,16 @@ text {
 }
 
 
-/* stolen years */
-.stolen-line {
-  shape-rendering: crispEdges;
-  visibility: hidden;
-}
-
-.stolen-area{
+/* lost years */
+.area{
   opacity: 0.5;
   pointer-events: none;
 }
 
-.bar-stolen{
+.bar-lost{
   opacity: 0;
 }
-.bar-stolen:hover{
+.bar-lost:hover{
   opacity: 1;
   fill: grey;
 }

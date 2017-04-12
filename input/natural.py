@@ -12,11 +12,11 @@ def choose(mylist):
     return str(random.choice(mylist))+ ','
     
 def titles():
-    return 'Gender,' + 'Agegroup,'+ 'Age,'
+    return 'Gender,' + 'Age,' 'Agegroup'
     
 def randage(age):
     if age == '<16':
-        return str(random.randint(1,16)) +','
+        return str(random.randint(16,17)) +','
     elif age == '16-25':
         return str(random.randint(16,25)) +','
     elif age == '26-35':
@@ -41,7 +41,7 @@ with open(output, 'w') as out:
     row = ''
     for a in ages:
         row += choose(gender)
-        row += a+','
         row += randage(a)
+        row += a
         row += '\n'
     out.write(row)
