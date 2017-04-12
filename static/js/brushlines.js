@@ -27,7 +27,7 @@ function makeBrushLines(data) {
         .clamp(true),
         y = d3.scaleLinear().rangeRound([height, 0]),
         //colour = d3.scaleOrdinal(d3.schemeCategory20);
-        colour = d3.scaleOrdinal(["DarkOrange","Green"]);
+        colour = d3.scaleOrdinal(["DarkOrange","#E85451"]);
 
 
 
