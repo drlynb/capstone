@@ -5,6 +5,7 @@
  queue()
  	.defer(d3.json, "/data")
  	.defer(d3.json, "/motor")
+ 	.defer(d3.json, "/natural")
  	.await(makeGraphs);
 
  function makeGraphs(error, data) {

@@ -17,11 +17,6 @@ function makeStolenYears(data) {
     var g = svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    //console.log(data);//full record data
-
-    /*x.domain(d3.extent(data, function(d) {
-        return d.key;
-    }));*/
     x.domain(data.map(function(d) {
         //console.log(d);
         return d.key;

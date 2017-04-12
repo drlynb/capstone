@@ -41,6 +41,14 @@ def get_motor():
 	df = pd.read_csv(('input/motor.csv')) 
 	df['Date'] = df['Date'].apply(lambda x: dt.datetime.strptime(x,'%m/%d/%Y %I:%M %p').date())
 	
+	return df.to_json(orient='records')
+	
+@app.route("/natural")
+def get_natural():
+
+	#read data and put into dataframe
+	df = pd.read_csv(('input/natural.csv')) 
+
 	return df.to_json(orient='records')	
 
 
