@@ -9,7 +9,9 @@
   .await(makeGraphs);
 
  function makeGraphs(error, data) {
-  //get data from flask server
+  /**********************************
+   * Step0: Load data from json file *
+   **********************************/
   d3.json("/data", function (error, data) {
    d3.json("/natural", function (error2, naturaldata) {
     d3.json("/motor", function (error2, motordat) {
@@ -18,6 +20,7 @@
       d.dd = new Date(d.Date);
       d.my = new Date(d.dd.getFullYear() + "-" + (d.dd.getMonth() + 1) + "-01");
      });
+
      data.forEach(function (d) {
       d.dd = new Date(d.Datetime);
       d.my = new Date(d.dd.getFullYear() + "-" + (d.dd.getMonth() + 1) + "-01");
@@ -27,16 +30,31 @@
       };
      });
 
+     // overdose death, motor death, died, lived, Male, Female, stolen years
+     //var colour = ["DarkOrange", "#E85451", "GoldenRod", "SaddleBrown", "DarkKhaki", "Teal", "LightGrey", "DarkRed"];
+     var margin = {
+      top: 60,
+      right: 50,
+      bottom: 60,
+      left: 90
+     };
+
+
+     /****************************************
+      * 	Run the data through crossfilter    *
+      ****************************************/
      var ndx = crossfilter(data);
-     var dateDim = ndx.dimension(function (d) {
-      return d.my;
-     });
-
-
-
+     var natcross = crossfilter(naturaldata);
+     var motorndx = crossfilter(motordat);
+     /******************************************************
+      * Create the Dimensions                               *
+      * A dimension is something to group or filter by.     *
+      * Crossfilter can filter by exact value, or by range. *
+      ******************************************************/
      var stolenDim = ndx.dimension(function (d) {
       return d["Age"];
      });
+
      var stolenGroup = stolenDim.group().reduce(
       function (p, v) {
        if (v.Dead == true) {
@@ -78,93 +96,6 @@
        };
       });
 
-     var cityDim = ndx.dimension(function (d) {
-      return d["City"];
-     });
-
-     var cityDeadGroup = cityDim.group().reduce(
-      function (p, v) {
-       if (v.Dead == true) {
-        ++p.deaths;
-       }
-       else {
-        ++p.events;
-       }
-       ++p.total;
-       return p;
-      },
-      function (p, v) {
-       if (v.Dead == true) {
-        --p.deaths;
-       }
-       else {
-        --p.events;
-       }
-       --p.total;
-       return p;
-      },
-      function () {
-       return {
-        deaths: 0,
-        events: 0,
-        total: 0
-       };
-      });
-
-
-var ageDim = ndx.dimension(function (d) {
-       return d["Agegroup"];
-      });
-      var ageGroup = ageDim.group().reduce(
-       function (p, v) {
-        ++p.total;
-
-        if (v.Gender == "M") {
-         ++p.male;
-        }
-        else {
-         ++p.female;
-        }
-        if (v.Dead == true) {
-         ++p.dead;
-        }
-        else {
-         ++p.living;
-        }
-
-        return p;
-       },
-       function (p, v) {
-        --p.total;
-
-        if (v.Gender == "M") {
-         --p.male;
-        }
-        else {
-         --p.female;
-        }
-        if (v.Dead == true) {
-         --p.dead;
-        }
-        else {
-         --p.living;
-        }
-
-        return p;
-
-       },
-       function () {
-        return {
-         total: 0,
-         male: 0,
-         female: 0,
-         living: 0,
-         dead: 0
-        };
-       }
-      );
-
-     var natcross = crossfilter(naturaldata);
      var natDim = natcross.dimension(function (d) {
       return d["Age"];
      });
@@ -202,9 +133,11 @@ var ageDim = ndx.dimension(function (d) {
       });
 
 
+     var dateDim = ndx.dimension(function (d) {
+      return d.my;
+     });
 
 
-     var motorndx = crossfilter(motordat);
      var motorDim = motorndx.dimension(function (d) {
       return d.my;
      });
@@ -229,57 +162,163 @@ var ageDim = ndx.dimension(function (d) {
        };
       });
 
+
+     var cityDim = ndx.dimension(function (d) {
+      return d["City"];
+     });
+
+     var cityDeadGroup = cityDim.group().reduce(
+      function (p, v) {
+       if (v.Dead == true) {
+        ++p.deaths;
+       }
+       else {
+        ++p.events;
+       }
+       ++p.total;
+       return p;
+      },
+      function (p, v) {
+       if (v.Dead == true) {
+        --p.deaths;
+       }
+       else {
+        --p.events;
+       }
+       --p.total;
+       return p;
+      },
+      function () {
+       return {
+        deaths: 0,
+        events: 0,
+        total: 0
+       };
+      });
+
+
+     var ageDim = ndx.dimension(function (d) {
+      return d["Agegroup"];
+     });
+     var ageGroup = ageDim.group().reduce(
+      function (p, v) {
+       ++p.total;
+
+       if (v.Gender == "M") {
+        ++p.male;
+       }
+       else {
+        ++p.female;
+       }
+       if (v.Dead == true) {
+        ++p.dead;
+       }
+       else {
+        ++p.living;
+       }
+
+       return p;
+      },
+      function (p, v) {
+       --p.total;
+
+       if (v.Gender == "M") {
+        --p.male;
+       }
+       else {
+        --p.female;
+       }
+       if (v.Dead == true) {
+        --p.dead;
+       }
+       else {
+        --p.living;
+       }
+
+       return p;
+
+      },
+      function () {
+       return {
+        total: 0,
+        male: 0,
+        female: 0,
+        living: 0,
+        dead: 0
+       };
+      }
+     );
+     /***************************************
+      * 	Step4: Create the Visualisations   *
+      ***************************************/
      var citycount = d3.selectAll("#cities").text("All Areas");
 
+     var stolensvg = d3.select("#stolen-years").append("svg")
+      .attr("width", 1000 + margin.left + margin.right)
+      .attr("height", 200 + margin.top + margin.bottom);
+     var stoleng = stolensvg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+     stolensvg.append("text")
+      .attr("transform",
+       "translate(" + (+stolensvg.attr("width") / 2) + " ," +
+       (+stolensvg.attr("height") + margin.top + 30) + ")")
+      .style("text-anchor", "middle")
+      .text("Age");
+     stolensvg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -3)
+      .attr("x", 0 - (+stolensvg.attr("height") / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Lost Years");
 
-     /*******************
-      * make charts:
-      * do the initial appending and selectiuons here because
-      * every time the funciton is called it creates a new pointer to the same
-      * DOM element.
-      * ******************/
-     var margin = {
-      top: 40,
-      right: 60,
-      bottom: 40,
-      left: 60,
-     };
-     var brushlinessvg = d3.select("#slider").append("svg")
+
+     var slidersvg = d3.select("#slider").append("svg")
       .attr("width", 960)
       .attr("height", 300);
-     var brushlinesg = brushlinessvg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-      .data([ndx.groupAll()]);
+     var sliderg = slidersvg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+     slidersvg.append("text")
+      .attr("transform",
+       "translate(" + (+slidersvg.attr("width") / 2) + " ," +
+       (+slidersvg.attr("height") + margin.top + 30) + ")")
+      .style("text-anchor", "middle");
+
+     slidersvg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -3)
+      .attr("x", 0 - (+slidersvg.attr("height") / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Deaths");
 
 
+     var stackedbarsvg = d3.select("#stacked-bar-chart").append("svg")
+      .attr("width", 400)
+      .attr("height", 300);
+     var stackedbarg = stackedbarsvg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      var stackedbarsvg = d3.select("#stacked-bar-chart").selectAll("svg")
-       .data([ndx.groupAll()]).enter().append("svg")
-       .attr("width", 1000)
-       .attr("height", 300);
-      var stackedbarg = stackedbarsvg.append("g")
-       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-      var stackgendersvg = d3.select("#stacked-bars-age").selectAll("svg")
-       .data([ndx.groupAll()]).enter().append("svg")
-       .attr("width", 600)
-       .attr("height", 300);
-       var stackgenderg = stackgendersvg.append("g")
-       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-
-
+     var stackgendersvg = d3.select("#stacked-bars-age").append("svg")
+      .attr("width", 600)
+      .attr("height", 300);
+     var stackgenderg = stackgendersvg.append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+     /****************************
+      * Step6: Render the Charts  *
+      ****************************/
+     /*   makeStolenYears(ndx, colour);
+        makeSlideBars2(ndx, colour.slice(4, 6));
+        makeSlideBars(ndx, colour.slice(2, 4));
+        makeMap(ndx, colour);
+        makeBrushLines(ndx, colour.slice(0, 2));*/
      renderAll(ndx);
-
-
 
      function renderAll(data) {
       // colour takes 1 array as domain (keys) 1 array as values (colours)
       // overdose death, motor death, died, lived, Male, Female, stolen years
       var colours = ["DarkOrange", "#E85451", "GoldenRod", "SaddleBrown", "DarkKhaki", "Teal", "LightGrey", "DarkRed"];
-      //d3.selectAll("svg").remove();
 
       makeStolenYears(data, colours);
       makeSlideBars2(data, colours.slice(4, 6));
@@ -290,8 +329,10 @@ var ageDim = ndx.dimension(function (d) {
      }
 
 
-
-     function makeLegend(mylegend, colours) {
+     /****************************
+      * chart functions  *
+      ****************************/
+     function makeLegend(mylegend) {
       //take selected legend and make it
       var colour = d3.scaleOrdinal(colour);
       var legendRectSize = 18;
@@ -325,27 +366,14 @@ var ageDim = ndx.dimension(function (d) {
 
      function makeStolenYears(facts, mycolours) {
 
-
       var data = stolenGroup.all();
 
-      //console.log([facts.groupAll()]);
-      var margin = {
-        top: 60,
-        right: 50,
-        bottom: 60,
-        left: 50
-       },
-       svg = d3.select("#stolen-years").selectAll("svg")
-       .data([facts.groupAll()]).enter().append("svg")
-       .attr("width", 1000 + margin.left + margin.right)
-       .attr("height", 200 + margin.top + margin.bottom),
-       width = +d3.select("#stolen-years>svg").attr("width") - margin.left - margin.right,
-       height = +d3.select("#stolen-years>svg").attr("height") - margin.top - margin.bottom;
+      var width = +stolensvg.attr("width") - margin.left - margin.right,
+       height = +stolensvg.attr("height") - margin.top - margin.bottom;
+
 
       var x = d3.scaleBand().rangeRound([0, width]),
-       y = d3.scaleLinear().rangeRound([height, 0]),
-       g = svg.append("g")
-       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+       y = d3.scaleLinear().rangeRound([height, 0]);
 
       var natdata = natGroup.all();
 
@@ -359,7 +387,7 @@ var ageDim = ndx.dimension(function (d) {
       })]).nice();
 
       // make and append bars and tooltip. tooltips from: Interactive Data Visualization for the Web
-      var lostbars = g.selectAll(".lost")
+      var lostbars = stoleng.selectAll(".lost")
        .data(data, function (d) {
         return d.key;
        })
@@ -400,7 +428,7 @@ var ageDim = ndx.dimension(function (d) {
 
        });
 
-      var natbars = g.selectAll(".nat")
+      var natbars = stoleng.selectAll(".nat")
        .data(natdata, function (d) {
         return d.key;
        })
@@ -439,31 +467,15 @@ var ageDim = ndx.dimension(function (d) {
 
 
       // append axes
-      g.append("g")
+      stoleng.selectAll(".axis--x").data([facts.groupAll()]).enter().append("g")
        .attr("class", "axis axis--x")
        .attr("transform", "translate(0," + height + ")")
-       .call(d3.axisBottom(x).tickValues([16, 26, 36, 46, 56, 66, 76, 86, 96]));
+       .call(d3.axisBottom(x).tickValues([16, 26, 36, 46, 56, 66, 76, 86, 96]))
+       .exit().remove();
 
-      //append text and axes
-      svg.append("text")
-       .attr("transform",
-        "translate(" + (width / 2) + " ," +
-        (height + margin.top + 30) + ")")
-       .style("text-anchor", "middle")
-       .text("Age");
-
-      g.append("g")
+      var yax = stoleng.selectAll("axis--y").data([facts.groupAll()]).enter().append("g")
        .attr("class", "axis axis--y")
        .call(d3.axisLeft(y).ticks(10, "d"));
-
-      svg.append("text")
-       .attr("transform", "rotate(-90)")
-       .attr("y", -3)
-       .attr("x", 0 - (height / 2))
-       .attr("dy", "1em")
-       .style("text-anchor", "middle")
-       .text("Lost Years");
-
 
       //generate areas
       var area = d3.area()
@@ -477,31 +489,31 @@ var ageDim = ndx.dimension(function (d) {
        .y0(height);
 
       //append lost area
-      var lost = g.append("path")
-       .datum(data)
+      var lost = stoleng.selectAll(".lost-area")
+       .data([data]).enter().append("path")
        .attr("class", "area lost-area")
        .attr("d", area)
        .attr("fill", mycolours[0]);
 
       //append natural area
-      var natural = g.append("path")
-       .datum(natdata)
+      var natural = stoleng.selectAll(".nat-area")
+       .data([natdata]).enter().append("path")
        .attr("class", "area nat-area")
        .attr("d", area)
        .attr("fill", mycolours[6]);
 
       //append filtered natural area
-      var filterednat = g.append("path")
-       .datum(natdata)
-       .attr("class", "area nat-area")
+      var filterednat = stoleng.selectAll(".filnat-area")
+       .data([natdata]).enter().append("path")
+       .attr("class", "area filnat-area")
        .attr("d", area)
        .attr("fill", mycolours[6])
        .attr("visibility", "hidden");
 
       //append filtered lost area
-      var filtered = g.append("path")
-       .datum(data)
-       .attr("class", "area lost-area")
+      var filtered = stoleng.selectAll(".filllost-area")
+       .data([data]).enter().append("path")
+       .attr("class", "area filllost-area")
        .attr("d", area)
        .attr("fill", mycolours[7])
        .attr("visibility", "hidden");
@@ -653,14 +665,11 @@ var ageDim = ndx.dimension(function (d) {
          .attr("visibility", "hidden");
        }
       }
-
-
      }
 
      function makeBrushLines(facts, mycolours) {
-
       var data = dateDim.top(Infinity);
-       var width = 960 - margin.left - margin.right,
+      var width = 960 - margin.left - margin.right,
        height = 250 - margin.bottom - margin.top;
 
       var formatDate = d3.timeFormat("%b %Y");
@@ -680,7 +689,7 @@ var ageDim = ndx.dimension(function (d) {
        ])
        .on("start brush end", brushmoved);
 
-      var gBrush = brushlinesg.append("g")
+      var gBrush = sliderg.append("g")
        .attr("class", "brush")
        .call(brush);
 
@@ -708,7 +717,7 @@ var ageDim = ndx.dimension(function (d) {
 
       gBrush.call(brush.move, [0.3, 0.5].map(x));
 
-      brushlinesg.append("text")
+      sliderg.append("text")
        .attr("class", "chart-label")
        .attr("transform", "translate(" + width / 2.5 + ",-10" + ")")
        .text("Click and drag on chart to filter a date range");
@@ -774,7 +783,7 @@ var ageDim = ndx.dimension(function (d) {
         return y(d.death);
        });
 
-      var odline = brushlinesg.selectAll(".line").data([odNest[0].values], function (d) {
+      var odline = sliderg.selectAll(".line").data([odNest[0].values], function (d) {
        return d;
       });
       odline.enter().append("path")
@@ -788,7 +797,7 @@ var ageDim = ndx.dimension(function (d) {
        .duration(500)
        .attr("d", lineGen(odNest[0].values));
 
-      var motorline = brushlinesg.selectAll(".line").data([odNest[1].values], function (d) {
+      var motorline = sliderg.selectAll(".line").data([odNest[1].values], function (d) {
        return d;
       });
       motorline.enter().append("path")
@@ -804,31 +813,18 @@ var ageDim = ndx.dimension(function (d) {
 
 
       // append axes
-      brushlinesg.append("g")
+      sliderg.selectAll(".axis--x").data([facts.groupAll()]).enter().append("g")
        .attr("class", "axis axis--x")
        .attr("transform", "translate(0," + height + ")")
        .call(d3.axisBottom(x));
-      brushlinessvg.append("text")
-       .attr("transform",
-        "translate(" + (width / 2) + " ," +
-        (height + margin.top + 30) + ")")
-       .style("text-anchor", "middle");
 
-      brushlinesg.append("g")
+      sliderg.selectAll(".axis--y").data([facts.groupAll()]).enter().append("g")
        .attr("class", "axis axis--y")
        .call(d3.axisLeft(y).ticks(10, "d"));
 
-      brushlinessvg.append("text")
-       .attr("transform", "rotate(-90)")
-       .attr("y", -3)
-       .attr("x", 0 - (height / 2))
-       .attr("dy", "1em")
-       .style("text-anchor", "middle")
-       .text("Deaths");
-
       // add legend
       // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-      var legend = makeLegend(brushlinessvg.selectAll(".legend"), mycolours);
+      var legend = makeLegend(slidersvg.selectAll(".legend"), mycolours);
 
       legend.attr('transform', function (d, i) {
        var height = 18 + 4;
@@ -868,18 +864,20 @@ var ageDim = ndx.dimension(function (d) {
      // https://bl.ocks.org/mbostock/3885304
      // https://stackoverflow.com/questions/42173318/d3v4-stacked-barchart-tooltip
      function makeSlideBars(facts, mycolours) {
-       var width = +stackedbarsvg.attr("width") - margin.left - margin.right,
-       height = +stackedbarsvg.attr("height")- margin.top - margin.bottom;
 
-      var y = d3.scaleBand().rangeRound([0, width]).padding(0.1),
-       x = d3.scaleLinear().rangeRound([height - margin.bottom, margin.top]),
+      var data = cityDeadGroup.all();
+
+      var width = +stackedbarsvg.attr("width") - margin.left - margin.right,
+       height = +stackedbarsvg.attr("height") - margin.top - margin.bottom;
+      console.log(width);
+      var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
+       x = d3.scaleLinear().rangeRound([0, width]),
        colour = d3.scaleOrdinal(mycolours);
 
-      var yAxis = d3.axisBottom().scale(y);
-
-      var xAxis = d3.axisLeft().scale(x)
-       .ticks(10, "d")
+      var xAxis = d3.axisTop().scale(x).ticks(10, "d")
        .tickFormat(Math.abs);
+
+      var yAxis = d3.axisLeft().scale(y);
 
       var cities = [];
 
@@ -887,7 +885,7 @@ var ageDim = ndx.dimension(function (d) {
       // https://stackoverflow.com/questions/42039506/d3-stack-vs-nested-objects
       var newData = [];
 
-      cityDeadGroup.all().forEach(function (d) {
+      data.forEach(function (d) {
        //console.log(d);
        var tempObj = {};
        tempObj["cities"] = d.key;
@@ -897,8 +895,8 @@ var ageDim = ndx.dimension(function (d) {
        newData.push(tempObj);
        cities.push(d.key);
       });
-      console.log(newData);
-    
+      //console.log(newData);
+
       var stack = d3.stack()
        .keys(["deaths", "events"])
        .offset(stackOffsetDiverging)
@@ -924,26 +922,16 @@ var ageDim = ndx.dimension(function (d) {
         return colour(d.key);
        });
 
+      //list of seleted cities
+      var selected = [];
       var rects = serie.selectAll("rect")
        .data(function (d) {
+        //console.log(d);
         return d;
        })
        .enter().append("rect")
-       .attr("class", "bar city");
-
-      //list of seleted cities
-      var selected = [];
-      rects.attr("y", function (d) {
-        return y(d.data.cities);
-       })
-       .attr("x", function (d) {
-        return x(d[1]);
-       })
-       .attr("width", function (d) {
-        return x(d[0]) - x(d[1]);
-       })
-       .attr("height", y.bandwidth())
-       .on("click", function (d, i) { // shift clicked bar to x axis
+       .attr("class", "bar city")
+       .on("click", function (d, i) {
         //console.log(d);
         //add/remove city from list
         var temp = selected.indexOf(d.data.cities);
@@ -963,29 +951,38 @@ var ageDim = ndx.dimension(function (d) {
           d3.select(this).attr("fill", "grey");
          }
         });
-
-        //data.filter(d.data.cities);
         cityDim.filterFunction(function (d) {
-         //console.log(d);
          return selected.indexOf(d) > -1;
         });
-        //makeMap(facts);
-        //makeBrushLines(facts);
         renderAll(facts);
         d3.selectAll("#cities").text(selected);
+       })
+       .transition()
+       .duration(500)
+       .attr("width", function (d) {
+        //console.log(d);
+        return x(d[1]) - x(d[0]);
        });
 
-         rects.transition()
-             .duration(500);
 
+      rects.attr("y", function (d) {
+        return y(d.data.cities);
+       })
+       .attr("x", function (d) {
+        return x(d[0]);
+       })
+       .attr("width", function (d) {
+        //console.log(d);
+        return x(d[1]) - x(d[0]);
+       })
+       .attr("height", y.bandwidth());
 
       //axes
-      stackedbarg.append("g")
+      stackedbarg.selectAll(".axis--y").data([facts.groupAll()]).enter().append("g")
        .attr("class", "axis axis--y")
-       .attr("transform", "translate(0," + x(-Infinity) + ")")
        .call(yAxis);
 
-      stackedbarg.append("g")
+      stackedbarg.selectAll(".axis--x").data([facts.groupAll()]).enter().append("g")
        .attr("class", "axis axis--x")
        .call(xAxis);
 
@@ -1019,22 +1016,22 @@ var ageDim = ndx.dimension(function (d) {
      }
 
      function makeSlideBars2(facts, mycolours) {
-      
+
       var data = ageGroup.top(Infinity);
       //console.log(data);
-       var width = +stackgendersvg.attr("width") - margin.left - margin.right,
+      var width = +stackgendersvg.attr("width") - margin.left - margin.right,
        height = +stackgendersvg.attr("height") - margin.top - margin.bottom;
 
-      var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
-       y = d3.scaleLinear().rangeRound([height - margin.bottom, margin.top]),
+      var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
+       x = d3.scaleLinear().rangeRound([0, width]),
        colour = d3.scaleOrdinal(mycolours);
 
 
-      var xAxis = d3.axisBottom().scale(x);
-
-      var yAxis = d3.axisLeft().scale(y)
+      var xAxis = d3.axisTop().scale(x)
        .ticks(10, "d")
        .tickFormat(Math.abs);
+
+      var yAxis = d3.axisLeft().scale(y);
 
       var ages = [];
 
@@ -1060,9 +1057,9 @@ var ageDim = ndx.dimension(function (d) {
        (newData);
       //console.log(stack);
 
-      y.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
+      x.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
 
-      x.domain(["<16",
+      y.domain(["<16",
        "16-25",
        "26-35",
        "36-45",
@@ -1071,7 +1068,7 @@ var ageDim = ndx.dimension(function (d) {
        "66-75",
        "76-85",
        "86+"
-      ]);
+      ].reverse());
 
       function stackMax(serie) {
        return d3.max(serie, function (d) {
@@ -1092,27 +1089,55 @@ var ageDim = ndx.dimension(function (d) {
         return d;
        })
        .enter().append("rect")
-       .attr("class", "bar");
+       .attr("class", "bar agegroup");
 
-      rects.attr("x", function (d) {
+      rects.attr("y", function (d) {
         //console.log(d);
-        return x(d.data.age);
+        return y(d.data.age);
        })
-       .attr("y", function (d) {
+       .attr("x", function (d) {
         //console.log(d);
-        return y(d[1]);
+        return x(d[0]);
        })
-       .attr("height", function (d) {
-        return y(d[0]) - y(d[1]);
+       .attr("width", function (d) {
+        return x(d[1]) - x(d[0]);
        })
-       .attr("width", x.bandwidth())
-       .merge(rects)
-       .transition()
-       .duration(500);
-       
-       //rects.transition()
-         //    .duration(500);
+       .attr("height", y.bandwidth());
 
+
+      var selected = [];
+      rects.on("click", function (d, i) {
+       //console.log(d);
+       //add/remove agegroup from list
+       var temp = selected.indexOf(d.data.age);
+       if (temp == -1) {
+        selected.push(d.data.age);
+       }
+       else {
+        selected.splice(temp, 1);
+       } //remove agegroup from list
+
+       var bars = d3.selectAll(".agegroup").each(function (d) {
+        //console.log(d);
+        if (selected.indexOf(d.data.age) > -1) {
+         d3.select(this).attr("fill", "brown");
+        }
+        else {
+         d3.select(this).attr("fill", "grey");
+        }
+       });
+       ageDim.filterFunction(function (d) {
+        return selected.indexOf(d) > -1;
+       });
+       renderAll(facts);
+      });
+
+      /*rects.transition()
+       .duration(500)
+       .attr("width", function (d) {
+        console.log("gender triggered");
+        return x(d[1]) - x(d[0]);
+       });*/
       // add legend
       // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
       var legend = makeLegend(stackgendersvg.selectAll(".legend"), mycolours);
@@ -1123,19 +1148,12 @@ var ageDim = ndx.dimension(function (d) {
        return 'translate(' + (margin.width - 85) + ',' + (vert) + ')';
       });
 
-      //midline
-      stackgendersvg.append("g")
-       .attr("class", "axis axis--x")
-       .attr("transform", "translate(0," + y(0) + ")")
-       .call(xAxis);
-
       //axes
-      stackgendersvg.append("g")
+      stackgenderg.selectAll(".axis--x").data([facts.groupAll()]).enter().append("g")
        .attr("class", "axis axis--x")
-       .attr("transform", "translate(0," + y(-Infinity) + ")")
        .call(xAxis);
 
-      stackgendersvg.append("g")
+      stackgenderg.selectAll(".axis--y").data([facts.groupAll()]).enter().append("g")
        .attr("class", "axis axis--y")
        .call(yAxis);
 
@@ -1156,13 +1174,16 @@ var ageDim = ndx.dimension(function (d) {
        }
       }
      }
+
+
+
      // https://github.com/thesentinelproject/threatwiki_node/blob/master/public/javascript/visualization.js
      // https://vast-journey-7849.herokuapp.com/burmavisualization
      // https://developers.google.com/maps/documentation/javascript/marker-clustering
 
      // https://github.com/bseth99/sandbox/blob/master/projects/google-maps/01-drawing-manager-selections.html
      function makeMap(facts) {
-      var data = dateDim.top(Infinity);
+      var data = cityDim.top(Infinity);
 
       // Create the Google Map…
       var map = new google.maps.Map(d3.select("#map").node(), {
@@ -1182,23 +1203,29 @@ var ageDim = ndx.dimension(function (d) {
       // create an array of markers based on a given "locations" array.
       // The map() method here has nothing to do with the Google Maps API.
 
-      var markers = []
+      var markers = [];
       data.forEach(function (d, i) {
-       //console.log(d.location);
        markers.push(new google.maps.Marker({
         position: d.location,
         optimized: false,
+        title: d.City,
         icon: 'https://www.google.com/mapfiles/marker.png?i=' + (i)
        }));
       });
-       
-       markers.forEach(function(m){
-        google.maps.event.addListener(m, 'click', function() {
-           $('img[src="' + this.icon + '"]').stop().animate({
-             opacity: 0
-           });
-         });
+
+      markers.forEach(function (m) {
+       google.maps.event.addListener(m, 'click', function () {
+        //console.log(this.getTitle());
+        var title = this.getTitle();
+        cityDim.filterFunction(function (d) {
+         return d == title;
+        });
+        renderAll(facts);
+        $('img[src="' + this.icon + '"]').stop().animate({
+         opacity: 0
+        });
        });
+      });
       /*markers.forEach(function(m){
            
            google.maps.event.addListener(m, 'mouseover', function() {
