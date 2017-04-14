@@ -78,6 +78,10 @@ text {
 
 /* stacked bar chart */
 
+.selected{
+  fill: brown;
+}
+
 .bar:hover {
   fill: brown;
 }
