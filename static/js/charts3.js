@@ -300,7 +300,7 @@
      stolensvg.append("text")
       .attr("transform",
        "translate(" + (+stolensvg.attr("width") / 2) + " ," +
-       (+stolensvg.attr("height")-10) + ")")
+       (+stolensvg.attr("height") - 10) + ")")
       .style("text-anchor", "middle")
       .text("Age");
      stolensvg.append("text")
@@ -338,12 +338,12 @@
       .attr("height", 300);
      var stackedbarg = stackedbarsvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-      stackedbarsvg.append("text")
+     stackedbarsvg.append("text")
       .attr("transform",
        "translate(" + (+stolensvg.attr("width") / 4) + " ," + 20 + ")")
       .style("text-anchor", "middle")
       .text("Lived");
-       stackedbarsvg.append("text")
+     stackedbarsvg.append("text")
       .attr("transform",
        "translate(" + (+stolensvg.attr("width") / 8) + " ," + 20 + ")")
       .style("text-anchor", "middle")
@@ -744,8 +744,6 @@
      }
 
      function makeBrushLines(facts, mycolours) {
-      //var data = dateDim.top(Infinity);
-      console.log(odGroup.all());
       var data = odGroup.all();
       var width = 960 - margin.left - margin.right,
        height = 250 - margin.bottom - margin.top;
@@ -839,11 +837,11 @@
       x.domain(d3.extent(data, function (d) {
        return d.key;
       }));
-      
+
       y.domain([0, d3.max(motorGroup.top(Infinity), function (d) {
        return d.value;
       })]).nice();
-      
+
       // make a line "function"
       var lineGen = d3.line()
        .x(function (d) {
@@ -853,18 +851,18 @@
         return y(d.death);
        });
 
-      var odline = sliderg.selectAll(".line").data([odNest[0].values]);
+      var odline = sliderg.selectAll(".odline").data([odNest[0].values]);
       odline.enter().append("path")
        .attr("d", lineGen(odNest[0].values))
-       .attr("class", "line")
+       .attr("class", "line odline")
        .attr('stroke', mycolours[0])
        .attr('stroke-width', 2)
        .attr("fill", "none");
 
-      var motorline = sliderg.selectAll(".line").data([odNest[1].values]);
+      var motorline = sliderg.selectAll(".motorline").data([odNest[1].values]);
       motorline.enter().append("path")
        .attr("d", lineGen(odNest[1].values))
-       .attr("class", "line")
+       .attr("class", "line motorline")
        .attr('stroke', mycolours[1])
        .attr('stroke-width', 2)
        .attr("fill", "none");
@@ -891,51 +889,54 @@
       });
 
       this.update = function () {
-
-       console.log("postline update");
-       console.log(odGroup.all());
-       
        var odData = [];
-      odGroup.all().forEach(function (d, i) {
-       var odObj = {};
-       odObj["type"] = "overdose";
-       odObj["date"] = d.key;
-       odObj["death"] = d.value.dead;
-       odData.push(odObj);
-      });
+       odGroup.all().forEach(function (d, i) {
+        var odObj = {};
+        odObj["type"] = "overdose";
+        odObj["date"] = d.key;
+        odObj["death"] = d.value.dead;
+        odData.push(odObj);
+       });
 
-      // add motor data to groups
-      var motorData = [];
-      motorGroup.all().forEach(function (d, i) {
-       var motorObj = {};
-       motorObj["type"] = "motor";
-       motorObj["date"] = d.key;
-       motorObj["death"] = d.value;
-       motorData.push(motorObj);
-      });
+       // add motor data to groups
+       var motorData = [];
+       motorGroup.all().forEach(function (d, i) {
+        var motorObj = {};
+        motorObj["type"] = "motor";
+        motorObj["date"] = d.key;
+        motorObj["death"] = d.value;
+        motorData.push(motorObj);
+       });
 
-      //nest data
-      var odNest = d3.nest()
-       .key(function (d) {
-        return d.type;
-       })
-       .entries(odData);
+       //nest data
+       var odNest = d3.nest()
+        .key(function (d) {
+         return d.type;
+        })
+        .entries(odData);
 
-      var motorNest = d3.nest()
-       .key(function (d) {
-        return d.type;
-       })
-       .entries(motorData);
+       var motorNest = d3.nest()
+        .key(function (d) {
+         return d.type;
+        })
+        .entries(motorData);
 
-      odNest.push(motorNest[0]);
-      
-      
-       odline.data([odNest[0].values])
+       odNest.push(motorNest[0]);
+
+       sliderg.selectAll(".odline").remove();
+       var odline = sliderg.selectAll(".odline").data([odNest[0].values]);
+       odline.enter().append("path")
+        .attr("d", lineGen(odNest[0].values))
+        .attr("class", "line odline")
+        .attr('stroke', mycolours[0])
+        .attr('stroke-width', 2)
+        .attr("fill", "none");
+       /*odline.data([odNest[0].values])
        .transition().duration(500)
-        .attr("d", lineGen([odNest[0].values]));
+        .attr("d", lineGen(odNest[0].values));*/
 
-      motorline.data([odNest[1].values])
-       .transition().duration(500)
+       motorline.data([odNest[1].values])
+        .transition().duration(500)
         .attr("d", lineGen(odNest[1].values));
       };
 
@@ -1102,27 +1103,27 @@
       }
 
       this.update = function () {
-       
+
        var newData = [];
 
-      cityDeadGroup.all().forEach(function (d) {
-       var tempObj = {};
-       tempObj["cities"] = d.key;
-       tempObj["died"] = d.value.deaths;
-       tempObj["livmale"] = -d.value.livmale;
-       tempObj["livfemale"] = -d.value.livfemale;
-       tempObj["deadmale"] = d.value.deadmale;
-       tempObj["deadfemale"] = d.value.deadfemale;
-       tempObj["lived"] = -d.value.events;
-       tempObj["total"] = d.value.total;
-       newData.push(tempObj);
-       cities.push(d.key);
-      });
+       cityDeadGroup.all().forEach(function (d) {
+        var tempObj = {};
+        tempObj["cities"] = d.key;
+        tempObj["died"] = d.value.deaths;
+        tempObj["livmale"] = -d.value.livmale;
+        tempObj["livfemale"] = -d.value.livfemale;
+        tempObj["deadmale"] = d.value.deadmale;
+        tempObj["deadfemale"] = d.value.deadfemale;
+        tempObj["lived"] = -d.value.events;
+        tempObj["total"] = d.value.total;
+        newData.push(tempObj);
+        cities.push(d.key);
+       });
 
-      var stack = d3.stack()
-       .keys(["lived", "died"])
-       .offset(stackOffsetDiverging)
-       (newData);
+       var stack = d3.stack()
+        .keys(["lived", "died"])
+        .offset(stackOffsetDiverging)
+        (newData);
 
        serie.data(stack);
 
@@ -1154,7 +1155,6 @@
          rects.transition()
           .duration(500)
           .attr("width", function (d) {
-           //console.log(d);
            return x(d.data.deadmale) - x(d.data.livmale);
           });
 
@@ -1163,7 +1163,6 @@
          rects.transition()
           .duration(500)
           .attr("width", function (d) {
-           //console.log(d);
            return x(d.data.deadfemale) - x(d.data.livfemale);
 
           });
@@ -1290,7 +1289,6 @@
        ageDim.filterFunction(function (d) {
         return selected.indexOf(d) > -1;
        });
-       console.log(ageDim.top(Infinity));
        renderAll(facts);
       });
 
@@ -1331,28 +1329,28 @@
       }
 
       this.update = function () {
-       
+
        var newData = [];
 
-      ageGroup.top(Infinity).forEach(function (d) {
-       var tempObj = {};
-       tempObj["age"] = d.key;
-       tempObj["lived"] = -d.value.living;
-       tempObj["livmale"] = -d.value.livmale;
-       tempObj["livfemale"] = -d.value.livfemale;
-       tempObj["died"] = d.value.dead;
-       tempObj["deadmale"] = d.value.deadmale;
-       tempObj["deadfemale"] = d.value.deadfemale;
-       tempObj["total"] = d.value.total;
-       newData.push(tempObj);
-       ages.push(d.key);
-      });
+       ageGroup.top(Infinity).forEach(function (d) {
+        var tempObj = {};
+        tempObj["age"] = d.key;
+        tempObj["lived"] = -d.value.living;
+        tempObj["livmale"] = -d.value.livmale;
+        tempObj["livfemale"] = -d.value.livfemale;
+        tempObj["died"] = d.value.dead;
+        tempObj["deadmale"] = d.value.deadmale;
+        tempObj["deadfemale"] = d.value.deadfemale;
+        tempObj["total"] = d.value.total;
+        newData.push(tempObj);
+        ages.push(d.key);
+       });
 
 
-      var stack = d3.stack()
-       .keys(["lived", "died"])
-       .offset(stackOffsetDiverging)
-       (newData);
+       var stack = d3.stack()
+        .keys(["lived", "died"])
+        .offset(stackOffsetDiverging)
+        (newData);
 
        serie.data(stack);
        rects.data(function (d) {
@@ -1445,7 +1443,6 @@
 
       markers.forEach(function (m) {
        google.maps.event.addListener(m, 'click', function () {
-        //console.log(this.getTitle());
         var title = this.getTitle();
         cityDim.filterFunction(function (d) {
          return d == title;
