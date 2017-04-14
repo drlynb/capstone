@@ -293,16 +293,16 @@
      var citycount = d3.selectAll("#cities").text("All Areas");
 
      var stolensvg = d3.select("#stolen-years").append("svg")
-      .attr("width", 1000 + margin.left + margin.right)
+      .attr("width", 900 + margin.left + margin.right)
       .attr("height", 200 + margin.top + margin.bottom);
      var stoleng = stolensvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-     stolensvg.append("text")
+     /*stolensvg.append("text")
       .attr("transform",
        "translate(" + (+stolensvg.attr("width") / 2) + " ," +
        (+stolensvg.attr("height") - 10) + ")")
       .style("text-anchor", "middle")
-      .text("Age");
+      .text("Age");*/
      stolensvg.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", -3)
@@ -313,7 +313,7 @@
 
 
      var slidersvg = d3.select("#slider").append("svg")
-      .attr("width", 960)
+      .attr("width", 900)
       .attr("height", 300);
      var sliderg = slidersvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -375,8 +375,10 @@
      d3.selectAll(".myCheckbox2").on("change.sb2", slide2chart.updatecheck);
      d3.selectAll(".myCheckbox2").on("change.sb1", slide1chart.updatecheck);
      d3.selectAll(".myCheckbox").on("change", stolenchart.updatecheck);
+     d3.selectAll(".mybutton").on("click", resetAll);
 
 
+    var selectedcities = [];
      function renderAll(data) {
       slide2chart.update();
       slide1chart.update();
@@ -389,6 +391,14 @@
      /****************************
       * chart functions  *
       ****************************/
+      function resetAll(){
+       //remove all filters and redraw all
+       selectedcities = [];
+         dateDim.filterAll();
+         cityDim.filterAll();
+         renderAll(data);
+      }
+      
      function makeLegend(mylegend) {
       //take selected legend and make it
       var colour = d3.scaleOrdinal(colour);
@@ -426,7 +436,7 @@
       var data = stolenGroup.all();
 
       var width = +stolensvg.attr("width") - margin.left - margin.right,
-       height = +stolensvg.attr("height") - margin.top - margin.bottom;
+       height = +stolensvg.attr("height") - margin.top - margin.bottom*2;
 
 
       var x = d3.scaleBand().rangeRound([0, width]),
@@ -717,7 +727,6 @@
          }))
          .attr("visibility", "hidden");
 
-
         natural.transition()
          .duration(500)
          .attr("d", area.y1(function (d) {
@@ -931,9 +940,6 @@
         .attr('stroke', mycolours[0])
         .attr('stroke-width', 2)
         .attr("fill", "none");
-       /*odline.data([odNest[0].values])
-       .transition().duration(500)
-        .attr("d", lineGen(odNest[0].values));*/
 
        motorline.data([odNest[1].values])
         .transition().duration(500)
@@ -986,12 +992,12 @@
       cityDeadGroup.all().forEach(function (d) {
        var tempObj = {};
        tempObj["cities"] = d.key;
-       tempObj["died"] = d.value.deaths;
+       tempObj["lived"] = -d.value.events;
        tempObj["livmale"] = -d.value.livmale;
        tempObj["livfemale"] = -d.value.livfemale;
+       tempObj["died"] = d.value.deaths;
        tempObj["deadmale"] = d.value.deadmale;
        tempObj["deadfemale"] = d.value.deadfemale;
-       tempObj["lived"] = -d.value.events;
        tempObj["total"] = d.value.total;
        newData.push(tempObj);
        cities.push(d.key);
@@ -1023,7 +1029,7 @@
        });
 
       //list of seleted cities
-      var selected = [];
+      //var selected = [];
       var rects = serie.selectAll(".city")
        .data(function (d) {
         return d;
@@ -1032,16 +1038,16 @@
        .attr("class", "bar city")
        .on("click", function (d, i) {
         //add/remove city from list
-        var temp = selected.indexOf(d.data.cities);
+        var temp = selectedcities.indexOf(d.data.cities);
         if (temp == -1) {
-         selected.push(d.data.cities);
+         selectedcities.push(d.data.cities);
         }
         else {
-         selected.splice(temp, 1);
+         selectedcities.splice(temp, 1);
         } //remove city from list
         // inside onclick function
         var bars = d3.selectAll(".city").each(function (d) {
-         if (selected.indexOf(d.data.cities) > -1) {
+         if (selectedcities.indexOf(d.data.cities) > -1) {
           d3.select(this).attr("fill", "brown");
          }
          else {
@@ -1049,10 +1055,10 @@
          }
         });
         cityDim.filterFunction(function (d) {
-         return selected.indexOf(d) > -1;
+         return selectedcities.indexOf(d) > -1;
         });
         renderAll(facts);
-        d3.selectAll("#cities").text(selected);
+        d3.selectAll("#cities").text(selectedcities);
        });
 
       rects.attr("y", function (d) {
@@ -1109,12 +1115,12 @@
        cityDeadGroup.all().forEach(function (d) {
         var tempObj = {};
         tempObj["cities"] = d.key;
-        tempObj["died"] = d.value.deaths;
+        tempObj["lived"] = -d.value.events;
         tempObj["livmale"] = -d.value.livmale;
         tempObj["livfemale"] = -d.value.livfemale;
+        tempObj["died"] = d.value.deaths;
         tempObj["deadmale"] = d.value.deadmale;
         tempObj["deadfemale"] = d.value.deadfemale;
-        tempObj["lived"] = -d.value.events;
         tempObj["total"] = d.value.total;
         newData.push(tempObj);
         cities.push(d.key);
@@ -1131,7 +1137,7 @@
          return d;
         })
         .attr("class", function (d) {
-         return (selected.indexOf(d.data.cities) > -1) ? "bar city selected" : "bar city";
+         return (selectedcities.indexOf(d.data.cities) > -1) ? "bar city selected" : "bar city";
         })
         .transition()
         .duration(500)
@@ -1346,7 +1352,6 @@
         ages.push(d.key);
        });
 
-
        var stack = d3.stack()
         .keys(["lived", "died"])
         .offset(stackOffsetDiverging)
@@ -1378,7 +1383,6 @@
        //if 1 box checked
        if (choices.length == 1) {
         if (choices[0] == 'm') {
-
          rects.transition()
           .duration(500)
           .attr("width", function (d) {
