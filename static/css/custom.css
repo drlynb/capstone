@@ -9,6 +9,17 @@ div {
   color: white;
 }
 
+.bar{
+  opacity: 0.5;
+}
+.bar:hover{
+  opacity: 1;
+  fill: GoldenRod;
+}
+
+.axis{
+  font-size: 11px;
+}
 
 /* map */
 
@@ -75,15 +86,28 @@ text {
   pointer-events: none;
 }
 
+line{
+  opacity: 0.5;
+}
+
+.odline{
+  stroke: GoldenRod;
+}
+
+.motorline{
+  stroke: #838B8B;
+}
+
 
 /* stacked bar chart */
 
 .selected{
-  fill: brown;
+  fill: GoldenRod;
 }
 
 .bar:hover {
-  fill: brown;
+  opacity: 1;
+  fill: GoldenRod;
 }
 
 .toolTip {
@@ -113,12 +137,19 @@ text {
   pointer-events: none;
 }
 
+.nat-area{
+  opacity: 0.3;
+}
+.filnat-area{
+  fill: #FDF2EE;
+}
+
+.bar-pot,
 .bar-lost{
   opacity: 0;
 }
-.bar-lost:hover{
-  opacity: 1;
-  fill: grey;
+.bar-pot:hover{
+  fill: LightGrey;
 }
 
 #tooltip {

@@ -297,20 +297,19 @@
       .attr("height", 200 + margin.top + margin.bottom);
      var stoleng = stolensvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-     /*stolensvg.append("text")
+     stolensvg.append("text")
       .attr("transform",
        "translate(" + (+stolensvg.attr("width") / 2) + " ," +
-       (+stolensvg.attr("height") - 10) + ")")
+       (+stolensvg.attr("height") - 50) + ")")
       .style("text-anchor", "middle")
-      .text("Age");*/
+      .text("Age");
      stolensvg.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", -3)
-      .attr("x", 0 - (+stolensvg.attr("height") / 2))
+      .attr("y", 25)
+      .attr("x", 0 - (+stolensvg.attr("height") / 2) + 30)
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Lost Years");
-
 
      var slidersvg = d3.select("#slider").append("svg")
       .attr("width", 900)
@@ -319,19 +318,12 @@
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
      slidersvg.append("text")
-      .attr("transform",
-       "translate(" + (+slidersvg.attr("width") / 2) + " ," +
-       (+slidersvg.attr("height") + margin.top + 30) + ")")
-      .style("text-anchor", "middle");
-
-     slidersvg.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", -3)
+      .attr("y", 30)
       .attr("x", 0 - (+slidersvg.attr("height") / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("Deaths");
-
 
      var stackedbarsvg = d3.select("#stacked-bar-chart").append("svg")
       .attr("width", 400)
@@ -354,6 +346,23 @@
       .attr("height", 300);
      var stackgenderg = stackgendersvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      stackgendersvg.append("text")
+      .attr("transform",
+       "translate(" + (+stolensvg.attr("width") / 4) + " ," + 20 + ")")
+      .style("text-anchor", "middle")
+      .text("Lived");
+     stackgendersvg.append("text")
+      .attr("transform",
+       "translate(" + (+stolensvg.attr("width") / 8) + " ," + 20 + ")")
+      .style("text-anchor", "middle")
+      .text("Died");
+      stackgendersvg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 25)
+      .attr("x", 0 - (+stolensvg.attr("height") / 2) + 30)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Age");
      /****************************
       * Step6: Render the Charts  *
       ****************************/
@@ -377,8 +386,9 @@
      d3.selectAll(".myCheckbox").on("change", stolenchart.updatecheck);
      d3.selectAll(".mybutton").on("click", resetAll);
 
+     var selectedcities = [];
+     var selectedage = [];
 
-    var selectedcities = [];
      function renderAll(data) {
       slide2chart.update();
       slide1chart.update();
@@ -387,21 +397,26 @@
       makeMap(data);
      }
 
-
      /****************************
       * chart functions  *
       ****************************/
-      function resetAll(){
-       //remove all filters and redraw all
+
+     function resetAll() {
        selectedcities = [];
-         dateDim.filterAll();
-         cityDim.filterAll();
-         renderAll(data);
-      }
-      
+       selectedage = [];
+      //remove all filters and redraw all
+      dateDim.filterAll();
+      cityDim.filterAll();
+      renderAll(data);
+     }
+
      function makeLegend(mylegend) {
       //take selected legend and make it
-      var colour = d3.scaleOrdinal(colour);
+      mylegend = mylegend.attr("class", "legend")
+       .attr("transform", "translate(50,30)")
+       .style("font-size", "12px")
+       .call(d3.legend);
+      /*var colour = d3.scaleOrdinal(colour);
       var legendRectSize = 18;
       var legendSpacing = 4;
       var legend = mylegend.data(colour.domain())
@@ -426,9 +441,9 @@
        .attr('y', legendRectSize - legendSpacing)
        .text(function (d) {
         return d.toUpperCase();
-       });
+       });*/
 
-      return legend;
+      return mylegend;
      }
 
      function makeStolenYears(facts, mycolours) {
@@ -436,7 +451,7 @@
       var data = stolenGroup.all();
 
       var width = +stolensvg.attr("width") - margin.left - margin.right,
-       height = +stolensvg.attr("height") - margin.top - margin.bottom*2;
+       height = +stolensvg.attr("height") - margin.top - margin.bottom * 2;
 
 
       var x = d3.scaleBand().rangeRound([0, width]),
@@ -444,7 +459,7 @@
 
       var natdata = natGroup.all();
 
-      x.domain(data.map(function (d) {
+      x.domain(natdata.map(function (d) {
        return d.key;
       }));
       y.domain([0, d3.max(data, function (d) {
@@ -498,7 +513,7 @@
        })
        .enter().append("rect")
        //.attr("clip-path", "url(#lost-area)") // clip the rectangle
-       .attr("class", "bar bar-lost")
+       .attr("class", "bar bar-pot")
        .attr("x", function (d) {
         return x(d.key);
        })
@@ -518,7 +533,6 @@
         d3.select("#tooltip")
          .style("left", xPosition + "px")
          .style("top", yPosition + "px")
-         //d3.select("#value")
          .html("Age: " + d.key + "<br>Potential Years: " + d.value.total);
         //Show the tooltip
         d3.select("#tooltip").classed("hidden", false);
@@ -570,7 +584,7 @@
        .data([natdata]).enter().append("path")
        .attr("class", "area filnat-area")
        .attr("d", area)
-       .attr("fill", mycolours[6])
+       //.attr("fill", mycolours[6])
        .attr("visibility", "hidden");
 
       //append filtered lost area
@@ -864,7 +878,7 @@
       odline.enter().append("path")
        .attr("d", lineGen(odNest[0].values))
        .attr("class", "line odline")
-       .attr('stroke', mycolours[0])
+       //.attr('stroke', mycolours[0])
        .attr('stroke-width', 2)
        .attr("fill", "none");
 
@@ -887,15 +901,34 @@
        .call(d3.axisLeft(y).ticks(10, "d"));
 
       // add legend
-      // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-      var legend = makeLegend(slidersvg.selectAll(".legend"), mycolours);
+        // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
+        var slidercolour = d3.scaleOrdinal(["GoldenRod","#838B8B"]);
+        //console.log(colour.domain());
+        var legendRectSize = 18;
+        var legendSpacing = 4;
+        var legend = slidersvg.selectAll(".legend")
+            .data(["Overdose", "Motor"])
+            .enter().append('g')
+            .attr("class", "legend")
+            .attr('transform', function(d, i) {
+                var height = legendRectSize + legendSpacing;
+                var offset = height * slidercolour.domain().length / 2;
+                var vert = i * height + offset;
+                return 'translate(' + (width) + ',' + (vert - 4) + ')';
+            });
 
-      legend.attr('transform', function (d, i) {
-       var height = 18 + 4;
-       var offset = height * colour.domain().length / 2;
-       var vert = i * height + offset;
-       return 'translate(' + (width) + ',' + (vert - 4) + ')';
-      });
+        legend.append('rect')
+            .attr('width', legendRectSize)
+            .attr('height', legendRectSize)
+            .style('fill', slidercolour)
+            .style('stroke', slidercolour);
+
+        legend.append('text')
+            .attr('x', legendRectSize + legendSpacing)
+            .attr('y', legendRectSize - legendSpacing)
+            .text(function(d) {
+                return d.toUpperCase();
+            });
 
       this.update = function () {
        var odData = [];
@@ -1048,10 +1081,10 @@
         // inside onclick function
         var bars = d3.selectAll(".city").each(function (d) {
          if (selectedcities.indexOf(d.data.cities) > -1) {
-          d3.select(this).attr("fill", "brown");
+          //d3.select(this).attr("fill", "brown");
          }
          else {
-          d3.select(this).attr("fill", "grey");
+          d3.select(this).attr("fill", "brown");
          }
         });
         cityDim.filterFunction(function (d) {
@@ -1083,13 +1116,13 @@
 
       // add legend
       // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-      var legend = makeLegend(stackedbarg.selectAll(".legend"), mycolours);
+      /*var legend = makeLegend(stackedbarg.selectAll(".legend"), mycolours);
       legend.attr('transform', function (d, i) {
        var height = 18 + 4;
        var offset = height * colour.domain().length / 2;
        var vert = i * height + offset;
        return 'translate(' + (margin.width - 95) + ',' + (vert) + ')';
-      });
+      });*/
 
       function stackOffsetDiverging(series, order) {
        if (!((n = series.length) > 1)) return;
@@ -1107,10 +1140,11 @@
         }
        }
       }
-
+   
       this.update = function () {
 
        var newData = [];
+       
 
        cityDeadGroup.all().forEach(function (d) {
         var tempObj = {};
@@ -1196,7 +1230,7 @@
 
 
       var xAxis = d3.axisTop().scale(x)
-       .ticks(10, "d")
+       .ticks(5, "d")
        .tickFormat(Math.abs);
 
       var yAxis = d3.axisLeft().scale(y);
@@ -1273,40 +1307,39 @@
        .attr("height", y.bandwidth());
 
 
-      var selected = [];
+      //var selectedage = [];
       rects.on("click", function (d, i) {
        //add/remove agegroup from list
-       var temp = selected.indexOf(d.data.age);
+       var temp = selectedage.indexOf(d.data.age);
        if (temp == -1) {
-        selected.push(d.data.age);
+        selectedage.push(d.data.age);
        }
        else {
-        selected.splice(temp, 1);
+        selectedage.splice(temp, 1);
        } //remove agegroup from list
 
        var bars = d3.selectAll(".agegroup").each(function (d) {
-        if (selected.indexOf(d.data.age) > -1) {
-         d3.select(this).attr("fill", "brown");
+        if (selectedage.indexOf(d.data.age) > -1) {
+         //d3.select(this).attr("fill", "brown");
         }
         else {
-         d3.select(this).attr("fill", "grey");
+         d3.select(this).attr("fill", "brown");
         }
        });
        ageDim.filterFunction(function (d) {
-        return selected.indexOf(d) > -1;
+        return selectedage.indexOf(d) > -1;
        });
        renderAll(facts);
       });
 
       // add legend
-      // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-      var legend = makeLegend(stackgendersvg.selectAll(".legend"), mycolours);
+      /*var legend = makeLegend(stackgenderg.selectAll(".legend"), mycolours);
       legend.attr('transform', function (d, i) {
        var height = 18 + 4;
        var offset = height * colour.domain().length / 2;
        var vert = i * height + offset;
        return 'translate(' + (margin.width - 85) + ',' + (vert) + ')';
-      });
+      });*/
 
       //axes
       stackgenderg.append("g")
@@ -1362,7 +1395,7 @@
          return d;
         })
         .attr("class", function (d) {
-         return (selected.indexOf(d.data.age) > -1) ? "bar agegroup selected" : "bar agegroup";
+         return (selectedage.indexOf(d.data.age) > -1) ? "bar agegroup selected" : "bar agegroup";
         })
         .attr("x", function (d) {
          return x(d[0]);
