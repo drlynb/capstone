@@ -1459,12 +1459,14 @@
 
       markers.forEach(function (m) {
        google.maps.event.addListener(m, 'click', function () {
-        var title = this.getTitle();
-        selectedcities.append(title);
+        var title = this.title;
+        selectedcities.push(title);
+        console.log(selectedcities);
         cityDim.filterFunction(function (d) {
-         return d == title;
+         return selectedcities.indexOf(d) > -1;
         });
         renderAll(facts);
+        allcount.text(selectedage.concat(selectedcities));
         $('img[src="' + this.icon + '"]').stop().animate({
          opacity: 0
         });
