@@ -34,7 +34,7 @@ def strTimeProp(start, end, format, prop):
 
 
 def randomDate(start, end, prop):
-    return strTimeProp(start, end, '%m/%d/%Y %I:%M %p', prop)
+    return strTimeProp(start, end, '%m/%Y', prop)
 
 def choose(mylist):
     return str(random.choice(mylist))+ ','
@@ -65,7 +65,7 @@ with open(output, 'w') as out:
     for month,deaths in enumerate(motordeathsbymonth):
         for year in range(10):
             for j in range(deaths[year]):
-                rows += randomDate(str(month+1)+"/1/"+str(year+2007)+" 1:00 AM", str(month+1)+"/28/"+str(year+2007)+" 11:59 PM", random.random()) + ','
+                rows += str(month+1)+'/'+str(year+2007)+ ','
                 rows += choose(ages)								#age
                 rows += choose(gender)							#Gender
                 rows = rows[:-1]

@@ -62,12 +62,16 @@
          return p;
         }
         if (v.Gender == 'M') {
-         p.male += 80 - v.Age;
-         p.total += 80 - v.Age;
+         //p.male += 80 - v.Age;
+         //p.total += 80 - v.Age;
+         ++p.male;
+         ++p.total;
         }
         else {
-         p.female += 84 - v.Age;
-         p.total += 84 - v.Age;
+         //p.female += 84 - v.Age;
+         //p.total += 84 - v.Age;
+         ++p.female;
+         ++p.total;
         }
        }
        return p;
@@ -78,12 +82,16 @@
        }
        if (v.Dead == true) {
         if (v.Gender == 'M') {
-         p.male -= 80 - v.Age;
-         p.total -= 80 - v.Age;
+         //p.male -= 80 - v.Age;
+         //p.total -= 80 - v.Age;
+         --p.male;
+         --p.total;
         }
         else {
-         p.female -= 84 - v.Age;
-         p.total -= 84 - v.Age;
+        //  p.female -= 84 - v.Age;
+        //  p.total -= 84 - v.Age;
+         --p.female;
+         --p.total;
         }
        }
        return p;
@@ -102,24 +110,32 @@
      var natGroup = natDim.group().reduce(
       function (p, v) {
        if (v.Gender == 'M') {
-        p.male += Math.abs(80 - v.Age);
-        p.total += Math.abs(80 - v.Age);
+        //p.male += Math.abs(80 - v.Age);
+        //p.total += Math.abs(80 - v.Age);
+        ++p.male;
+        ++p.total;
        }
        else {
-        p.female += Math.abs(84 - v.Age);
-        p.total += Math.abs(84 - v.Age);
+        //p.female += Math.abs(84 - v.Age);
+        //p.total += Math.abs(84 - v.Age);
+        ++p.female;
+        ++p.total;
        }
 
        return p;
       },
       function (p, v) {
        if (v.Gender == 'M') {
-        p.male -= 80 - v.Age;
-        p.total -= 80 - v.Age;
+        //p.male -= 80 - v.Age;
+        //p.total -= 80 - v.Age;
+        --p.male;
+         --p.total;
        }
        else {
-        p.female -= 84 - v.Age;
-        p.total -= 84 - v.Age;
+        //p.female -= 84 - v.Age;
+        //p.total -= 84 - v.Age;
+        --p.female;
+         --p.total;
        }
 
        return p;
@@ -146,12 +162,14 @@
        if (v.Dead == true) {
         ++p.dead;
        }
+       //++p.dead;
        return p;
       },
       function (p, v) {
        if (v.Dead == true) {
         --p.dead;
        }
+       //--p.dead;
        return p;
       },
       function () {
@@ -290,11 +308,12 @@
      /***************************************
       * 	Step4: Create the Visualisations   *
       ***************************************/
-     var citycount = d3.selectAll("#cities").text("All Areas");
+     //var citycount = d3.selectAll("#cities").text("All Areas");
+     var allcount = d3.selectAll("#allf").text("All Records");
 
      var stolensvg = d3.select("#stolen-years").append("svg")
       .attr("width", 900 + margin.left + margin.right)
-      .attr("height", 200 + margin.top + margin.bottom);
+      .attr("height", 150 + margin.top + margin.bottom);
      var stoleng = stolensvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
      stolensvg.append("text")
@@ -313,7 +332,7 @@
 
      var slidersvg = d3.select("#slider").append("svg")
       .attr("width", 900)
-      .attr("height", 300);
+      .attr("height", 250);
      var sliderg = slidersvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -327,7 +346,7 @@
 
      var stackedbarsvg = d3.select("#stacked-bar-chart").append("svg")
       .attr("width", 400)
-      .attr("height", 300);
+      .attr("height", 250);
      var stackedbarg = stackedbarsvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
      stackedbarsvg.append("text")
@@ -343,10 +362,10 @@
 
      var stackgendersvg = d3.select("#stacked-bars-age").append("svg")
       .attr("width", 400)
-      .attr("height", 300);
+      .attr("height", 250);
      var stackgenderg = stackgendersvg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-      stackgendersvg.append("text")
+     stackgendersvg.append("text")
       .attr("transform",
        "translate(" + (+stolensvg.attr("width") / 4) + " ," + 20 + ")")
       .style("text-anchor", "middle")
@@ -356,7 +375,7 @@
        "translate(" + (+stolensvg.attr("width") / 8) + " ," + 20 + ")")
       .style("text-anchor", "middle")
       .text("Died");
-      stackgendersvg.append("text")
+     stackgendersvg.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 25)
       .attr("x", 0 - (+stolensvg.attr("height") / 2) + 30)
@@ -368,7 +387,7 @@
       ****************************/
      // colour takes 1 array as domain (keys) 1 array as values (colours)
      // overdose death, motor death, died, lived, Male, Female, stolen years
-     var colours = ["DarkOrange", "#E85451", "GoldenRod", "SaddleBrown", "DarkKhaki", "Teal", "LightGrey", "DarkRed"];
+     var colours = ["#f92525", "#E85451", "#f92525", "SaddleBrown", "DarkKhaki", "Teal", "LightGrey", "DarkRed"];
 
      /*************************************************************************************
       * because the functions are nested they're "undefined" when trying to refer to them.
@@ -402,48 +421,13 @@
       ****************************/
 
      function resetAll() {
-       selectedcities = [];
-       selectedage = [];
+      /*selectedcities = [];
+      selectedage = [];
       //remove all filters and redraw all
       dateDim.filterAll();
       cityDim.filterAll();
-      renderAll(data);
-     }
-
-     function makeLegend(mylegend) {
-      //take selected legend and make it
-      mylegend = mylegend.attr("class", "legend")
-       .attr("transform", "translate(50,30)")
-       .style("font-size", "12px")
-       .call(d3.legend);
-      /*var colour = d3.scaleOrdinal(colour);
-      var legendRectSize = 18;
-      var legendSpacing = 4;
-      var legend = mylegend.data(colour.domain())
-       .enter().append('g')
-       .attr("class", "legend")
-       .attr('transform', function (d, i) {
-        var height = legendRectSize + legendSpacing;
-        var offset = height * colour.domain().length / 2;
-        var horz = 2 * legendRectSize;
-        var vert = i * height + offset;
-        return 'translate(' + (horz + width / 2) + ',' + (vert - 4) + ')';
-       });
-
-      legend.append('rect')
-       .attr('width', legendRectSize)
-       .attr('height', legendRectSize)
-       .style('fill', colour)
-       .style('stroke', colour);
-
-      legend.append('text')
-       .attr('x', legendRectSize + legendSpacing)
-       .attr('y', legendRectSize - legendSpacing)
-       .text(function (d) {
-        return d.toUpperCase();
-       });*/
-
-      return mylegend;
+      renderAll(data);*/
+      location.reload();
      }
 
      function makeStolenYears(facts, mycolours) {
@@ -494,7 +478,8 @@
          .style("left", xPosition + "px")
          .style("top", yPosition + "px")
          //d3.select("#value")
-         .html("Age: " + d.key + "<br>Years Lost: " + d.value.total);
+         //.html("Age: " + d.key + "<br>Years Lost: " + d.value.total);
+         .html("Age: " + d.key + "<br>Years Lost: " + (84-d.key));
 
         //Show the tooltip
         d3.select("#tooltip").classed("hidden", false);
@@ -533,7 +518,7 @@
         d3.select("#tooltip")
          .style("left", xPosition + "px")
          .style("top", yPosition + "px")
-         .html("Age: " + d.key + "<br>Potential Years: " + d.value.total);
+         .html("Age: " + d.key + "<br>Average Expected Deaths: " + d.value.total);
         //Show the tooltip
         d3.select("#tooltip").classed("hidden", false);
        })
@@ -552,7 +537,7 @@
 
       stoleng.append("g")
        .attr("class", "axis axis--y")
-       .call(d3.axisLeft(y).ticks(10, "d"));
+       .call(d3.axisLeft(y).ticks(5, "d"));
 
       //generate areas
       var area = d3.area()
@@ -861,8 +846,9 @@
        return d.key;
       }));
 
-      y.domain([0, d3.max(motorGroup.top(Infinity), function (d) {
-       return d.value;
+      y.domain([0, d3.max(data, function (d) {
+       //console.log(d);
+       return d.value.dead;
       })]).nice();
 
       // make a line "function"
@@ -873,7 +859,6 @@
        .y(function (d) {
         return y(d.death);
        });
-
       var odline = sliderg.selectAll(".odline").data([odNest[0].values]);
       odline.enter().append("path")
        .attr("d", lineGen(odNest[0].values))
@@ -881,7 +866,6 @@
        //.attr('stroke', mycolours[0])
        .attr('stroke-width', 2)
        .attr("fill", "none");
-
       var motorline = sliderg.selectAll(".motorline").data([odNest[1].values]);
       motorline.enter().append("path")
        .attr("d", lineGen(odNest[1].values))
@@ -898,37 +882,37 @@
 
       sliderg.append("g")
        .attr("class", "axis axis--y")
-       .call(d3.axisLeft(y).ticks(10, "d"));
+       .call(d3.axisLeft(y).ticks(5, "d"));
 
       // add legend
-        // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-        var slidercolour = d3.scaleOrdinal(["GoldenRod","#838B8B"]);
-        //console.log(colour.domain());
-        var legendRectSize = 18;
-        var legendSpacing = 4;
-        var legend = slidersvg.selectAll(".legend")
-            .data(["Overdose", "Motor"])
-            .enter().append('g')
-            .attr("class", "legend")
-            .attr('transform', function(d, i) {
-                var height = legendRectSize + legendSpacing;
-                var offset = height * slidercolour.domain().length / 2;
-                var vert = i * height + offset;
-                return 'translate(' + (width) + ',' + (vert - 4) + ')';
-            });
+      // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
+      var slidercolour = d3.scaleOrdinal(["#f92525", "#5d24f9"]);
+      //console.log(colour.domain());
+      var legendRectSize = 18;
+      var legendSpacing = 4;
+      var legend = slidersvg.selectAll(".legend")
+       .data(["Overdose", "Motor"])
+       .enter().append('g')
+       .attr("class", "legend")
+       .attr('transform', function (d, i) {
+        var height = legendRectSize + legendSpacing;
+        var offset = height * slidercolour.domain().length / 2;
+        var vert = i * height + offset;
+        return 'translate(' + (width) + ',' + (vert - 4) + ')';
+       });
 
-        legend.append('rect')
-            .attr('width', legendRectSize)
-            .attr('height', legendRectSize)
-            .style('fill', slidercolour)
-            .style('stroke', slidercolour);
+      legend.append('rect')
+       .attr('width', legendRectSize)
+       .attr('height', legendRectSize)
+       .style('fill', slidercolour)
+       .style('stroke', slidercolour);
 
-        legend.append('text')
-            .attr('x', legendRectSize + legendSpacing)
-            .attr('y', legendRectSize - legendSpacing)
-            .text(function(d) {
-                return d.toUpperCase();
-            });
+      legend.append('text')
+       .attr('x', legendRectSize + legendSpacing)
+       .attr('y', legendRectSize - legendSpacing)
+       .text(function (d) {
+        return d.toUpperCase();
+       });
 
       this.update = function () {
        var odData = [];
@@ -1011,7 +995,7 @@
        x = d3.scaleLinear().rangeRound([0, width]),
        colour = d3.scaleOrdinal(mycolours);
 
-      var xAxis = d3.axisTop().scale(x).ticks(10, "d")
+      var xAxis = d3.axisTop().scale(x).ticks(7, "d")
        .tickFormat(Math.abs);
 
       var yAxis = d3.axisLeft().scale(y);
@@ -1049,7 +1033,8 @@
 
       function stackMax(serie) {
        return d3.max(serie, function (d) {
-        return d[1];
+        return d.data.total;
+        //return d[1];
        });
       }
 
@@ -1091,7 +1076,8 @@
          return selectedcities.indexOf(d) > -1;
         });
         renderAll(facts);
-        d3.selectAll("#cities").text(selectedcities);
+        //d3.selectAll("#cities").text(selectedcities);
+        allcount.text(selectedage.concat(selectedcities));
        });
 
       rects.attr("y", function (d) {
@@ -1114,16 +1100,6 @@
        .attr("class", "axis axis--x")
        .call(xAxis);
 
-      // add legend
-      // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-      /*var legend = makeLegend(stackedbarg.selectAll(".legend"), mycolours);
-      legend.attr('transform', function (d, i) {
-       var height = 18 + 4;
-       var offset = height * colour.domain().length / 2;
-       var vert = i * height + offset;
-       return 'translate(' + (margin.width - 95) + ',' + (vert) + ')';
-      });*/
-
       function stackOffsetDiverging(series, order) {
        if (!((n = series.length) > 1)) return;
        for (var i, j = 0, d, dy, yp, yn, n, m = series[order[0]].length; j < m; ++j) {
@@ -1140,11 +1116,11 @@
         }
        }
       }
-   
+
       this.update = function () {
 
        var newData = [];
-       
+
 
        cityDeadGroup.all().forEach(function (d) {
         var tempObj = {};
@@ -1195,7 +1171,8 @@
          rects.transition()
           .duration(500)
           .attr("width", function (d) {
-           return x(d.data.deadmale) - x(d.data.livmale);
+           //return x(d.data.deadmale) - x(d.data.livmale);
+           return x(d.data.died) - x(d.data.deadmale);
           });
 
         }
@@ -1203,7 +1180,7 @@
          rects.transition()
           .duration(500)
           .attr("width", function (d) {
-           return x(d.data.deadfemale) - x(d.data.livfemale);
+           return x(d.data.died) - x(d.data.deadfemale);
 
           });
         }
@@ -1230,7 +1207,7 @@
 
 
       var xAxis = d3.axisTop().scale(x)
-       .ticks(5, "d")
+       .ticks(7, "d")
        .tickFormat(Math.abs);
 
       var yAxis = d3.axisLeft().scale(y);
@@ -1276,7 +1253,7 @@
 
       function stackMax(serie) {
        return d3.max(serie, function (d) {
-        return d[1];
+        return d.data.total;
        });
       }
 
@@ -1330,6 +1307,7 @@
         return selectedage.indexOf(d) > -1;
        });
        renderAll(facts);
+       allcount.text(selectedage.concat(selectedcities));
       });
 
       // add legend
@@ -1419,7 +1397,7 @@
          rects.transition()
           .duration(500)
           .attr("width", function (d) {
-           return x(d.data.deadmale) - x(d.data.livmale);
+           return x(d.data.died) - x(d.data.deadmale);
           });
 
         }
@@ -1427,7 +1405,7 @@
          rects.transition()
           .duration(500)
           .attr("width", function (d) {
-           return x(d.data.deadfemale) - x(d.data.livfemale);
+           return x(d.data.died) - x(d.data.deadfemale);
 
           });
         }
@@ -1441,6 +1419,8 @@
        }
       };
      }
+
+
 
      // https://github.com/thesentinelproject/threatwiki_node/blob/master/public/javascript/visualization.js
      // https://vast-journey-7849.herokuapp.com/burmavisualization
@@ -1461,8 +1441,6 @@
        "name": "Surrey",
        "coords": []
       }];
-      var areas = [];
-
       // Add some markers to the map.
       // Note: The code uses the JavaScript Array.prototype.map() method to
       // create an array of markers based on a given "locations" array.
@@ -1472,6 +1450,7 @@
       data.forEach(function (d, i) {
        markers.push(new google.maps.Marker({
         position: d.location,
+        //position: loc(d.City),
         optimized: false,
         title: d.City,
         icon: 'https://www.google.com/mapfiles/marker.png?i=' + (i)
@@ -1481,6 +1460,7 @@
       markers.forEach(function (m) {
        google.maps.event.addListener(m, 'click', function () {
         var title = this.getTitle();
+        selectedcities.append(title);
         cityDim.filterFunction(function (d) {
          return d == title;
         });

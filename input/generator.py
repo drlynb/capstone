@@ -74,10 +74,38 @@ def strTimeProp(start, end, format, prop):
     ptime = stime + prop * (etime - stime)
 
     return time.strftime(format, time.localtime(ptime))
+    
+def latnlng(city):
+    if city == 'Burnaby':
+        return [49.255877,-122.963321]
+    elif city == 'Coquitlam':
+        return [49.276495,-122.801672]
+    elif city == 'South Surrey/White Rock':
+        return [49.034278,-122.792890]
+    elif city == 'Surrey':
+        return [ 49.122842,-122.803788]
+    elif city == 'New Westminster':
+        return [49.209467,-122.918884]
+    elif city == 'Delta':
+        return [ 49.086991,-123.027825]
+    elif city == 'Maple Ridge':
+        return [49.228140,-122.615202]
+    elif city == 'Chilliwack':
+        return [49.159448,-121.936125]
+    elif city == 'Langley':
+        return [49.103677,-122.661125]
+    elif city == 'Abbotsford':
+        return [49.057336,-122.312989]
+    elif city == 'Mission':
+       return [49.136887,-122.322956]
+    elif city == 'Hope':
+        return [ 49.384400,-121.443311]
+    elif city == 'Agassiz-Harrison':
+        return [ 49.271338,-121.776529]
 
 
 def randomDate(start, end, prop):
-    return strTimeProp(start, end, '%m/%d/%Y %I:%M %p', prop)
+    return strTimeProp(start, end, '%m/%Y', prop)
 
 def choose(mylist):
     return str(random.choice(mylist))+ ','
@@ -107,48 +135,96 @@ def randage(age):
     elif age == '86+':
         return str(random.randint(86,100)) +','
 
-dates = [("1/1/2007 1:00 AM", "12/31/2007 11:59 PM")*20, ("1/1/2008 1:00 AM", "12/31/2008 11:59 PM")*18,
-        ("1/1/2009 1:00 AM", "12/31/2009 11:59 PM")*20, ("1/1/2010 1:00 AM", "12/31/2010 11:59 PM")*21,
-        ("1/1/2011 1:00 AM", "12/31/2011 11:59 PM")*29, ("1/1/2012 1:00 AM", "12/31/2012 11:59 PM")*26,
-        ("1/1/2013 1:00 AM", "12/31/2013 11:59 PM")*33, ("1/1/2014 1:00 AM", "12/31/2014 11:59 PM")*36,
-        ("1/1/2015 1:00 AM", "12/31/2015 11:59 PM")*51, ("1/1/2016 1:00 AM", "12/31/2016 11:59 PM")*92]
+dates = [("1/2007", "12/2007")*20, ("1/2008", "12/2008")*18,
+        ("1/2009", "12/2009")*20, ("1/2010", "12/2010")*21,
+        ("1/2011", "12/2011")*29, ("1/2012", "12/2012")*26,
+        ("1/2013", "12/2013")*33, ("1/2014", "12/2014")*36,
+        ("1/2015", "12/2015")*51, ("1/2016", "12/2016")*92]
 def datetimes():
     return random.choice(dates)
+    
+deathsbymonth = [[15,18,23,16,24,20,20,22,41,84],
+                    [14,8,15,14,24,17,21,39,30,59],
+                    [19,17,10,15,25,25,33,28,30,80],
+                    [24,18,8,9,26,31,31,29,34,69],
+                    [10,18,19,22,22,19,28,40,42,49],
+                    [18,18,16,21,22,25,25,28,34,69],
+                    [11,24,19,23,33,29,38,25,36,67],
+                    [21,16,27,24,22,19,21,37,53,52],
+                    [14,12,16,20,22,16,28,31,46,56],
+                    [15,10,13,18,23,19,19,35,53,67],
+                    [19,9,18,18,27,28,31,28,47,128],
+                    [22,15,17,11,24,21,37,24,67,142]]
 
-lats = [49.2893, 49.0111]
-longs = [-123.0246, -122.1270]
+#lats = [49.2893, 49.0111]
+#longs = [-123.0246, -122.1270]
 with open(output, 'w') as out:
-	out.write(titles()+'\n')
-	row = ''
-	for i in range(5000):
-		row += str(uuid.uuid4())+','						#id
-		row += choose(gender)								#Gender
-		temp = choose(ages)
-		row += temp									#agegroup
-		row += randage(temp[:-1])              #age
-		row += choose(homeless)								#homeless
-		row += choose(city)									#city
-		row += str(random.uniform(lats[1], lats[0]))+','			#EventLat
-		row += str(random.uniform(longs[1], longs[0]))+','		#EventLng
-		row += choose(building)								#Building
-		row += choose(substance)							#SuspectedSubstance
-		row += choose(firstevent)							#FirstEvent
-		temp = choose(dead)
-		row += str(temp)									#Dead
-		if 'True' in temp:							#if they're dead
-			row += str(random.uniform(lats[1], lats[0]))+','		#DeathLat
-			row += str(random.uniform(longs[1], longs[0]))+','	#DeathLng
-			row += choose(substance)						#ConfirmedSubstance
-
-		else:												#if not decieced no confirmed substance and death loc
-			row += str('NA') +','+str('NA') +','+str('NA') +','
+    out.write(titles()+'\n')
+    rows = ''
+    for month,deaths in enumerate(deathsbymonth):
+        for year in range(10):
+            for j in range(deaths[year]):
+                rows += str(uuid.uuid4())+','						#id
+                rows += choose(gender)								#Gender
+                temp = choose(ages)
+                rows += temp									#agegroup
+                rows += randage(temp[:-1])              #age
+                rows += choose(homeless)								#homeless
+                temp = choose(city)
+                rows += temp									#city
+                loc = latnlng(temp[:-1])
+                rows += str(loc[0] + random.randrange(-19,19,1)/1000.0)+','			#EventLat
+                rows += str(loc[1] + random.randrange(-19,19,1)/1000.0)+','		#EventLng
+                rows += choose(building)								#Building
+                rows += choose(substance)							#SuspectedSubstance
+                rows += choose(firstevent)							#FirstEvent
+                temp = str(True)+','
+                rows += str(temp)									#Dead
+                if 'True' in temp:							#if they're dead
+                	rows += str(loc[0] + random.randrange(-19,19,1)/1000.0)+','		#DeathLat
+                	rows += str(loc[1] + random.randrange(-19,19,1)/1000.0)+','	#DeathLng
+                	rows += choose(substance)						#ConfirmedSubstance
+                
+                else:												#if not decieced no confirmed substance and death loc
+                	rows += str('NA') +','+str('NA') +','+str('NA') +','
+                
+                rows += choose(naloxone)								#ReceivedNaloxone
+                #temp2 = datetimes()
+                #row += randomDate("1/1/2007 1:00 AM", "12/31/2016 11:59 PM", random.random())
+                rows += str(month+1)+'/'+str(year+2007)
+                rows +='\n'
+                
+    for i in range(5000):
+        rows += str(uuid.uuid4())+','						#id
+        rows += choose(gender)								#Gender
+        temp = choose(ages)
+        rows += temp									#agegroup
+        rows += randage(temp[:-1])              #age
+        rows += choose(homeless)								#homeless
+        temp = choose(city)
+        rows += temp									#city
+        loc = latnlng(temp[:-1])
+        rows += str(loc[0] + random.randrange(-19,19,1)/1000.0)+','			#EventLat
+        rows += str(loc[1] + random.randrange(-19,19,1)/1000.0)+','		#EventLng
+        rows += choose(building)								#Building
+        rows += choose(substance)							#SuspectedSubstance
+        rows += choose(firstevent)							#FirstEvent
+        temp = str(False)+','
+        rows += str(temp)									#Dead
+        if 'True' in temp:							#if they're dead
+        	rows += str(loc[0] + random.randrange(-19,19,1)/1000.0)+','		#DeathLat
+        	rows += str(loc[1] + random.randrange(-19,19,1)/1000.0)+','	#DeathLng
+        	rows += choose(substance)						#ConfirmedSubstance
         
-		row += choose(naloxone)								#ReceivedNaloxone
-		temp2 = datetimes()
-		#row += randomDate("1/1/2007 1:00 AM", "12/31/2016 11:59 PM", random.random())
-		row += randomDate(temp2[0], temp2[1], random.random())
-		row +='\n'
-	out.write(row)
+        else:												#if not decieced no confirmed substance and death loc
+        	rows += str('NA') +','+str('NA') +','+str('NA') +','
+        
+        rows += choose(naloxone)								#ReceivedNaloxone
+        #temp2 = datetimes()
+        rows += randomDate("1/2007", "12/2016", random.random())
+        #rows += str(month+1)+'/'+str(year+2007)
+        rows +='\n'
+    out.write(rows)
     
     
 '''
