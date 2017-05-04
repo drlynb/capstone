@@ -2,7 +2,6 @@ import random
 import uuid #universally unique identifiers
 import time
 
-
 output = 'mock.csv'
 #http://www.cra-arc.gc.ca/gncy/stts/itsa-sipr/2014/menu-eng.html -- income info
 '''Data includes:
@@ -14,7 +13,6 @@ output = 'mock.csv'
     '''
 
 # bc coroners statistical reports into bc fatalities
-	
 
 TF = [True, False]
 
@@ -57,22 +55,17 @@ datetime = []
 hospitals = ['Delta', 'Abbotsford', 'Langley', 'Burnaby', 'Surrey', 'Chilliwack', 'White Rock',
             'New Westminster', 'Hope', 'Maple Ridge', 'Mission', 'Port Moody']
 
-			
 # https://stackoverflow.com/questions/553303/generate-a-random-date-between-two-other-dates
-def strTimeProp(start, end, format, prop):
+def timeFunc(start, end, format, prop):
     '''Get a time at a proportion of a range of two formatted times.
-
     start and end should be strings specifying times formated in the
     given format (strftime-style), giving an interval [start, end].
     prop specifies how a proportion of the interval to be taken after
     start.  The returned time will be in the specified format.
     '''
-
     stime = time.mktime(time.strptime(start, format))
     etime = time.mktime(time.strptime(end, format))
-
     ptime = stime + prop * (etime - stime)
-
     return time.strftime(format, time.localtime(ptime))
     
 def latnlng(city):
@@ -105,7 +98,7 @@ def latnlng(city):
 
 
 def randomDate(start, end, prop):
-    return strTimeProp(start, end, '%m/%Y', prop)
+    return timeFunc(start, end, '%m/%Y', prop)
 
 def choose(mylist):
     return str(random.choice(mylist))+ ','
@@ -225,27 +218,3 @@ with open(output, 'w') as out:
         #rows += str(month+1)+'/'+str(year+2007)
         rows +='\n'
     out.write(rows)
-    
-    
-'''
-
-Your algorithm is correct, how about something more elegant:
-
-import random
-my_list = ['A'] * 5 + ['B'] * 5 + ['C'] * 90
-random.choice(my_list)
-
-	
-it's not necessary to generate 100 list items, as long as the number of items remains proportional. 
-In this instance, you can do ['A', 'B'] + ['C'] * 18
-
- random.sample(population, k)
-
-    Return a k length list of unique elements chosen from the population sequence. Used for random sampling without replacement.
-    
-
-random.choice(seq)
-
-    Return a random element from the non-empty sequence seq. If seq is empty, raises IndexError.
-
- '''

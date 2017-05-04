@@ -17,7 +17,7 @@
 <div class="row">
     <div class="col-md-12">
         <button class="mybutton" style="color: black">Reset All</button>
-        <div id="allf">All Records</div>
+        <div id="allf"></div>
     </div>
 </div>
 <div class="row">
@@ -26,7 +26,7 @@
         <p><input type="checkbox" class="myCheckbox" value="f"> Female</p>
     </div>
     <div class="col-md-11">
-        <div id="stolen-years"></div>
+        <div id="stolen-years" class="chart"></div>
         <div id="tooltip" class="hidden">
             <p id="value"></p>
         </div>
@@ -42,24 +42,24 @@
         <p><input type="checkbox" class="myCheckbox2" value="f"> Female</p>
     </div>
     <div class="col-md-5">
-        <div id="stacked-bar-chart"></div>
-        <div id="stacked-bars-age"></div>
+        <div id="stacked-bar-chart" class="chart"></div>
+        <div id="stacked-bars-age" class="chart"></div>
     </div>
     <div class="col-md-6">
-        <div id="map"></div>
+        <div id="map" class="chart"></div>
     </div>
     </div>
 </div>
     <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-11">
-        <div id="slider"></div>
+        <div id="slider" class="chart"></div>
     </div>
 
 <div class="row">
     <div class="col-md-12">
         <h3>Contact us</h3>
-        <p>For More information please visit our <a href="http://www.fraserhealth.ca/health-info/health-topics/harm-reduction/overdose-prevention-and-response/">website</a>.</p>
+        <p>For More information please visit Fraser Health's <a href="http://www.fraserhealth.ca/health-info/health-topics/harm-reduction/overdose-prevention-and-response/">website</a>.</p>
         <form>
             <input type="text" name="comment"/>
             <input type="submit" style="color:black;" value="Submit"/>
@@ -71,13 +71,10 @@
 <script src="https://maps.google.com/maps/api/js?sensor=true"></script>
 <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/charts3.js') }}"></script>
-<!--<script type="text/javascript" src="{{ url_for('static', filename='js/barbrush.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/map.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/stolenyears.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/slidebars.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/slidebars2.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/brushlines.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/lines.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/slider.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/charts.js') }}"></script>-->
+<script type="text/javascript" src="{{ url_for('static', filename='js/timeline.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/agebars.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/filters.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/citybars.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/map.js') }}"></script>
 {% endblock %}

@@ -10,7 +10,7 @@ ages = ['<16']*13 + ['16-25']*43 + ['26-35']*58 + ['36-45']*107 + ['46-55']*300 
 
 def choose(mylist):
     return str(random.choice(mylist))+ ','
-    
+
 def titles():
     return 'Gender,' + 'Age,' 'Agegroup'
     
