@@ -1,6 +1,6 @@
 /* global d3 */
 /* global crossfilter */
-function makeStolenYears(facts, mycolours) {
+function MakeStolenYears(facts, mycolours) {
     var parent = this;
     d3.json("/natural", function (error2, naturaldata) {
         var margin = {
@@ -268,8 +268,8 @@ function makeStolenYears(facts, mycolours) {
                 }
             });
             //if 1 box checked
-            if (choices.length == 1) {
-                if (choices[0] == 'm') {
+            if (choices.length === 1) {
+                if (choices[0] === "m") {
                     lost.transition()
                         .duration(500)
                         .attr("d", area.y1(function (d) {

@@ -1,5 +1,5 @@
 /* global d3 */
-function makeAgeBars(facts, mycolours, renderAll) {
+function MakeAgeBars(facts, mycolours, renderAll) {
     var chart = this;
     var margin = {
         top: 60,
@@ -7,14 +7,14 @@ function makeAgeBars(facts, mycolours, renderAll) {
         bottom: 60,
         left: 90
     };
-    var ageDim = facts.dimension(function (d) {
+    chart.ageDim = facts.dimension(function (d) {
         return d["Agegroup"];
     });
-    var ageGroup = ageDim.group().reduce(
+    var ageGroup = chart.ageDim.group().reduce(
         function (p, v) {
             ++p.total;
-            if (v.Dead == true) {
-                if (v.Gender == "M") {
+            if (v.Dead === true) {
+                if (v.Gender === "M") {
                     ++p.deadmale;
                 }
                 else {
@@ -24,7 +24,7 @@ function makeAgeBars(facts, mycolours, renderAll) {
             }
             else {
                 ++p.living;
-                if (v.Gender == "M") {
+                if (v.Gender === "M") {
                     ++p.livmale;
                 }
                 else {
@@ -36,7 +36,7 @@ function makeAgeBars(facts, mycolours, renderAll) {
         function (p, v) {
             --p.total;
             if (v.Dead == true) {
-                if (v.Gender == "M") {
+                if (v.Gender === "M") {
                     --p.deadmale;
                 }
                 else {
@@ -46,7 +46,7 @@ function makeAgeBars(facts, mycolours, renderAll) {
             }
             else {
                 --p.living;
-                if (v.Gender == "M") {
+                if (v.Gender === "M") {
                     --p.livmale;
                 }
                 else {
@@ -96,19 +96,15 @@ function makeAgeBars(facts, mycolours, renderAll) {
     var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
         x = d3.scaleLinear().rangeRound([0, width]),
         colour = d3.scaleOrdinal(mycolours);
-
     var xAxis = d3.axisTop().scale(x)
         .ticks(7, "d")
         .tickFormat(Math.abs);
-
     var yAxis = d3.axisLeft().scale(y);
-
     var ages = [];
 
     // stack cant accept nested objects, need to modify data
     // https://stackoverflow.com/questions/42039506/d3-stack-vs-nested-objects
     var newData = [];
-
     ageGroup.top(Infinity).forEach(function (d) {
         var tempObj = {};
         tempObj["age"] = d.key;
@@ -189,7 +185,7 @@ function makeAgeBars(facts, mycolours, renderAll) {
                 d3.select(this).attr("fill", "brown");
             }
         });
-        ageDim.filterFunction(function (d) {
+        chart.ageDim.filterFunction(function (d) {
             return chart.selectedage.indexOf(d) > -1;
         });
         renderAll(facts);
@@ -223,6 +219,7 @@ function makeAgeBars(facts, mycolours, renderAll) {
     chart.update = function () {
         var newData = [];
         ageGroup.top(Infinity).forEach(function (d) {
+            //ageGroup.all().forEach(function (d){
             var tempObj = {};
             tempObj["age"] = d.key;
             tempObj["lived"] = -d.value.living;
@@ -235,6 +232,10 @@ function makeAgeBars(facts, mycolours, renderAll) {
             newData.push(tempObj);
             ages.push(d.key);
         });
+        var stack = d3.stack()
+            .keys(["lived", "died"])
+            .offset(stackOffsetDiverging)
+            (newData);
         serie.data(stack);
         rects.data(function (d) {
                 return d;
@@ -242,6 +243,7 @@ function makeAgeBars(facts, mycolours, renderAll) {
             .attr("class", function (d) {
                 return (chart.selectedage.indexOf(d.data.age) > -1) ? "bar agegroup selected" : "bar agegroup";
             })
+            .transition().duration(500)
             .attr("x", function (d) {
                 return x(d[0]);
             })
@@ -259,10 +261,18 @@ function makeAgeBars(facts, mycolours, renderAll) {
             }
         });
         //if 1 box checked
-        if (choices.length == 1) {
-            if (choices[0] == 'm') {
+        if (choices.length === 1) {
+            if (choices[0] === "m") {
                 rects.transition()
                     .duration(500)
+                    .attr("x", function (d) {
+                        if (d[0] === 0) {
+                            return x(d[0]);
+                        }
+                        else {
+                            return 130 - (x(d.data.died) - x(d.data.deadmale));
+                        }
+                    })
                     .attr("width", function (d) {
                         return x(d.data.died) - x(d.data.deadmale);
                     });
@@ -270,6 +280,14 @@ function makeAgeBars(facts, mycolours, renderAll) {
             else { // f checked
                 rects.transition()
                     .duration(500)
+                    .attr("x", function (d) {
+                        if (d[0] === 0) {
+                            return x(d[0]);
+                        }
+                        else {
+                            return 130 - (x(d.data.died) - x(d.data.deadfemale));
+                        }
+                    })
                     .attr("width", function (d) {
                         return x(d.data.died) - x(d.data.deadfemale);
                     });
@@ -278,6 +296,14 @@ function makeAgeBars(facts, mycolours, renderAll) {
         else { // both or neither checked
             rects.transition()
                 .duration(500)
+                .attr("x", function (d) {
+                    if (d[0] === 0) {
+                        return x(d[0]);
+                    }
+                    else {
+                        return 130 - (x(d[1]) - x(d[0]));
+                    }
+                })
                 .attr("width", function (d) {
                     return x(d[1]) - x(d[0]);
                 });

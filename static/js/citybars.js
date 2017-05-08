@@ -2,90 +2,90 @@
 // https://bl.ocks.org/mbostock/b5935342c6d21928111928401e2c8608
 // https://bl.ocks.org/mbostock/3885304
 // https://stackoverflow.com/questions/42173318/d3v4-stacked-barchart-tooltip
-function makeCityBars(facts, mycolours, renderAll) {
-  var chart = this;
-  var margin = {
-   top: 60,
-   right: 50,
-   bottom: 60,
-   left: 90
-  };
-  chart.cityDim = facts.dimension(function (d) {
-   return d["City"];
-  });
-
-  var cityDeadGroup = chart.cityDim.group().reduce(
-   function (p, v) {
-    if (v.Dead === true) {
-     ++p.deaths;
-     if (v.Gender === "M") {
-      ++p.deadmale;
-     }
-     else {
-      ++p.deadfemale;
-     }
-    }
-    else {
-     ++p.events;
-     if (v.Gender === "M") {
-      ++p.livmale;
-     }
-     else {
-      ++p.livfemale;
-     }
-    }
-    ++p.total;
-    return p;
-   },
-   function (p, v) {
-    if (v.Dead === true) {
-     --p.deaths;
-     if (v.Gender === "M") {
-      --p.deadmale;
-     }
-     else {
-      --p.deadfemale;
-     }
-    }
-    else {
-     --p.events;
-     if (v.Gender === "M") {
-      --p.livmale;
-     }
-     else {
-      --p.livfemale;
-     }
-    }
-    --p.total;
-    return p;
-   },
-   function () {
-    return {
-     deaths: 0,
-     livmale: 0,
-     livfemale: 0,
-     deadmale: 0,
-     deadfemale: 0,
-     events: 0,
-     total: 0
+function MakeCityBars(facts, mycolours, renderAll) {
+    var chart = this;
+    var margin = {
+        top: 60,
+        right: 50,
+        bottom: 60,
+        left: 90
     };
-   });
+    chart.cityDim = facts.dimension(function (d) {
+        return d["City"];
+    });
 
-  var stackedbarsvg = d3.select("#stacked-bar-chart").append("svg")
-   .attr("width", 400)
-   .attr("height", 250);
-  var stackedbarg = stackedbarsvg.append("g")
-   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-  stackedbarsvg.append("text")
-   .attr("transform",
-    "translate(" + (+stackedbarsvg.attr("width") / 4) + " ," + 20 + ")")
-   .style("text-anchor", "middle")
-   .text("Lived");
-  stackedbarsvg.append("text")
-   .attr("transform",
-    "translate(" + (+stackedbarsvg.attr("width") / 8) + " ," + 20 + ")")
-   .style("text-anchor", "middle")
-   .text("Died");
+    var cityDeadGroup = chart.cityDim.group().reduce(
+        function (p, v) {
+            if (v.Dead === true) {
+                ++p.deaths;
+                if (v.Gender === "M") {
+                    ++p.deadmale;
+                }
+                else {
+                    ++p.deadfemale;
+                }
+            }
+            else {
+                ++p.events;
+                if (v.Gender === "M") {
+                    ++p.livmale;
+                }
+                else {
+                    ++p.livfemale;
+                }
+            }
+            ++p.total;
+            return p;
+        },
+        function (p, v) {
+            if (v.Dead === true) {
+                --p.deaths;
+                if (v.Gender === "M") {
+                    --p.deadmale;
+                }
+                else {
+                    --p.deadfemale;
+                }
+            }
+            else {
+                --p.events;
+                if (v.Gender === "M") {
+                    --p.livmale;
+                }
+                else {
+                    --p.livfemale;
+                }
+            }
+            --p.total;
+            return p;
+        },
+        function () {
+            return {
+                deaths: 0,
+                livmale: 0,
+                livfemale: 0,
+                deadmale: 0,
+                deadfemale: 0,
+                events: 0,
+                total: 0
+            };
+        });
+
+    var stackedbarsvg = d3.select("#stacked-bar-chart").append("svg")
+        .attr("width", 400)
+        .attr("height", 250);
+    var stackedbarg = stackedbarsvg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    stackedbarsvg.append("text")
+        .attr("transform",
+            "translate(" + (+stackedbarsvg.attr("width") / 4) + " ," + 20 + ")")
+        .style("text-anchor", "middle")
+        .text("Lived");
+    stackedbarsvg.append("text")
+        .attr("transform",
+            "translate(" + (+stackedbarsvg.attr("width") / 8) + " ," + 20 + ")")
+        .style("text-anchor", "middle")
+        .text("Died");
     var width = +stackedbarsvg.attr("width") - margin.left - margin.right,
         height = +stackedbarsvg.attr("height") - margin.top - margin.bottom;
     var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
@@ -120,6 +120,7 @@ function makeCityBars(facts, mycolours, renderAll) {
     y.domain(newData.map(function (d) {
         return d.cities;
     }));
+
     function stackMax(serie) {
         return d3.max(serie, function (d) {
             return d.data.total;
@@ -135,7 +136,7 @@ function makeCityBars(facts, mycolours, renderAll) {
         });
 
     //list of seleted cities
-  chart.selectedcities = [];
+    chart.selectedcities = [];
     var rects = serie.selectAll(".city")
         .data(function (d) {
             return d;
@@ -230,6 +231,9 @@ function makeCityBars(facts, mycolours, renderAll) {
             })
             .transition()
             .duration(500)
+            .attr("x", function (d) {
+                return x(d[0]);
+            })
             .attr("width", function (d) {
                 return x(d[1]) - x(d[0]);
             });
@@ -244,10 +248,18 @@ function makeCityBars(facts, mycolours, renderAll) {
             }
         });
         //if 1 box checked
-        if (choices.length == 1) {
-            if (choices[0] == 'm') {
+        if (choices.length === 1) {
+            if (choices[0] === "m") {
                 rects.transition()
                     .duration(500)
+                    .attr("x", function (d) {
+                        if (d[0] === 0) {
+                            return x(d[0]);
+                        }
+                        else {
+                            return 130 - (x(d.data.died) - x(d.data.deadmale));
+                        }
+                    })
                     .attr("width", function (d) {
                         return x(d.data.died) - x(d.data.deadmale);
                     });
@@ -255,6 +267,14 @@ function makeCityBars(facts, mycolours, renderAll) {
             else { // f checked
                 rects.transition()
                     .duration(500)
+                    .attr("x", function (d) {
+                        if (d[0] === 0) {
+                            return x(d[0]);
+                        }
+                        else {
+                            return 130 - (x(d.data.died) - x(d.data.deadfemale));
+                        }
+                    })
                     .attr("width", function (d) {
                         return x(d.data.died) - x(d.data.deadfemale);
                     });
@@ -263,6 +283,14 @@ function makeCityBars(facts, mycolours, renderAll) {
         else { // both or neither checked
             rects.transition()
                 .duration(500)
+                .attr("x", function (d) {
+                    if (d[0] === 0) {
+                        return x(d[0]);
+                    }
+                    else {
+                        return 130 - (x(d[1]) - x(d[0]));
+                    }
+                })
                 .attr("width", function (d) {
                     return x(d[1]) - x(d[0]);
                 });

@@ -1,6 +1,6 @@
 /* global d3 */
 /* global crossfilter */
-function makeTimeline(facts, mycolours, renderAll) {
+function MakeTimeline(facts, mycolours, renderAll) {
     var parent = this;
     d3.json("/motor", function (error2, motordat) {
         var margin = {

@@ -5,7 +5,7 @@
 // https://vast-journey-7849.herokuapp.com/burmavisualization
 // https://developers.google.com/maps/documentation/javascript/marker-clustering
 // https://github.com/bseth99/sandbox/blob/master/projects/google-maps/01-drawing-manager-selections.html
-function makeMap(facts, renderAll) {
+function MakeMap(facts, renderAll) {
   var data = facts.cityDim.top(Infinity);
   // Create the Google Map…
   var map = new google.maps.Map(d3.select("#map").node(), {
