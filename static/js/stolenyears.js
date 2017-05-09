@@ -88,7 +88,7 @@ function MakeStolenYears(facts, mycolours) {
                     total: 0
                 };
             });
-        
+
         var data = stolenGroup.all();
         var stolensvg = d3.select("#stolen-years").append("svg")
             .attr("width", 900 + margin.left + margin.right)
@@ -240,26 +240,27 @@ function MakeStolenYears(facts, mycolours) {
             .attr("fill", mycolours[7])
             .attr("visibility", "hidden");
 
-        parent.update = function() {
+        var ta = function (obj,area) {
+            obj.transition().duration(500)
+                .attr("d", area);
+            return obj;
+        };
+        var tb = function (obj, val) {
+            obj.transition().duration(500);
+            return obj;
+        };
+        parent.update = function () {
             lost.data([data])
-                .transition()
-                .duration(500)
-                .attr("d", area);
+                .transition(ta(lost, area));
             natural.data([natdata])
-                .transition()
-                .duration(500)
-                .attr("d", area);
+                .transition(ta(natural, area));
             filterednat.data([natdata])
-                .transition()
-                .duration(500)
-                .attr("d", area);
+                .transition(ta(filterednat, area));
             filtered.data([data])
-                .transition()
-                .duration(500)
-                .attr("d", area);
+                .transition(ta(filtered, area));
         };
 
-        parent.updatecheck = function() {
+        parent.updatecheck = function () {
             var choices = [];
             d3.selectAll(".myCheckbox").each(function (d) {
                 var cb = d3.select(this);
@@ -270,120 +271,94 @@ function MakeStolenYears(facts, mycolours) {
             //if 1 box checked
             if (choices.length === 1) {
                 if (choices[0] === "m") {
-                    lost.transition()
-                        .duration(500)
-                        .attr("d", area.y1(function (d) {
-                            return y(d.value.male);
-                        }));
-                    lostbars.transition()
-                        .duration(500)
+                    lost.transition(ta(lost, area.y1(function (d) {
+                        return y(d.value.male);
+                    })));
+                    lostbars.transition(tb(lostbars))
                         .attr("y", function (d) {
                             return y(d.value.male);
                         })
                         .attr("height", function (d) {
                             return height - y(d.value.male);
                         });
-                    filtered.transition()
-                        .duration(500)
-                        .attr("d", area.y1(function (d) {
+                    filtered.transition(ta(filtered, area.y1(function (d) {
                             return y(-d.value.female);
-                        })).attr("visibility", "visible");
-                    natural.transition()
-                        .duration(500)
-                        .attr("d", area.y1(function (d) {
-                            return y(d.value.male);
-                        }));
-                    natbars.transition()
-                        .duration(500)
+                        })))
+                        .attr("visibility", "visible");
+                    natural.transition(ta(natural, area.y1(function (d) {
+                        return y(d.value.male);
+                    })));
+                    natbars.transition(tb)
                         .attr("y", function (d) {
                             return y(d.value.male);
                         })
                         .attr("height", function (d) {
                             return height - y(d.value.male);
                         });
-                    filterednat.transition()
-                        .duration(500)
-                        .attr("d", area.y1(function (d) {
+                    filterednat.transition(ta(filterednat, area.y1(function (d) {
                             return y(-d.value.female);
-                        })).attr("visibility", "visible");
+                        })))
+                        .attr("visibility", "visible");
                 }
                 else { // f checked
-                    lost.transition()
-                        .duration(500)
-                        .attr("d", area.y1(function (d) {
-                            return y(d.value.female);
-                        }));
-                    lostbars.transition()
-                        .duration(500)
+                    lost.transition(ta(lost, area.y1(function (d) {
+                        return y(d.value.female);
+                    })));
+                    lostbars.transition(tb)
                         .attr("y", function (d) {
                             return y(d.value.female);
                         })
                         .attr("height", function (d) {
                             return height - y(d.value.female);
                         });
-                    filtered.transition()
-                        .duration(500)
-                        .attr("d", area.y1(function (d) {
+                    filtered.transition(ta(filtered, area.y1(function (d) {
                             return y(-d.value.male);
-                        })).attr("visibility", "visible");
-                    natural.transition()
-                        .duration(500)
-                        .attr("d", area.y1(function (d) {
-                            return y(d.value.female);
-                        }));
-                    natbars.transition()
-                        .duration(500)
+                        })))
+                        .attr("visibility", "visible");
+                    natural.transition(ta(natural, area.y1(function (d) {
+                        return y(d.value.female);
+                    })));
+                    natbars.transition(tb)
                         .attr("y", function (d) {
                             return y(d.value.male);
                         })
                         .attr("height", function (d) {
                             return height - y(d.value.male);
                         });
-                    filterednat.transition()
-                        .duration(500)
-                        .attr("d", area.y1(function (d) {
+                    filterednat.transition(ta(filterednat, area.y1(function (d) {
                             return y(-d.value.female);
-                        })).attr("visibility", "visible");
+                        })))
+                        .attr("visibility", "visible");
                 }
             }
             else { // both or neither checked
-                lost.transition()
-                    .duration(500)
-                    .attr("d", area.y1(function (d) {
-                        return y(d.value.total);
-                    }));
-                lostbars.transition()
-                    .duration(500)
+                lost.transition(ta(lost, area.y1(function (d) {
+                    return y(d.value.total);
+                })));
+                lostbars.transition(tb)
                     .attr("y", function (d) {
                         return y(d.value.total);
                     })
                     .attr("height", function (d) {
                         return height - y(d.value.total);
                     });
-                filtered.transition()
-                    .duration(500)
-                    .attr("d", area.y1(function (d) {
+                filtered.transition(ta(filtered, area.y1(function (d) {
                         return y(d.value.total);
-                    }))
+                    })))
                     .attr("visibility", "hidden");
-                natural.transition()
-                    .duration(500)
-                    .attr("d", area.y1(function (d) {
-                        return y(d.value.total);
-                    }));
-                natbars.transition()
-                    .duration(500)
+                natural.transition(ta(natural, area.y1(function (d) {
+                    return y(d.value.total);
+                })));
+                natbars.transition(tb)
                     .attr("y", function (d) {
                         return y(d.value.total);
                     })
                     .attr("height", function (d) {
                         return height - y(d.value.total);
                     });
-                filterednat.transition()
-                    .duration(500)
-                    .attr("d", area.y1(function (d) {
+                filterednat.transition(ta(filterednat, area.y1(function (d) {
                         return y(d.value.total);
-                    }))
+                    })))
                     .attr("visibility", "hidden");
             }
         };

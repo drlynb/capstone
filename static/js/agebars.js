@@ -1,6 +1,7 @@
 /* global d3 */
 function MakeAgeBars(facts, mycolours, renderAll) {
     var chart = this;
+    var ages = [];
     var margin = {
         top: 60,
         right: 50,
@@ -8,6 +9,9 @@ function MakeAgeBars(facts, mycolours, renderAll) {
         left: 90
     };
     chart.ageDim = facts.dimension(function (d) {
+        if (ages.indexOf(d["AgeGroup"]) === -1) {
+            ages.push(d["AgeGroup"]);
+        }
         return d["Agegroup"];
     });
     var ageGroup = chart.ageDim.group().reduce(
@@ -35,7 +39,7 @@ function MakeAgeBars(facts, mycolours, renderAll) {
         },
         function (p, v) {
             --p.total;
-            if (v.Dead == true) {
+            if (v.Dead === true) {
                 if (v.Gender === "M") {
                     --p.deadmale;
                 }
@@ -67,6 +71,53 @@ function MakeAgeBars(facts, mycolours, renderAll) {
             };
         }
     );
+
+    function stackMax(serie) {
+        return d3.max(serie, function (d) {
+            return d.data.total;
+        });
+    }
+
+    function stackOffsetDiverging(series, order) {
+        if (!((n = series.length) > 1)) {
+            return;
+        }
+        for (var i, j = 0, d, dy, yp, yn, n, m = series[order[0]].length; j < m; ++j) {
+            for (yp = yn = 0, i = 0; i < n; ++i) {
+                if ((dy = (d = series[order[i]][j])[1] - d[0]) >= 0) {
+                    d[0] = yp, d[1] = yp += dy;
+                }
+                else if (dy < 0) {
+                    d[1] = yn, d[0] = yn += dy;
+                }
+                else {
+                    d[0] = yp;
+                }
+            }
+        }
+    }
+
+    function makeStack(dat) {
+        var newData = [];
+        dat.forEach(function (d) {
+            var tempObj = {};
+            tempObj["age"] = d.key;
+            tempObj["lived"] = -d.value.living;
+            tempObj["livmale"] = -d.value.livmale;
+            tempObj["livfemale"] = -d.value.livfemale;
+            tempObj["died"] = d.value.dead;
+            tempObj["deadmale"] = d.value.deadmale;
+            tempObj["deadfemale"] = d.value.deadfemale;
+            tempObj["total"] = d.value.total;
+            newData.push(tempObj);
+            ages.push(d.key);
+        });
+        var tmpstack = d3.stack()
+            .keys(["lived", "died"])
+            .offset(stackOffsetDiverging)
+            (newData);
+        return tmpstack;
+    }
 
     var stackgendersvg = d3.select("#stacked-bars-age").append("svg")
         .attr("width", 400)
@@ -100,30 +151,10 @@ function MakeAgeBars(facts, mycolours, renderAll) {
         .ticks(7, "d")
         .tickFormat(Math.abs);
     var yAxis = d3.axisLeft().scale(y);
-    var ages = [];
 
     // stack cant accept nested objects, need to modify data
     // https://stackoverflow.com/questions/42039506/d3-stack-vs-nested-objects
-    var newData = [];
-    ageGroup.top(Infinity).forEach(function (d) {
-        var tempObj = {};
-        tempObj["age"] = d.key;
-        tempObj["lived"] = -d.value.living;
-        tempObj["livmale"] = -d.value.livmale;
-        tempObj["livfemale"] = -d.value.livfemale;
-        tempObj["died"] = d.value.dead;
-        tempObj["deadmale"] = d.value.deadmale;
-        tempObj["deadfemale"] = d.value.deadfemale;
-        tempObj["total"] = d.value.total;
-        newData.push(tempObj);
-        ages.push(d.key);
-    });
-
-    var stack = d3.stack()
-        .keys(["lived", "died"])
-        .offset(stackOffsetDiverging)
-        (newData);
-
+    var stack = makeStack(ageGroup.top(Infinity));
     x.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
     y.domain(["<16",
         "16-25",
@@ -135,12 +166,6 @@ function MakeAgeBars(facts, mycolours, renderAll) {
         "76-85",
         "86+"
     ].reverse());
-
-    function stackMax(serie) {
-        return d3.max(serie, function (d) {
-            return d.data.total;
-        });
-    }
 
     var serie = stackgenderg.selectAll(".serie")
         .data(stack)
@@ -171,7 +196,7 @@ function MakeAgeBars(facts, mycolours, renderAll) {
     rects.on("click", function (d, i) {
         //add/remove agegroup from list
         var temp = chart.selectedage.indexOf(d.data.age);
-        if (temp == -1) {
+        if (temp === -1) {
             chart.selectedage.push(d.data.age);
         }
         else {
@@ -199,43 +224,38 @@ function MakeAgeBars(facts, mycolours, renderAll) {
         .attr("class", "axis axis--y")
         .call(yAxis);
 
-    function stackOffsetDiverging(series, order) {
-        if (!((n = series.length) > 1)) return;
-        for (var i, j = 0, d, dy, yp, yn, n, m = series[order[0]].length; j < m; ++j) {
-            for (yp = yn = 0, i = 0; i < n; ++i) {
-                if ((dy = (d = series[order[i]][j])[1] - d[0]) >= 0) {
-                    d[0] = yp, d[1] = yp += dy;
+    var t = function (obj, choice) {
+        obj.transition().duration(500)
+            .attr("x", function (d) {
+                if (d[0] === 0) {
+                    return x(d[0]);
                 }
-                else if (dy < 0) {
-                    d[1] = yn, d[0] = yn += dy;
+                else if (choice !== null) {
+                    if (choice[0] === "m" && choice.length === 1) {
+                        return 130 - (x(d.data.died) - x(d.data.deadmale));
+                    }
+                    else if (choice[0] === "f" && choice.length === 1) {
+                        return 130 - (x(d.data.died) - x(d.data.deadfemale));
+                    }
                 }
-                else {
-                    d[0] = yp;
+                return 130 - (x(d[1]) - x(d[0]));
+            })
+            .attr("width", function (d) {
+                if (choice !== null) {
+                    if (choice[0] === "m" && choice.length === 1) {
+                        return x(d.data.died) - x(d.data.deadmale);
+                    }
+                    else if (choice[0] === "f" && choice.length === 1) {
+                        return x(d.data.died) - x(d.data.deadfemale);
+                    }
                 }
-            }
-        }
-    }
+                return x(d[1]) - x(d[0]);
+            });
+        return obj;
+    };
 
     chart.update = function () {
-        var newData = [];
-        ageGroup.top(Infinity).forEach(function (d) {
-            //ageGroup.all().forEach(function (d){
-            var tempObj = {};
-            tempObj["age"] = d.key;
-            tempObj["lived"] = -d.value.living;
-            tempObj["livmale"] = -d.value.livmale;
-            tempObj["livfemale"] = -d.value.livfemale;
-            tempObj["died"] = d.value.dead;
-            tempObj["deadmale"] = d.value.deadmale;
-            tempObj["deadfemale"] = d.value.deadfemale;
-            tempObj["total"] = d.value.total;
-            newData.push(tempObj);
-            ages.push(d.key);
-        });
-        var stack = d3.stack()
-            .keys(["lived", "died"])
-            .offset(stackOffsetDiverging)
-            (newData);
+        var stack = makeStack(ageGroup.top(Infinity));
         serie.data(stack);
         rects.data(function (d) {
                 return d;
@@ -243,13 +263,7 @@ function MakeAgeBars(facts, mycolours, renderAll) {
             .attr("class", function (d) {
                 return (chart.selectedage.indexOf(d.data.age) > -1) ? "bar agegroup selected" : "bar agegroup";
             })
-            .transition().duration(500)
-            .attr("x", function (d) {
-                return x(d[0]);
-            })
-            .attr("width", function (d) {
-                return x(d[1]) - x(d[0]);
-            });
+            .transition(t(rects, null));
     };
 
     chart.updatecheck = function () {
@@ -260,54 +274,7 @@ function MakeAgeBars(facts, mycolours, renderAll) {
                 choices.push(cb.property("value"));
             }
         });
-        //if 1 box checked
-        if (choices.length === 1) {
-            if (choices[0] === "m") {
-                rects.transition()
-                    .duration(500)
-                    .attr("x", function (d) {
-                        if (d[0] === 0) {
-                            return x(d[0]);
-                        }
-                        else {
-                            return 130 - (x(d.data.died) - x(d.data.deadmale));
-                        }
-                    })
-                    .attr("width", function (d) {
-                        return x(d.data.died) - x(d.data.deadmale);
-                    });
-            }
-            else { // f checked
-                rects.transition()
-                    .duration(500)
-                    .attr("x", function (d) {
-                        if (d[0] === 0) {
-                            return x(d[0]);
-                        }
-                        else {
-                            return 130 - (x(d.data.died) - x(d.data.deadfemale));
-                        }
-                    })
-                    .attr("width", function (d) {
-                        return x(d.data.died) - x(d.data.deadfemale);
-                    });
-            }
-        }
-        else { // both or neither checked
-            rects.transition()
-                .duration(500)
-                .attr("x", function (d) {
-                    if (d[0] === 0) {
-                        return x(d[0]);
-                    }
-                    else {
-                        return 130 - (x(d[1]) - x(d[0]));
-                    }
-                })
-                .attr("width", function (d) {
-                    return x(d[1]) - x(d[0]);
-                });
-        }
+        rects.transition(t(rects, choices));
     };
     return chart;
 }

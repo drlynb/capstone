@@ -78,7 +78,7 @@ function MakeTimeline(facts, mycolours, renderAll) {
         // style brush resize handle
         // https://github.com/crossfilter/crossfilter/blob/gh-pages/index.html#L466
         var brushResizePath = function (d) {
-            var e = +(d.type == "e"),
+            var e = +(d.type === "e"),
                 x = e ? 1 : -1,
                 y = height / 2;
             return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "Z" + "M" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
@@ -154,14 +154,14 @@ function MakeTimeline(facts, mycolours, renderAll) {
         odline.enter().append("path")
             .attr("d", lineGen(odNest[0].values))
             .attr("class", "line odline")
-            .attr('stroke-width', 2)
+            .attr("stroke-width", 2)
             .attr("fill", "none");
         var motorline = sliderg.selectAll(".motorline").data([odNest[1].values]);
         motorline.enter().append("path")
             .attr("d", lineGen(odNest[1].values))
             .attr("class", "line motorline")
-            .attr('stroke', mycolours[1])
-            .attr('stroke-width', 2)
+            .attr("stroke", mycolours[1])
+            .attr("stroke-width", 2)
             .attr("fill", "none");
 
         // append axes
@@ -180,22 +180,22 @@ function MakeTimeline(facts, mycolours, renderAll) {
         var legendSpacing = 4;
         var legend = slidersvg.selectAll(".legend")
             .data(["Overdose", "Motor"])
-            .enter().append('g')
+            .enter().append("g")
             .attr("class", "legend")
-            .attr('transform', function (d, i) {
+            .attr("transform", function (d, i) {
                 var height = legendRectSize + legendSpacing;
                 var offset = height * slidercolour.domain().length / 2;
                 var vert = i * height + offset;
-                return 'translate(' + (width) + ',' + (vert - 4) + ')';
+                return "translate(" + (width) + "," + (vert - 4) + ")";
             });
-        legend.append('rect')
-            .attr('width', legendRectSize)
-            .attr('height', legendRectSize)
-            .style('fill', slidercolour)
-            .style('stroke', slidercolour);
-        legend.append('text')
-            .attr('x', legendRectSize + legendSpacing)
-            .attr('y', legendRectSize - legendSpacing)
+        legend.append("rect")
+            .attr("width", legendRectSize)
+            .attr("height", legendRectSize)
+            .style("fill", slidercolour)
+            .style("stroke", slidercolour);
+        legend.append("text")
+            .attr("x", legendRectSize + legendSpacing)
+            .attr("y", legendRectSize - legendSpacing)
             .text(function (d) {
                 return d.toUpperCase();
             });
@@ -237,8 +237,8 @@ function MakeTimeline(facts, mycolours, renderAll) {
             odline.enter().append("path")
                 .attr("d", lineGen(odNest[0].values))
                 .attr("class", "line odline")
-                .attr('stroke', mycolours[0])
-                .attr('stroke-width', 2)
+                .attr("stroke", mycolours[0])
+                .attr("stroke-width", 2)
                 .attr("fill", "none");
             motorline.data([odNest[1].values])
                 .transition().duration(500)

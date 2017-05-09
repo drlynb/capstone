@@ -1,41 +1,17 @@
-import random
-import time
-
+from myfuncs import *
 
 output = 'motor.csv'
 
 # bc coroners statistical reports into bc fatalities
-
 TF = [True, False]
 
 #People data
 gender = ['M']*7 + ['F']*3          # 60% male 40% Female
 ages = ['<16']*1 + ['16-25']*8 + ['26-35']*6 + ['36-45']*7 + ['46-55']*6 + ['56-65']*6+ ['66-75']*6 + ['76-85']*12 + ['86+']*14
 
-
-# https://stackoverflow.com/questions/553303/generate-a-random-date-between-two-other-dates
-def timeFunc(start, end, format, prop):
-    '''Get a time at a proportion of a range of two formatted times.
-    start and end should be strings specifying times formated in the
-    given format (strftime-style), giving an interval [start, end].
-    prop specifies how a proportion of the interval to be taken after
-    start.  The returned time will be in the specified format.
-    '''
-
-    stime = time.mktime(time.strptime(start, format))
-    etime = time.mktime(time.strptime(end, format))
-
-    ptime = stime + prop * (etime - stime)
-
-    return time.strftime(format, time.localtime(ptime))
-
-
 def randomDate(start, end, prop):
     return timeFunc(start, end, '%m/%Y', prop)
 
-def choose(mylist):
-    return str(random.choice(mylist))+ ','
-    
 def titles():
     return 'Date,AgeGroup,Gender'
 

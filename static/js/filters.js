@@ -36,7 +36,7 @@ function MakeFilters(myset) {
       .attr("dy", ".13em")
       .attr("y", -60)
       .attr("x", function (d, i) {
-        if(d.length === 5){ return i*(d.length-2)*7}
+        if(d.length === 5){ return i*(d.length-2)*7;}
         return i * (d.length+35);
       })
       .style("fill-opacity", 1e-6)

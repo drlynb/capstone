@@ -32,6 +32,14 @@ function makeGraphs(error, data) {
    myfilters.add(d.agegroup);
   });
 
+  function stolencheck() {
+   stolenchart.updatecheck();
+  }
+
+  function resetAll() {
+   location.reload(); //refresh page
+  }
+
   var ndx = crossfilter(data);
   // colour takes 1 array as domain (keys) 1 array as values (colours)
   // overdose death, motor death, died, lived, Male, Female, stolen years
@@ -55,13 +63,5 @@ function makeGraphs(error, data) {
   d3.selectAll(".myCheckbox2").on("change.sb1", citybarschart.updatecheck);
   d3.selectAll(".myCheckbox").on("change", stolencheck);
   d3.selectAll(".mybutton").on("click", resetAll);
-
-  function stolencheck() {
-   stolenchart.updatecheck();
-  }
-
-  function resetAll() {
-   location.reload(); //refresh page
-  }
  });
 }

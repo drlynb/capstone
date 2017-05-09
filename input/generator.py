@@ -1,6 +1,5 @@
-import random
 import uuid #universally unique identifiers
-import time
+from myfuncs import *
 
 output = 'mock.csv'
 #http://www.cra-arc.gc.ca/gncy/stts/itsa-sipr/2014/menu-eng.html -- income info
@@ -21,9 +20,7 @@ TF = [True, False]
 #People data
 gender = ['M']*6 + ['F']*4          # 60% male 40% Female
 ages = ['<16']*1 + ['16-25']*20 + ['26-35']*25 + ['36-45']*25 + ['46-55']*19 + ['56-65']*3+ ['66-75']*1 + ['76-85']*1 + ['86+']*1
-homeless = TF                       #
-
-
+homeless = TF 
 #Place data
 #city = ['Anmore', 'Delta', 'Abbotsford', 'Belcarra', 'Langley', 'Agassiz', 'Burnaby', 'Surrey',
 #       'Chilliwack', 'Coquitlam', 'White Rock', 'Harrison Hot Springs', 'New Westminster',
@@ -34,19 +31,13 @@ city = ['Burnaby', 'Coquitlam', 'South Surrey/White Rock', 'Surrey', 'New Westmi
 
 #Vancouver is ([49.3, 49.2] , [-123.2, -123.0])
 #lat = []
-
 #lng = []
-
 building = ['private residence', 'other residence', 'other inside', 'outside', 'unknown']
 
 #Event
 substance = ['fentanyl', 'crack', 'heroine']
-
 firstevent = TF
-
 dead = TF
-
-
 naloxone = TF
 #Time data
 datetime = []
@@ -55,19 +46,6 @@ datetime = []
 hospitals = ['Delta', 'Abbotsford', 'Langley', 'Burnaby', 'Surrey', 'Chilliwack', 'White Rock',
             'New Westminster', 'Hope', 'Maple Ridge', 'Mission', 'Port Moody']
 
-# https://stackoverflow.com/questions/553303/generate-a-random-date-between-two-other-dates
-def timeFunc(start, end, format, prop):
-    '''Get a time at a proportion of a range of two formatted times.
-    start and end should be strings specifying times formated in the
-    given format (strftime-style), giving an interval [start, end].
-    prop specifies how a proportion of the interval to be taken after
-    start.  The returned time will be in the specified format.
-    '''
-    stime = time.mktime(time.strptime(start, format))
-    etime = time.mktime(time.strptime(end, format))
-    ptime = stime + prop * (etime - stime)
-    return time.strftime(format, time.localtime(ptime))
-    
 def latnlng(city):
     if city == 'Burnaby':
         return [49.255877,-122.963321]
@@ -100,33 +78,10 @@ def latnlng(city):
 def randomDate(start, end, prop):
     return timeFunc(start, end, '%m/%Y', prop)
 
-def choose(mylist):
-    return str(random.choice(mylist))+ ','
-    
 def titles():
     return 'id,' + 'Gender,' + 'Agegroup,'+ 'Age,' + 'Homeless,' + 'City,' + 'EventLat,' + 'EventLng,' + 'Building,' + \
             'SuspectedSubstance,' + 'FirstEvent,' + 'Dead,' + 'DeathLat,' + 'DeathLng,' + 'ConfirmedSubstance,' + \
             'ReceivedNaloxone,' + 'Datetime'
-            
-def randage(age):
-    if age == '<16':
-        return str(random.randint(16,17)) +','
-    elif age == '16-25':
-        return str(random.randint(16,25)) +','
-    elif age == '26-35':
-        return str(random.randint(26,35)) +','
-    elif age == '36-45':
-        return str(random.randint(36,45)) +','
-    elif age == '46-55':
-        return str(random.randint(46,55)) +','
-    elif age == '56-65':
-        return str(random.randint(56,65)) +','
-    elif age == '66-75':
-        return str(random.randint(66,75)) +','
-    elif age == '76-85':
-        return str(random.randint(76,85)) +','
-    elif age == '86+':
-        return str(random.randint(86,100)) +','
 
 dates = [("1/2007", "12/2007")*20, ("1/2008", "12/2008")*18,
         ("1/2009", "12/2009")*20, ("1/2010", "12/2010")*21,

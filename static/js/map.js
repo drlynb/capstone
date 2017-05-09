@@ -30,12 +30,12 @@ function MakeMap(facts, renderAll) {
       //position: loc(d.City),
       optimized: false,
       title: d.City,
-      icon: 'https://www.google.com/mapfiles/marker.png?i=' + (i)
+      icon: "https://www.google.com/mapfiles/marker.png?i=" + (i)
     }));
   });
 
   markers.forEach(function (m) {
-    google.maps.event.addListener(m, 'click', function () {
+    google.maps.event.addListener(m, "click", function () {
       var title = this.title;
       facts.selectedcities.push(title);
       facts.cityDim.filterFunction(function (d) {
@@ -50,13 +50,12 @@ function MakeMap(facts, renderAll) {
   
   // Add a marker clusterer to manage the markers.
   var markerCluster = new MarkerClusterer(map, markers, {
-    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+    imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
     optimized: false
   });
 
-  markerCluster.addListener("mouseover", function (c) {
-    console.log(c);
-  });
+  //markerCluster.addListener("mouseover", function (c) {
+  //});
 
   ////////////////////////////////////////////////////
   /////// use the markers like d3 elements?
