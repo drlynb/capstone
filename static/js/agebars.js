@@ -126,12 +126,12 @@ function MakeAgeBars(facts, mycolours, renderAll) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     stackgendersvg.append("text")
         .attr("transform",
-            "translate(" + (+stackgendersvg.attr("width") / 4) + " ," + 20 + ")")
+            "translate(" + (+stackgendersvg.attr("width") / 1.25) + " ," + 20 + ")")
         .style("text-anchor", "middle")
         .text("Lived");
     stackgendersvg.append("text")
         .attr("transform",
-            "translate(" + (+stackgendersvg.attr("width") / 8) + " ," + 20 + ")")
+            "translate(" + (+stackgendersvg.attr("width") / 3) + " ," + 20 + ")")
         .style("text-anchor", "middle")
         .text("Died");
     stackgendersvg.append("text")
@@ -156,15 +156,13 @@ function MakeAgeBars(facts, mycolours, renderAll) {
     // https://stackoverflow.com/questions/42039506/d3-stack-vs-nested-objects
     var stack = makeStack(ageGroup.top(Infinity));
     x.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
-    y.domain(["<16",
-        "16-25",
-        "26-35",
-        "36-45",
-        "46-55",
-        "56-65",
-        "66-75",
-        "76-85",
-        "86+"
+    y.domain(["10-18",
+        "19-29",
+        "30-39",
+        "40-49",
+        "50-59",
+        "60-69",
+        "70-79"
     ].reverse());
 
     var serie = stackgenderg.selectAll(".serie")

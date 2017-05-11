@@ -193,7 +193,7 @@ function MakeStolenYears(facts, mycolours) {
         stoleng.append("g")
             .attr("class", "axis axis--x")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x).tickValues([16, 26, 36, 46, 56, 66, 76, 86, 96]))
+            .call(d3.axisBottom(x).tickValues([10, 20, 30, 40, 50, 60, 70, 80]))
             .exit().remove();
         stoleng.append("g")
             .attr("class", "axis axis--y")
@@ -239,6 +239,34 @@ function MakeStolenYears(facts, mycolours) {
             .attr("d", area)
             .attr("fill", mycolours[7])
             .attr("visibility", "hidden");
+
+        // add legend
+        // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
+        var slidercolour = d3.scaleOrdinal(["#f92525", "#FDF2EE"]);
+        var legendRectSize = 18;
+        var legendSpacing = 4;
+        var legend = stolensvg.selectAll(".legend")
+            .data(["Lost Years", "Average Life Expectancy"])
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("opacity", "0.5")
+            .attr("transform", function (d, i) {
+                var height = legendRectSize + legendSpacing;
+                var offset = height * slidercolour.domain().length / 2;
+                var vert = i * height + offset;
+                return "translate(" + (width) + "," + (vert - 4) + ")";
+            });
+        legend.append("rect")
+            .attr("width", legendRectSize)
+            .attr("height", legendRectSize)
+            .style("fill", slidercolour)
+            .style("stroke", slidercolour);
+        legend.append("text")
+            .attr("x", legendRectSize + legendSpacing)
+            .attr("y", legendRectSize - legendSpacing)
+            .text(function (d) {
+                return d.toUpperCase();
+            });
 
         var ta = function (obj,area) {
             obj.transition().duration(500)

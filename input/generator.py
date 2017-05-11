@@ -19,15 +19,25 @@ TF = [True, False]
 
 #People data
 gender = ['M']*6 + ['F']*4          # 60% male 40% Female
-ages = ['<16']*1 + ['16-25']*20 + ['26-35']*25 + ['36-45']*25 + ['46-55']*19 + ['56-65']*3+ ['66-75']*1 + ['76-85']*1 + ['86+']*1
+ages = ['10-18']*20 + ['19-29']*45 + ['30-39']*45 + ['40-49']*29 + ['50-59']*3+ ['60-69']*1 + ['70-79']*1
 homeless = TF 
 #Place data
 #city = ['Anmore', 'Delta', 'Abbotsford', 'Belcarra', 'Langley', 'Agassiz', 'Burnaby', 'Surrey',
 #       'Chilliwack', 'Coquitlam', 'White Rock', 'Harrison Hot Springs', 'New Westminster',
 #       'Hope', 'Maple Ridge', 'District of Kent', 'Pitt Meadows', 'Mission', 'Port Coquitlam',
 #       'Boston Bar', 'Port Moody']
-city = ['Burnaby', 'Coquitlam', 'South Surrey/White Rock', 'Surrey', 'New Westminster', 'Delta',
-        'Maple Ridge', 'Chilliwack', 'Langley', 'Abbotsford', 'Mission', 'Hope', 'Agassiz-Harrison']
+city = ['Burnaby']*14+ ['Coquitlam']*6+ ['South Surrey/White Rock']+ ['Surrey']*48+ ['New Westminster']*6+ \
+        ['Delta']+['Maple Ridge']+ ['Chilliwack']*6+ ['Langley']*9+ ['Abbotsford']*14+ ['Mission']+ \
+        ['Hope']+ ['Agassiz-Harrison']
+
+# by city and year 07-16        
+#Surrey 22 20 23 33 42 44 36 43 76 113 37
+#Abbotsford 3 4 4 10 16 7 10 7 27 39 14
+#Burnaby 9 12 8 9 10 10 13 11 16 35 9
+#Langley 3 6 2 3 10 5 10 10 10 30 9
+#New Westminster 1 4 2 6 6 3 5 9 12 10 6
+#Chilliwack 3 4 2 2 8 8 6 6 9 9 5
+#Coquitlam 2 2 5 2 3 6 1 10 11 13 5
 
 #Vancouver is ([49.3, 49.2] , [-123.2, -123.0])
 #lat = []

@@ -96,7 +96,7 @@ function MakeCityBars(facts, mycolours, renderAll) {
 
     function stackMax(serie) {
         return d3.max(serie, function (d) {
-            return d.data.total;
+            return Math.abs(d.data.lived);
         });
     }
 

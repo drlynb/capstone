@@ -33,7 +33,7 @@ function MakeMap(facts, renderAll) {
       icon: "https://www.google.com/mapfiles/marker.png?i=" + (i)
     }));
   });
-
+  
   markers.forEach(function (m) {
     google.maps.event.addListener(m, "click", function () {
       var title = this.title;
@@ -50,7 +50,7 @@ function MakeMap(facts, renderAll) {
   
   // Add a marker clusterer to manage the markers.
   var markerCluster = new MarkerClusterer(map, markers, {
-    imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
+    imagePath: "https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m",
     optimized: false
   });
 

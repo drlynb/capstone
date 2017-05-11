@@ -17,21 +17,19 @@ def timeFunc(start, end, format, prop):
     return time.strftime(format, time.localtime(ptime))
 
 def randage(age):
-    if age == '<16':
-        return str(random.randint(16,17)) +','
-    elif age == '16-25':
-        return str(random.randint(16,25)) +','
-    elif age == '26-35':
-        return str(random.randint(26,35)) +','
-    elif age == '36-45':
-        return str(random.randint(36,45)) +','
-    elif age == '46-55':
-        return str(random.randint(46,55)) +','
-    elif age == '56-65':
-        return str(random.randint(56,65)) +','
-    elif age == '66-75':
-        return str(random.randint(66,75)) +','
-    elif age == '76-85':
-        return str(random.randint(76,85)) +','
-    elif age == '86+':
-        return str(random.randint(86,100)) +','
+    if age == '10-18':
+        return str(random.randint(10,19)) +','
+    elif age == '19-29':
+        return str(random.randint(19,30)) +','
+    elif age == '30-39':
+        return str(random.randint(30,40)) +','
+    elif age == '40-49':
+        return str(random.randint(40,50)) +','
+    elif age == '50-59':
+        return str(random.randint(50,60)) +','
+    elif age == '60-69':
+        return str(random.randint(60,70)) +','
+    elif age == '70-79':
+        return str(random.randint(70,80)) +','
+    else:
+        print('error')
