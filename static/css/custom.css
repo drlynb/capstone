@@ -30,11 +30,6 @@ div {
   padding: 20;
 }
 
-.point {
-  fill: red;
-  r: 2;
-}
-
 .tile {
   fill: #000;
   fill-opacity: .2;

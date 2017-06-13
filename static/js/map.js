@@ -1,11 +1,9 @@
 /* global d3 */
 /* global topojson */
 /* global L */
-
 // https://maptimeboston.github.io/leaflet-intro/
 function MakeMap(facts, renderAll) {
-  var parent = this;
-
+  var chart = this;
   // leaflet http://bl.ocks.org/pbogden/16417ea36900f44710b2
   var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
   var osmAttrib = '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors';
@@ -14,7 +12,8 @@ function MakeMap(facts, renderAll) {
     attribution: osmAttrib
   });
   var map = L.map('map').setView([49.2, -122.3], 9).addLayer(osm);
-  var data = facts.cityDim.top(Infinity);
+  //var data = facts.cityDim.top(Infinity);
+  var clust = L.markerClusterGroup();
 
   //http://bl.ocks.org/mpmckenna8/af23032b41f0ea1212563b523e859228
   d3.json("/map", function (error, topology) {
@@ -83,66 +82,29 @@ function MakeMap(facts, renderAll) {
       style: style,
       onEachFeature: onEachFeature
     }).addTo(map);
-
     // http://bl.ocks.org/d3noob/9267535
-    /* Initialize the SVG layer */
-    //map._initPathRoot();
-    //L.svg().addTo(map);
-
     /* We simply pick up the SVG from the map object */
     var svg = d3.select("#map").select("svg");
-    //var svg = d3.select(map.getPanes().markerPane).append("svg");
     var g = svg.append("g");
-
-    // http://bl.ocks.org/sumbera/10463358
-    // Use Leaflet to implement a D3 geometric transformation.
-    function projectPoint(x, y) {
-      var point = map.latLngToLayerPoint(new L.LatLng(y, x));
-      this.stream.point(point.x, point.y);
-    }
-
-    var transform = d3.geoTransform({
-      point: projectPoint
-    });
-    var path = d3.geoPath().projection(transform);
-    var clust = L.markerClusterGroup();
-    map.on("moveend viewreset", update);
-    update();
-    
-    function addpoints(dat){
-      dat.each(function(d){
-        clust.addLayer(L.marker(d.loc));
-      });
-      map.addLayer(clust);
-      //function(data){ data.forEach(function(d){L.marker(d.loc).addTo(map);});}
-    }
-    
-
-    function update() {
-      /*data.forEach(function(d){
-        L.circleMarker(d.loc).addTo(map);
-      });*/
-      var points = g.selectAll(".point")
-        .data(data, function(d){
-          return d.id;
-        })
-        .enter()
-        //.append("circle")
-        .call(addpoints);
-        //.attr("class", "point");
-      points.exit().remove();
-      //points.attr("d", path).attr("r", 20);
-     // points.attr("r", 2);
-
-      points.attr("transform",
-        function (d) {
-          return "translate(" +
-            map.latLngToLayerPoint(d.loc).x + "," +
-            map.latLngToLayerPoint(d.loc).y + ")";
-        }
-      );
-    }
   });
+  
+  chart.update = function(){
+    var data = facts.cityDim.top(Infinity);
+      // faster to clear all points and redraw than try to remove some
+      // https://github.com/Leaflet/Leaflet.markercluster/issues/59#issuecomment-9320628
+      clust.clearLayers();
+      var temp = [];
+      data.forEach(function(d){
+        temp.push(L.marker(d.loc));
+        //clust.addLayer(L.marker(d.loc));
+      });
+      clust.addLayers(temp);
+      map.addLayer(clust);
+    };
+    
+  map.on("viewreset", chart.update);
+  chart.update();
+  return chart;
   /*
     data.forEach(function (d, i) {
       markers.push(new google.maps.Marker({
