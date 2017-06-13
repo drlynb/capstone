@@ -30,6 +30,23 @@ div {
   padding: 20;
 }
 
+.point {
+  fill: red;
+  r: 2;
+}
+
+.tile {
+  fill: #000;
+  fill-opacity: .2;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.tile:hover {
+  fill: brown;
+  fill-opacity: .7;
+}
+
 .events,
 .events svg {
   position: absolute;
@@ -47,7 +64,6 @@ div {
   stroke: black;
   stroke-width: 1.5px;
 }
-
 
 /* slider */
 

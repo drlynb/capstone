@@ -5,6 +5,9 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/bootstrap.css') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
   <script type="text/javascript" src="{{ url_for('static', filename='lib/js/crossfilter.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='lib/js/d3.js') }}"></script>
   <!--<script type="text/javascript" src="{{ url_for('static', filename='lib/js/dc.js') }}"></script>-->
@@ -12,9 +15,6 @@
   <script type="text/javascript" src="{{ url_for('static', filename='lib/js/queue.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='lib/js/bootstrap.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='lib/js/underscore.js') }}"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/bootstrap.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-
 </head>
 
 <body>

@@ -9,6 +9,7 @@
 /* global MakeFilters */
 /* global MakeCityBars */
 /* global MakeMap */
+/* global L */
 /*
  The queue() function makes sure that we have all the data transferred to the browser before drawing the graphs. 
 */
@@ -16,6 +17,7 @@ queue()
  .defer(d3.json, "/data")
  .defer(d3.json, "/motor")
  .defer(d3.json, "/natural")
+ .defer(d3.json, "/map")
  .await(makeGraphs);
 
 function makeGraphs(error, data) {
@@ -24,10 +26,7 @@ function makeGraphs(error, data) {
   data.forEach(function (d) {
    d.dd = new Date(d.Datetime);
    d.my = new Date(d.dd.getFullYear() + "-" + (d.dd.getMonth() + 1) + "-01");
-   d.loc = {
-    lat: d.EventLat,
-    lng: d.EventLng
-   };
+   d.loc = new L.LatLng(d.EventLat, d.EventLng);
    myfilters.add(d.City);
    myfilters.add(d.agegroup);
   });
@@ -49,7 +48,7 @@ function makeGraphs(error, data) {
    citybarschart.update();
    stolenchart.update();
    linechart.update();
-   MakeMap(citybarschart, renderAll);
+   mapchart.update();
    filterlist.update(agebarschart.selectedage.concat(citybarschart.selectedcities));
   };
 
@@ -57,7 +56,7 @@ function makeGraphs(error, data) {
   var stolenchart = new MakeStolenYears(ndx, colours);
   var agebarschart = new MakeAgeBars(ndx, colours.slice(2, 4), renderAll);
   var citybarschart = new MakeCityBars(ndx, colours.slice(2, 4), renderAll);
-  MakeMap(citybarschart, renderAll);
+  var mapchart = new MakeMap(citybarschart, renderAll);
   var linechart = new MakeTimeline(ndx, colours.slice(0, 2), renderAll);
   d3.selectAll(".myCheckbox2").on("change.sb2", agebarschart.updatecheck);
   d3.selectAll(".myCheckbox2").on("change.sb1", citybarschart.updatecheck);

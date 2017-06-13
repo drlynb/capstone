@@ -1,64 +1,171 @@
-/* global google */
 /* global d3 */
-/* global MarkerClusterer */
-// https://github.com/thesentinelproject/threatwiki_node/blob/master/public/javascript/visualization.js
-// https://vast-journey-7849.herokuapp.com/burmavisualization
-// https://developers.google.com/maps/documentation/javascript/marker-clustering
-// https://github.com/bseth99/sandbox/blob/master/projects/google-maps/01-drawing-manager-selections.html
-function MakeMap(facts, renderAll) {
-  var data = facts.cityDim.top(Infinity);
-  // Create the Google Map…
-  var map = new google.maps.Map(d3.select("#map").node(), {
-    zoom: 9,
-    center: new google.maps.LatLng(49.160, -122.502),
-    mapTypeId: google.maps.MapTypeId.TERRAIN
-  });
-  // https://stackoverflow.com/questions/6795414/creating-a-selectable-clickable-overlay-on-google-maps
-  var areadata = [{
-    "name": "Surrey",
-    "coords": []
-  }];
-  // Add some markers to the map.
-  // Note: The code uses the JavaScript Array.prototype.map() method to
-  // create an array of markers based on a given "locations" array.
-  // The map() method here has nothing to do with the Google Maps API.
+/* global topojson */
+/* global L */
 
-  var markers = [];
-  data.forEach(function (d, i) {
-    markers.push(new google.maps.Marker({
-      position: d.loc,
-      //position: loc(d.City),
-      optimized: false,
-      title: d.City,
-      icon: "https://www.google.com/mapfiles/marker.png?i=" + (i)
-    }));
+// https://maptimeboston.github.io/leaflet-intro/
+function MakeMap(facts, renderAll) {
+  var parent = this;
+
+  // leaflet http://bl.ocks.org/pbogden/16417ea36900f44710b2
+  var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  var osmAttrib = '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+  var osm = L.tileLayer(osmUrl, {
+    maxZoom: 18,
+    attribution: osmAttrib
   });
-  
-  markers.forEach(function (m) {
-    google.maps.event.addListener(m, "click", function () {
-      var title = this.title;
-      facts.selectedcities.push(title);
-      facts.cityDim.filterFunction(function (d) {
-        return facts.selectedcities.indexOf(d) > -1;
+  var map = L.map('map').setView([49.2, -122.3], 9).addLayer(osm);
+  var data = facts.cityDim.top(Infinity);
+
+  //http://bl.ocks.org/mpmckenna8/af23032b41f0ea1212563b523e859228
+  d3.json("/map", function (error, topology) {
+    var co = d3.scaleOrdinal(d3.schemeCategory20b);
+    //http://bl.ocks.org/awoodruff/728754e48c11a94b522b
+    var features = topology.objects.fraserhealthmapdata.geometries.map(function (d) {
+      return topojson.feature(topology, d);
+    });
+
+    function style(feat) {
+      var coco = co(feat.color = d3.max(+(feat.properties["@id"].slice(-1)), function (n) {
+        return features[n].color;
+      }) + 1 | 0);
+      return {
+        fillColor: coco,
+        fillOpacity: .8,
+        weight: .8
+      };
+    }
+
+    function highlightFeature(e) {
+      var layer = e.target;
+      layer.setStyle({
+        weight: 5,
+        color: '#665',
+        dashArray: '',
+        fillOpacity: .7
       });
-      renderAll(facts);
-      $('img[src="' + this.icon + '"]').stop().animate({
-        opacity: 0
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+      }
+      info.update(layer.feature.properties);
+    }
+
+    function resetHighlight(e) {
+      geojson.resetStyle(e.target);
+      info.update();
+    }
+
+    function zoomToFeature(e) {
+      map.fitBounds(e.target.getBounds());
+    }
+
+    function onEachFeature(feature, layer) {
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+      });
+    }
+    var info = L.control();
+    info.onAdd = function (map) {
+      this._div = L.DomUtil.create('div', 'info');
+      this.update();
+      return this._div;
+    };
+
+    info.update = function (props) {
+      this._div.innerHTML = "<h4>Cities Within Fraser Health</h4>" +
+        (props ? '</br>' + props.name + '</br>' : "Hover " +
+          "over a city");
+    };
+    info.addTo(map);
+
+    var geojson = L.geoJson(features, {
+      style: style,
+      onEachFeature: onEachFeature
+    }).addTo(map);
+
+    // http://bl.ocks.org/d3noob/9267535
+    /* Initialize the SVG layer */
+    //map._initPathRoot();
+    //L.svg().addTo(map);
+
+    /* We simply pick up the SVG from the map object */
+    var svg = d3.select("#map").select("svg");
+    //var svg = d3.select(map.getPanes().markerPane).append("svg");
+    var g = svg.append("g");
+
+    // http://bl.ocks.org/sumbera/10463358
+    // Use Leaflet to implement a D3 geometric transformation.
+    function projectPoint(x, y) {
+      var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+      this.stream.point(point.x, point.y);
+    }
+
+    var transform = d3.geoTransform({
+      point: projectPoint
+    });
+    var path = d3.geoPath().projection(transform);
+    var clust = L.markerClusterGroup();
+    map.on("moveend viewreset", update);
+    update();
+    
+    function addpoints(dat){
+      dat.each(function(d){
+        clust.addLayer(L.marker(d.loc));
+      });
+      map.addLayer(clust);
+      //function(data){ data.forEach(function(d){L.marker(d.loc).addTo(map);});}
+    }
+    
+
+    function update() {
+      /*data.forEach(function(d){
+        L.circleMarker(d.loc).addTo(map);
+      });*/
+      var points = g.selectAll(".point")
+        .data(data, function(d){
+          return d.id;
+        })
+        .enter()
+        //.append("circle")
+        .call(addpoints);
+        //.attr("class", "point");
+      points.exit().remove();
+      //points.attr("d", path).attr("r", 20);
+     // points.attr("r", 2);
+
+      points.attr("transform",
+        function (d) {
+          return "translate(" +
+            map.latLngToLayerPoint(d.loc).x + "," +
+            map.latLngToLayerPoint(d.loc).y + ")";
+        }
+      );
+    }
+  });
+  /*
+    data.forEach(function (d, i) {
+      markers.push(new google.maps.Marker({
+        position: d.loc,
+        //position: loc(d.City),
+        optimized: false,
+        title: d.City,
+        icon: "https://www.google.com/mapfiles/marker.png?i=" + (i)
+      }));
+    });
+    
+    markers.forEach(function (m) {
+      google.maps.event.addListener(m, "click", function () {
+        var title = this.title;
+        facts.selectedcities.push(title);
+        facts.cityDim.filterFunction(function (d) {
+          return facts.selectedcities.indexOf(d) > -1;
+        });
+        renderAll(facts);
+        $('img[src="' + this.icon + '"]').stop().animate({
+          opacity: 0
+        });
       });
     });
-  });
-  
-  // Add a marker clusterer to manage the markers.
-  var markerCluster = new MarkerClusterer(map, markers, {
-    imagePath: "https://raw.githubusercontent.com/googlemaps/v3-utility-library/master/markerclustererplus/images/m",
-    optimized: false
-  });
-
-  //markerCluster.addListener("mouseover", function (c) {
-  //});
-
-  ////////////////////////////////////////////////////
-  /////// use the markers like d3 elements?
-  /////// https://stackoverflow.com/questions/22047466/how-to-add-css-class-to-a-googlemaps-marker
-  /////////////////////////////////////////////////
+  */
 }

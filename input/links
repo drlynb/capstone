@@ -1,5 +1,6 @@
 get geojson from
 https://osm.wno-edv-service.de/boundaries/
+https://overpass-turbo.eu
 
 background:
 http://www.cbc.ca/news/canada/british-columbia/fentanyl-overdose-er-1.3889942
@@ -11,3 +12,17 @@ http://www.bccdc.ca/resource-gallery/Documents/Educational%20Materials/Epid/Othe
 
 # reusable charts
 https://www.toptal.com/d3-js/towards-reusable-d3-js-charts
+
+# shape file
+http://www2.gov.bc.ca/gov/content/data/geographic-data-services/land-use/administrative-boundaries
+
+http://mapshaper.org/
+
+# geojson to topojson
+https://medium.com/@mbostock/command-line-cartography-part-3-1158e4c55a1e
+
+#d3 map
+http://chimera.labs.oreilly.com/books/1230000000345/ch12.html#_paths
+
+# max canvas sizes
+https://stackoverflow.com/questions/6081483/maximum-size-of-a-canvas-element
