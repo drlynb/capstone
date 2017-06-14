@@ -82,26 +82,22 @@ function MakeMap(facts, renderAll) {
       style: style,
       onEachFeature: onEachFeature
     }).addTo(map);
-    // http://bl.ocks.org/d3noob/9267535
-    /* We simply pick up the SVG from the map object */
-    var svg = d3.select("#map").select("svg");
-    var g = svg.append("g");
   });
-  
-  chart.update = function(){
+
+  chart.update = function () {
     var data = facts.cityDim.top(Infinity);
-      // faster to clear all points and redraw than try to remove some
-      // https://github.com/Leaflet/Leaflet.markercluster/issues/59#issuecomment-9320628
-      clust.clearLayers();
-      var temp = [];
-      data.forEach(function(d){
-        temp.push(L.marker(d.loc));
-        //clust.addLayer(L.marker(d.loc));
-      });
-      clust.addLayers(temp);
-      map.addLayer(clust);
-    };
-    
+    // faster to clear all points and redraw than try to remove some
+    // https://github.com/Leaflet/Leaflet.markercluster/issues/59#issuecomment-9320628
+    clust.clearLayers();
+    var temp = [];
+    data.forEach(function (d) {
+      temp.push(L.marker(d.loc));
+      //clust.addLayer(L.marker(d.loc));
+    });
+    clust.addLayers(temp);
+    map.addLayer(clust);
+  };
+
   map.on("viewreset", chart.update);
   chart.update();
   return chart;

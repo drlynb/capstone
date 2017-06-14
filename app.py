@@ -1,5 +1,4 @@
 import pandas as pd
-import geopandas as gpd
 import datetime as dt
 import os
 from flask import Flask, json, jsonify
@@ -39,19 +38,6 @@ def get_map():
     json_url = os.path.join(SITE_ROOT, "input", "fraserquant.json")
     data = json.load(open(json_url))
     return jsonify(data)
-
-def df_to_geojson(df, properties, lat='latitude', lon='longitude'):
-    geojson = {'type':'FeatureCollection', 'features':[]}
-    for _, row in df.iterrows():
-        feature = {'type':'Feature',
-                   'properties':{},
-                   'geometry':{'type':'Point',
-                               'coordinates':[]}}
-        feature['geometry']['coordinates'] = [row[lon],row[lat]]
-        for prop in properties:
-            feature['properties'][prop] = row[prop]
-        geojson['features'].append(feature)
-    return geojson
 
 if __name__ == '__main__':
     app.run(host=os.getenv('IP', '0.0.0.0'), port=int(os.getenv('PORT', 8080)))
