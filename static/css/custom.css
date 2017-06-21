@@ -12,6 +12,12 @@ div {
 .bar{
   opacity: 0.5;
 }
+.lived{
+  fill: #f92525;
+}
+.died{
+  fill: SaddleBrown;
+}
 .bar:hover{
   opacity: 1;
   fill: GoldenRod;
@@ -24,22 +30,22 @@ div {
 /* map */
 
 #map {
-  width: 600px;
-  height: 400px;
+  width: 550px;
+  height: 350px;
   margin: 20;
-  padding: 20;
+  /*padding: 20;*/
 }
-
 .tile {
   fill: #000;
-  fill-opacity: .2;
-  stroke: #fff;
-  stroke-width: 1.5px;
+  fillOpacity: .0;
+  weight: .8;
 }
 
 .tile:hover {
-  fill: brown;
-  fill-opacity: .7;
+  weight: 5;
+  color: '#665';
+  dashArray: '';
+  fillOpacity: .7;
 }
 
 .events,
@@ -61,7 +67,6 @@ div {
 }
 
 /* slider */
-
 p {
   color: white;
   margin: 50px;
@@ -99,18 +104,16 @@ text {
   pointer-events: none;
 }
 
-line{
-  opacity: 0.5;
-}
-
-.odline{
-  stroke: #f92525;
-}
-
 .motorline{
   stroke: #5d24f9;
+  stroke-width: 2;
+  fill: none;
 }
-
+.odline{
+  stroke: #f92525;
+  stroke-width: 2;
+  fill: none;
+}
 
 /* stacked bar chart */
 
@@ -149,14 +152,19 @@ line{
   opacity: 0.5;
   pointer-events: none;
 }
-
+.lost-area{
+  fill: #F92525;
+}
 .nat-area{
   opacity: 0.3;
+  fill: LightGrey;
 }
-.filnat-area{
+.fillnat-area{
   fill: #FDF2EE;
 }
-
+.filllost-area{
+  fill: DarkRed;
+}
 .bar-pot,
 .bar-lost{
   opacity: 0;

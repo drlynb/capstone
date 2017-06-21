@@ -1,5 +1,5 @@
 /* global d3 */
-function MakeAgeBars(facts, mycolours, renderAll) {
+function MakeAgeBars(facts, renderAll) {
     var chart = this;
     var ages = [];
     var margin = {
@@ -145,8 +145,7 @@ function MakeAgeBars(facts, mycolours, renderAll) {
     var width = +stackgendersvg.attr("width") - margin.left - margin.right,
         height = +stackgendersvg.attr("height") - margin.top - margin.bottom;
     var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
-        x = d3.scaleLinear().rangeRound([0, width]),
-        colour = d3.scaleOrdinal(mycolours);
+        x = d3.scaleLinear().rangeRound([0, width]);
     var xAxis = d3.axisTop().scale(x)
         .ticks(7, "d")
         .tickFormat(Math.abs);
@@ -168,9 +167,8 @@ function MakeAgeBars(facts, mycolours, renderAll) {
     var serie = stackgenderg.selectAll(".serie")
         .data(stack)
         .enter().append("g")
-        .attr("class", "serie")
-        .attr("fill", function (d) {
-            return colour(d.key);
+        .attr("class", function(d){
+            return "serie "+d.key;
         });
 
     var rects = serie.selectAll("rect")
@@ -229,10 +227,10 @@ function MakeAgeBars(facts, mycolours, renderAll) {
                     return x(d[0]);
                 }
                 else if (choice !== null) {
-                    if (choice[0] === "m" && choice.length === 1) {
+                    if (choice[0] === "M" && choice.length === 1) {
                         return 130 - (x(d.data.died) - x(d.data.deadmale));
                     }
-                    else if (choice[0] === "f" && choice.length === 1) {
+                    else if (choice[0] === "F" && choice.length === 1) {
                         return 130 - (x(d.data.died) - x(d.data.deadfemale));
                     }
                 }
@@ -240,10 +238,10 @@ function MakeAgeBars(facts, mycolours, renderAll) {
             })
             .attr("width", function (d) {
                 if (choice !== null) {
-                    if (choice[0] === "m" && choice.length === 1) {
+                    if (choice[0] === "M" && choice.length === 1) {
                         return x(d.data.died) - x(d.data.deadmale);
                     }
-                    else if (choice[0] === "f" && choice.length === 1) {
+                    else if (choice[0] === "F" && choice.length === 1) {
                         return x(d.data.died) - x(d.data.deadfemale);
                     }
                 }

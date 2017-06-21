@@ -2,7 +2,7 @@
 // https://bl.ocks.org/mbostock/b5935342c6d21928111928401e2c8608
 // https://bl.ocks.org/mbostock/3885304
 // https://stackoverflow.com/questions/42173318/d3v4-stacked-barchart-tooltip
-function MakeCityBars(facts, mycolours, renderAll) {
+function MakeCityBars(facts, renderAll) {
     var chart = this;
     var cities = [];
     var margin = {
@@ -139,8 +139,7 @@ function MakeCityBars(facts, mycolours, renderAll) {
     var width = +stackedbarsvg.attr("width") - margin.left - margin.right,
         height = +stackedbarsvg.attr("height") - margin.top - margin.bottom;
     var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
-        x = d3.scaleLinear().rangeRound([0, width]),
-        colour = d3.scaleOrdinal(mycolours);
+        x = d3.scaleLinear().rangeRound([0, width]);
     var xAxis = d3.axisTop().scale(x).ticks(7, "d")
         .tickFormat(Math.abs);
     var yAxis = d3.axisLeft().scale(y);
@@ -153,9 +152,8 @@ function MakeCityBars(facts, mycolours, renderAll) {
     var serie = stackedbarg.selectAll(".serie")
         .data(stack)
         .enter().append("g")
-        .attr("class", "serie")
-        .attr("fill", function (d) {
-            return colour(d.key);
+        .attr("class", function(d){
+            return "serie "+d.key;
         });
 
     //list of seleted cities
@@ -216,10 +214,10 @@ function MakeCityBars(facts, mycolours, renderAll) {
                     return x(d[0]);
                 }
                 if (choice !== null) {
-                    if (choice[0] === "m" && choice.length === 1) {
+                    if (choice[0] === "M" && choice.length === 1) {
                         return 130 - (x(d.data.died) - x(d.data.deadmale));
                     }
-                    else if (choice[0] === "f" && choice.length === 1) {
+                    else if (choice[0] === "F" && choice.length === 1) {
                         return 130 - (x(d.data.died) - x(d.data.deadfemale));
                     }
                 }
@@ -227,10 +225,10 @@ function MakeCityBars(facts, mycolours, renderAll) {
             })
             .attr("width", function (d) {
                 if (choice !== null) {
-                    if (choice[0] === "m" && choice.length === 1) {
+                    if (choice[0] === "M" && choice.length === 1) {
                         return x(d.data.died) - x(d.data.deadmale);
                     }
-                    else if (choice[0] === "f" && choice.length === 1) {
+                    else if (choice[0] === "F" && choice.length === 1) {
                         return x(d.data.died) - x(d.data.deadfemale);
                     }
                 }

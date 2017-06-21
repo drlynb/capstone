@@ -42,7 +42,6 @@ function makeGraphs(error, data) {
   var ndx = crossfilter(data);
   // colour takes 1 array as domain (keys) 1 array as values (colours)
   // overdose death, motor death, died, lived, Male, Female, stolen years
-  var colours = ["#f92525", "#E85451", "#f92525", "SaddleBrown", "DarkKhaki", "Teal", "LightGrey", "DarkRed"];
   var renderAll = function (data) {
    agebarschart.update();
    citybarschart.update();
@@ -53,14 +52,15 @@ function makeGraphs(error, data) {
   };
 
   var filterlist = new MakeFilters(myfilters);
-  var stolenchart = new MakeStolenYears(ndx, colours);
-  var agebarschart = new MakeAgeBars(ndx, colours.slice(2, 4), renderAll);
-  var citybarschart = new MakeCityBars(ndx, colours.slice(2, 4), renderAll);
+  var stolenchart = new MakeStolenYears(ndx);
+  var agebarschart = new MakeAgeBars(ndx, renderAll);
+  var citybarschart = new MakeCityBars(ndx, renderAll);
   var mapchart = new MakeMap(citybarschart, renderAll);
-  var linechart = new MakeTimeline(ndx, colours.slice(0, 2), renderAll);
+  var linechart = new MakeTimeline(ndx, renderAll);
   d3.selectAll(".myCheckbox2").on("change.sb2", agebarschart.updatecheck);
   d3.selectAll(".myCheckbox2").on("change.sb1", citybarschart.updatecheck);
-  d3.selectAll(".myCheckbox").on("change", stolencheck);
+  d3.selectAll(".myCheckbox2").on("change.stolen", stolencheck);
+  d3.selectAll(".myCheckbox2").on("change.map", mapchart.updatecheck);
   d3.selectAll(".mybutton").on("click", resetAll);
  });
 }

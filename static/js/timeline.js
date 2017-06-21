@@ -1,6 +1,6 @@
 /* global d3 */
 /* global crossfilter */
-function MakeTimeline(facts, mycolours, renderAll) {
+function MakeTimeline(facts, renderAll) {
     var parent = this;
     d3.json("/motor", function (error2, motordat) {
         var margin = {
@@ -159,10 +159,7 @@ function MakeTimeline(facts, mycolours, renderAll) {
         var motorline = sliderg.selectAll(".motorline").data([odNest[1].values]);
         motorline.enter().append("path")
             .attr("d", lineGen(odNest[1].values))
-            .attr("class", "line motorline")
-            .attr("stroke", mycolours[1])
-            .attr("stroke-width", 2)
-            .attr("fill", "none");
+            .attr("class", "line motorline");
 
         // append axes
         sliderg.append("g")
@@ -236,10 +233,8 @@ function MakeTimeline(facts, mycolours, renderAll) {
             var odline = sliderg.selectAll(".odline").data([odNest[0].values]);
             odline.enter().append("path")
                 .attr("d", lineGen(odNest[0].values))
-                .attr("class", "line odline")
-                .attr("stroke", mycolours[0])
-                .attr("stroke-width", 2)
-                .attr("fill", "none");
+                .attr("class", "line odline");
+
             motorline.data([odNest[1].values])
                 .transition().duration(500)
                 .attr("d", lineGen(odNest[1].values));

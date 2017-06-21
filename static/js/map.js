@@ -17,31 +17,13 @@ function MakeMap(facts, renderAll) {
 
   //http://bl.ocks.org/mpmckenna8/af23032b41f0ea1212563b523e859228
   d3.json("/map", function (error, topology) {
-    var co = d3.scaleOrdinal(d3.schemeCategory20b);
     //http://bl.ocks.org/awoodruff/728754e48c11a94b522b
     var features = topology.objects.fraserhealthmapdata.geometries.map(function (d) {
       return topojson.feature(topology, d);
     });
 
-    function style(feat) {
-      var coco = co(feat.color = d3.max(+(feat.properties["@id"].slice(-1)), function (n) {
-        return features[n].color;
-      }) + 1 | 0);
-      return {
-        fillColor: coco,
-        fillOpacity: .8,
-        weight: .8
-      };
-    }
-
     function highlightFeature(e) {
       var layer = e.target;
-      layer.setStyle({
-        weight: 5,
-        color: '#665',
-        dashArray: '',
-        fillOpacity: .7
-      });
       if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
         layer.bringToFront();
       }
@@ -79,23 +61,43 @@ function MakeMap(facts, renderAll) {
     info.addTo(map);
 
     var geojson = L.geoJson(features, {
-      style: style,
+      className: "tile",
       onEachFeature: onEachFeature
     }).addTo(map);
   });
 
-  chart.update = function () {
+  chart.update = function (choice = []) {
     var data = facts.cityDim.top(Infinity);
     // faster to clear all points and redraw than try to remove some
     // https://github.com/Leaflet/Leaflet.markercluster/issues/59#issuecomment-9320628
     clust.clearLayers();
     var temp = [];
-    data.forEach(function (d) {
-      temp.push(L.marker(d.loc));
-      //clust.addLayer(L.marker(d.loc));
-    });
+    if (choice.length === 1) {
+      data.forEach(function (d) {
+        if (d.Gender === choice[0]) {
+          temp.push(L.marker(d.loc));
+        }
+      });
+    }
+    else {
+      data.forEach(function (d) {
+        temp.push(L.marker(d.loc));
+      });
+    }
+
     clust.addLayers(temp);
     map.addLayer(clust);
+  };
+
+  chart.updatecheck = function () {
+    var choices = [];
+    d3.selectAll(".myCheckbox2").each(function (d) {
+      var cb = d3.select(this);
+      if (cb.property("checked")) {
+        choices.push(cb.property("value"));
+      }
+    });
+    chart.update(choices);
   };
 
   map.on("viewreset", chart.update);

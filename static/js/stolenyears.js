@@ -1,6 +1,6 @@
 /* global d3 */
 /* global crossfilter */
-function MakeStolenYears(facts, mycolours) {
+function MakeStolenYears(facts) {
     var parent = this;
     d3.json("/natural", function (error2, naturaldata) {
         var margin = {
@@ -214,22 +214,19 @@ function MakeStolenYears(facts, mycolours) {
         var lost = stoleng.selectAll(".lost-area")
             .data([data]).enter().append("path")
             .attr("class", "area lost-area")
-            .attr("d", area)
-            .attr("fill", mycolours[0]);
+            .attr("d", area);
 
         //append natural area
         var natural = stoleng.selectAll(".nat-area")
             .data([natdata]).enter().append("path")
             .attr("class", "area nat-area")
-            .attr("d", area)
-            .attr("fill", mycolours[6]);
+            .attr("d", area);
 
         //append filtered natural area
-        var filterednat = stoleng.selectAll(".filnat-area")
+        var filterednat = stoleng.selectAll(".fillnat-area")
             .data([natdata]).enter().append("path")
-            .attr("class", "area filnat-area")
+            .attr("class", "area fillnat-area")
             .attr("d", area)
-            //.attr("fill", mycolours[6])
             .attr("visibility", "hidden");
 
         //append filtered lost area
@@ -237,7 +234,6 @@ function MakeStolenYears(facts, mycolours) {
             .data([data]).enter().append("path")
             .attr("class", "area filllost-area")
             .attr("d", area)
-            .attr("fill", mycolours[7])
             .attr("visibility", "hidden");
 
         // add legend
@@ -290,7 +286,7 @@ function MakeStolenYears(facts, mycolours) {
 
         parent.updatecheck = function () {
             var choices = [];
-            d3.selectAll(".myCheckbox").each(function (d) {
+            d3.selectAll(".myCheckbox2").each(function (d) {
                 var cb = d3.select(this);
                 if (cb.property("checked")) {
                     choices.push(cb.property("value"));
