@@ -167,8 +167,8 @@ function MakeAgeBars(facts, renderAll) {
     var serie = stackgenderg.selectAll(".serie")
         .data(stack)
         .enter().append("g")
-        .attr("class", function(d){
-            return "serie "+d.key;
+        .attr("class", function (d) {
+            return "serie " + d.key;
         });
 
     var rects = serie.selectAll("rect")
@@ -198,17 +198,31 @@ function MakeAgeBars(facts, renderAll) {
         else {
             chart.selectedage.splice(temp, 1);
         } //remove agegroup from list
-        d3.selectAll(".agegroup").each(function (d) {
+        var bars = d3.selectAll(".agegroup");
+        bars.each(function (d) {
+            var tmp = d3.select(this);
             if (chart.selectedage.indexOf(d.data.age) > -1) {
-                //d3.select(this).attr("fill", "brown");
+                tmp.classed("selected", true)
+                    .classed("notselected", false);
             }
             else {
-                d3.select(this).attr("fill", "brown");
+                tmp.classed("selected", false)
+                    .classed("notselected", true);
             }
         });
-        chart.ageDim.filterFunction(function (d) {
-            return chart.selectedage.indexOf(d) > -1;
-        });
+        if (chart.selectedage.length !== 0) {
+            chart.ageDim.filterFunction(function (d) {
+                return chart.selectedage.indexOf(d) > -1;
+            });
+        }
+        else {
+            bars.each(function (d) {
+                d3.select(this)
+                    .classed("selected", false)
+                    .classed("notselected", false);
+            });
+            chart.ageDim.filter(null);
+        }
         renderAll(facts);
     });
 
@@ -220,6 +234,15 @@ function MakeAgeBars(facts, renderAll) {
         .attr("class", "axis axis--y")
         .call(yAxis);
 
+    function mfresize(d, choice) {
+        if (choice[0] === "M" && choice.length === 1) {
+            return (x(d.data.died) - x(d.data.deadmale));
+        }
+        else if (choice[0] === "F" && choice.length === 1) {
+            return (x(d.data.died) - x(d.data.deadfemale));
+        }
+    }
+
     var t = function (obj, choice) {
         obj.transition().duration(500)
             .attr("x", function (d) {
@@ -227,23 +250,13 @@ function MakeAgeBars(facts, renderAll) {
                     return x(d[0]);
                 }
                 else if (choice !== null) {
-                    if (choice[0] === "M" && choice.length === 1) {
-                        return 130 - (x(d.data.died) - x(d.data.deadmale));
-                    }
-                    else if (choice[0] === "F" && choice.length === 1) {
-                        return 130 - (x(d.data.died) - x(d.data.deadfemale));
-                    }
+                    return 130 - mfresize(d, choice);
                 }
                 return 130 - (x(d[1]) - x(d[0]));
             })
             .attr("width", function (d) {
                 if (choice !== null) {
-                    if (choice[0] === "M" && choice.length === 1) {
-                        return x(d.data.died) - x(d.data.deadmale);
-                    }
-                    else if (choice[0] === "F" && choice.length === 1) {
-                        return x(d.data.died) - x(d.data.deadfemale);
-                    }
+                    return mfresize(d, choice);
                 }
                 return x(d[1]) - x(d[0]);
             });
@@ -255,9 +268,6 @@ function MakeAgeBars(facts, renderAll) {
         serie.data(stack);
         rects.data(function (d) {
                 return d;
-            })
-            .attr("class", function (d) {
-                return (chart.selectedage.indexOf(d.data.age) > -1) ? "bar agegroup selected" : "bar agegroup";
             })
             .transition(t(rects, null));
     };

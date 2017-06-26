@@ -5,15 +5,16 @@
 function MakeMap(facts, renderAll) {
   var chart = this;
   // leaflet http://bl.ocks.org/pbogden/16417ea36900f44710b2
-  var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  var osmUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   var osmAttrib = '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors';
   var osm = L.tileLayer(osmUrl, {
     maxZoom: 18,
     attribution: osmAttrib
   });
-  var map = L.map('map').setView([49.2, -122.3], 9).addLayer(osm);
+  var map = L.map("map").setView([49.2, -122.3], 9).addLayer(osm);
   //var data = facts.cityDim.top(Infinity);
   var clust = L.markerClusterGroup();
+  var info = L.control();
 
   //http://bl.ocks.org/mpmckenna8/af23032b41f0ea1212563b523e859228
   d3.json("/map", function (error, topology) {
@@ -21,6 +22,10 @@ function MakeMap(facts, renderAll) {
     var features = topology.objects.fraserhealthmapdata.geometries.map(function (d) {
       return topojson.feature(topology, d);
     });
+    var geojson = L.geoJson(features, {
+      className: "tile",
+      onEachFeature: onEachFeature
+    }).addTo(map);
 
     function highlightFeature(e) {
       var layer = e.target;
@@ -46,24 +51,19 @@ function MakeMap(facts, renderAll) {
         click: zoomToFeature
       });
     }
-    var info = L.control();
     info.onAdd = function (map) {
-      this._div = L.DomUtil.create('div', 'info');
+      this._div = L.DomUtil.create("div", "info");
       this.update();
       return this._div;
     };
 
     info.update = function (props) {
       this._div.innerHTML = "<h4>Cities Within Fraser Health</h4>" +
-        (props ? '</br>' + props.name + '</br>' : "Hover " +
+        (props ? "</br>" + props.name + "</br>" : "Hover " +
           "over a city");
     };
     info.addTo(map);
 
-    var geojson = L.geoJson(features, {
-      className: "tile",
-      onEachFeature: onEachFeature
-    }).addTo(map);
   });
 
   chart.update = function (choice = []) {
@@ -84,7 +84,6 @@ function MakeMap(facts, renderAll) {
         temp.push(L.marker(d.loc));
       });
     }
-
     clust.addLayers(temp);
     map.addLayer(clust);
   };

@@ -152,8 +152,8 @@ function MakeCityBars(facts, renderAll) {
     var serie = stackedbarg.selectAll(".serie")
         .data(stack)
         .enter().append("g")
-        .attr("class", function(d){
-            return "serie "+d.key;
+        .attr("class", function (d) {
+            return "serie " + d.key;
         });
 
     //list of seleted cities
@@ -167,24 +167,38 @@ function MakeCityBars(facts, renderAll) {
         .on("click", function (d, i) {
             //add/remove city from list
             var temp = chart.selectedcities.indexOf(d.data.cities);
-            if (temp == -1) {
+            if (temp === -1) {
                 chart.selectedcities.push(d.data.cities);
             }
             else {
                 chart.selectedcities.splice(temp, 1);
             } //remove city from list
             // inside onclick function
-            d3.selectAll(".city").each(function (d) {
+            var bars = d3.selectAll(".city");
+            bars.each(function (d) {
+                var tmp = d3.select(this);
                 if (chart.selectedcities.indexOf(d.data.cities) > -1) {
-                    //d3.select(this).attr("fill", "brown");
+                    tmp.classed("selected", true)
+                        .classed("notselected", false);
                 }
                 else {
-                    d3.select(this).attr("fill", "brown");
+                    tmp.classed("selected", false)
+                        .classed("notselected", true);
                 }
             });
-            chart.cityDim.filterFunction(function (d) {
-                return chart.selectedcities.indexOf(d) > -1;
-            });
+            if (chart.selectedcities.length !== 0) {
+                chart.cityDim.filterFunction(function (d) {
+                    return chart.selectedcities.indexOf(d) > -1;
+                });
+            }
+            else {
+                bars.each(function (d) {
+                    d3.select(this)
+                        .classed("selected", false)
+                        .classed("notselected", false);
+                });
+                chart.cityDim.filter(null);
+            }
             renderAll(facts);
         });
 
@@ -207,6 +221,15 @@ function MakeCityBars(facts, renderAll) {
         .attr("class", "axis axis--x")
         .call(xAxis);
 
+    function mfresize(d, choice) {
+        if (choice[0] === "M" && choice.length === 1) {
+            return (x(d.data.died) - x(d.data.deadmale));
+        }
+        else if (choice[0] === "F" && choice.length === 1) {
+            return (x(d.data.died) - x(d.data.deadfemale));
+        }
+    }
+
     var t = function (obj, choice) {
         obj.transition().duration(500)
             .attr("x", function (d) {
@@ -214,23 +237,13 @@ function MakeCityBars(facts, renderAll) {
                     return x(d[0]);
                 }
                 if (choice !== null) {
-                    if (choice[0] === "M" && choice.length === 1) {
-                        return 130 - (x(d.data.died) - x(d.data.deadmale));
-                    }
-                    else if (choice[0] === "F" && choice.length === 1) {
-                        return 130 - (x(d.data.died) - x(d.data.deadfemale));
-                    }
+                    return 130 - mfresize(d, choice);
                 }
                 return 130 - (x(d[1]) - x(d[0]));
             })
             .attr("width", function (d) {
                 if (choice !== null) {
-                    if (choice[0] === "M" && choice.length === 1) {
-                        return x(d.data.died) - x(d.data.deadmale);
-                    }
-                    else if (choice[0] === "F" && choice.length === 1) {
-                        return x(d.data.died) - x(d.data.deadfemale);
-                    }
+                    return mfresize(d, choice);
                 }
                 return x(d[1]) - x(d[0]);
             });
@@ -242,9 +255,6 @@ function MakeCityBars(facts, renderAll) {
         serie.data(stack);
         rects.data(function (d) {
                 return d;
-            })
-            .attr("class", function (d) {
-                return (chart.selectedcities.indexOf(d.data.cities) > -1) ? "bar city selected" : "bar city";
             })
             .transition(t(rects, null));
     };

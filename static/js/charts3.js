@@ -22,21 +22,23 @@ queue()
 
 function makeGraphs(error, data) {
  d3.json("/data", function (error, data) {
-  var myfilters = new Set();
+  var allfilters = new Set();
   data.forEach(function (d) {
    d.dd = new Date(d.Datetime);
    d.my = new Date(d.dd.getFullYear() + "-" + (d.dd.getMonth() + 1) + "-01");
    d.loc = new L.LatLng(d.EventLat, d.EventLng);
-   myfilters.add(d.City);
-   myfilters.add(d.agegroup);
+   allfilters.add(d.City);
+   allfilters.add(d.agegroup);
   });
-
-  function stolencheck() {
-   stolenchart.updatecheck();
-  }
 
   function resetAll() {
    location.reload(); //refresh page
+  }
+  function checked() {
+   stolenchart.updatecheck();
+   citybarschart.updatecheck();
+   mapchart.updatecheck();
+   agebarschart.updatecheck();
   }
 
   var ndx = crossfilter(data);
@@ -48,19 +50,22 @@ function makeGraphs(error, data) {
    stolenchart.update();
    linechart.update();
    mapchart.update();
-   filterlist.update(agebarschart.selectedage.concat(citybarschart.selectedcities));
+   var myfilters = agebarschart.selectedage.concat(citybarschart.selectedcities);
+   if (myfilters.length > 0) {
+    filterlist.update(myfilters);
+   }
+   else {
+    filterlist.update(allfilters);
+   }
   };
 
-  var filterlist = new MakeFilters(myfilters);
+  var filterlist = new MakeFilters(allfilters);
   var stolenchart = new MakeStolenYears(ndx);
   var agebarschart = new MakeAgeBars(ndx, renderAll);
   var citybarschart = new MakeCityBars(ndx, renderAll);
   var mapchart = new MakeMap(citybarschart, renderAll);
   var linechart = new MakeTimeline(ndx, renderAll);
-  d3.selectAll(".myCheckbox2").on("change.sb2", agebarschart.updatecheck);
-  d3.selectAll(".myCheckbox2").on("change.sb1", citybarschart.updatecheck);
-  d3.selectAll(".myCheckbox2").on("change.stolen", stolencheck);
-  d3.selectAll(".myCheckbox2").on("change.map", mapchart.updatecheck);
+  d3.selectAll(".myCheckbox2").on("change", checked);
   d3.selectAll(".mybutton").on("click", resetAll);
  });
 }

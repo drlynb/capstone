@@ -2,13 +2,61 @@
 /* global crossfilter */
 function MakeTimeline(facts, renderAll) {
     var parent = this;
+    var margin = {
+        top: 60,
+        right: 50,
+        bottom: 60,
+        left: 90
+    };
+
+    var dateDim = facts.dimension(function (d) {
+        return d.my;
+    });
+    var odGroup = dateDim.group().reduce(
+        function (p, v) {
+            if (v.Dead === true) {
+                ++p.dead;
+            }
+            return p;
+        },
+        function (p, v) {
+            if (v.Dead === true) {
+                --p.dead;
+            }
+            return p;
+        },
+        function () {
+            return {
+                dead: 0
+            };
+        });
+
+    function clicked() {
+        dateDim.filter(null);
+        renderAll(facts);
+    }
+    var slidersvg = d3.select("#slider").append("svg")
+        .attr("width", 900)
+        .attr("height", 250)
+        .on("click", clicked);
+    var sliderg = slidersvg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    slidersvg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 30)
+        .attr("x", 0 - (+slidersvg.attr("height") / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Deaths");
+
+    var data = odGroup.all();
+    var width = 960 - margin.left - margin.right,
+        height = 250 - margin.bottom - margin.top;
+    var formatDate = d3.timeFormat("%b %Y");
+
+
     d3.json("/motor", function (error2, motordat) {
-        var margin = {
-            top: 60,
-            right: 50,
-            bottom: 60,
-            left: 90
-        };
+
         motordat.forEach(function (d) {
             d.dd = new Date(d.Date);
             d.my = new Date(d.dd.getFullYear() + "-" + (d.dd.getMonth() + 1) + "-01");
@@ -18,45 +66,6 @@ function MakeTimeline(facts, renderAll) {
             return d.my;
         });
         var motorGroup = motorDim.group();
-        var dateDim = facts.dimension(function (d) {
-            return d.my;
-        });
-        var odGroup = dateDim.group().reduce(
-            function (p, v) {
-                if (v.Dead === true) {
-                    ++p.dead;
-                }
-                return p;
-            },
-            function (p, v) {
-                if (v.Dead === true) {
-                    --p.dead;
-                }
-                return p;
-            },
-            function () {
-                return {
-                    dead: 0
-                };
-            });
-
-        var slidersvg = d3.select("#slider").append("svg")
-            .attr("width", 900)
-            .attr("height", 250);
-        var sliderg = slidersvg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        slidersvg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 30)
-            .attr("x", 0 - (+slidersvg.attr("height") / 2))
-            .attr("dy", "1em")
-            .style("text-anchor", "middle")
-            .text("Deaths");
-
-        var data = odGroup.all();
-        var width = 960 - margin.left - margin.right,
-            height = 250 - margin.bottom - margin.top;
-        var formatDate = d3.timeFormat("%b %Y");
 
         // scale function
         var x = d3.scaleTime()
@@ -138,7 +147,6 @@ function MakeTimeline(facts, renderAll) {
             return d.key;
         }));
         y.domain([0, d3.max(data, function (d) {
-            //console.log(d);
             return d.value.dead;
         })]).nice();
 
@@ -229,11 +237,9 @@ function MakeTimeline(facts, renderAll) {
                 })
                 .entries(motorData);
             odNest.push(motorNest[0]);
-            sliderg.selectAll(".odline").remove();
-            var odline = sliderg.selectAll(".odline").data([odNest[0].values]);
-            odline.enter().append("path")
-                .attr("d", lineGen(odNest[0].values))
-                .attr("class", "line odline");
+            odline = sliderg.selectAll(".odline").data([odNest[0].values]);
+            odline.transition().duration(500)
+                .attr("d", lineGen(odNest[0].values));
 
             motorline.data([odNest[1].values])
                 .transition().duration(500)
@@ -243,7 +249,7 @@ function MakeTimeline(facts, renderAll) {
         function brushmoved() {
             var s = d3.event.selection;
             //start and end dates
-            if (s == null) {
+            if (s === null) {
                 //no dates selected
                 handle.attr("display", "none");
                 d3.select(".chart-label").text("Click and drag on chart to filter a date range");
@@ -258,7 +264,9 @@ function MakeTimeline(facts, renderAll) {
                     return "translate(" + [s[i], -height / 4] + ")";
                 });
             }
+
         }
     });
+
     return parent;
 }
