@@ -156,6 +156,34 @@ function MakeCityBars(facts, renderAll) {
             return "serie " + d.key;
         });
 
+    chart.colourbars = function () {
+        var bars = d3.selectAll(".city");
+        bars.each(function (d) {
+            var tmp = d3.select(this);
+            if (chart.selectedcities.indexOf(d.data.cities) > -1) {
+                tmp.classed("selected", true)
+                    .classed("notselected", false);
+            }
+            else {
+                tmp.classed("selected", false)
+                    .classed("notselected", true);
+            }
+        });
+        if (chart.selectedcities.length !== 0) {
+            chart.cityDim.filterFunction(function (d) {
+                return chart.selectedcities.indexOf(d) > -1;
+            });
+        }
+        else {
+            bars.each(function (d) {
+                d3.select(this)
+                    .classed("selected", false)
+                    .classed("notselected", false);
+            });
+            chart.cityDim.filter(null);
+        }
+    };
+
     //list of seleted cities
     chart.selectedcities = [];
     var rects = serie.selectAll(".city")
@@ -174,31 +202,7 @@ function MakeCityBars(facts, renderAll) {
                 chart.selectedcities.splice(temp, 1);
             } //remove city from list
             // inside onclick function
-            var bars = d3.selectAll(".city");
-            bars.each(function (d) {
-                var tmp = d3.select(this);
-                if (chart.selectedcities.indexOf(d.data.cities) > -1) {
-                    tmp.classed("selected", true)
-                        .classed("notselected", false);
-                }
-                else {
-                    tmp.classed("selected", false)
-                        .classed("notselected", true);
-                }
-            });
-            if (chart.selectedcities.length !== 0) {
-                chart.cityDim.filterFunction(function (d) {
-                    return chart.selectedcities.indexOf(d) > -1;
-                });
-            }
-            else {
-                bars.each(function (d) {
-                    d3.select(this)
-                        .classed("selected", false)
-                        .classed("notselected", false);
-                });
-                chart.cityDim.filter(null);
-            }
+            chart.colourbars();
             renderAll(facts);
         });
 

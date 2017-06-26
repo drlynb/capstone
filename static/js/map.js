@@ -39,6 +39,16 @@ function MakeMap(facts, renderAll) {
       geojson.resetStyle(e.target);
       info.update();
     }
+    
+    function clicked(e){
+      zoomToFeature(e);
+      var city = e.target.feature.properties.name;
+      facts.cityDim.filter(city);
+      facts.selectedcities = [];
+      facts.selectedcities.push(city);
+      facts.colourbars();
+      renderAll(null);
+    }
 
     function zoomToFeature(e) {
       map.fitBounds(e.target.getBounds());
@@ -48,7 +58,7 @@ function MakeMap(facts, renderAll) {
       layer.on({
         mouseover: highlightFeature,
         mouseout: resetHighlight,
-        click: zoomToFeature
+        click: clicked
       });
     }
     info.onAdd = function (map) {
@@ -63,7 +73,6 @@ function MakeMap(facts, renderAll) {
           "over a city");
     };
     info.addTo(map);
-
   });
 
   chart.update = function (choice = []) {
@@ -102,29 +111,4 @@ function MakeMap(facts, renderAll) {
   map.on("viewreset", chart.update);
   chart.update();
   return chart;
-  /*
-    data.forEach(function (d, i) {
-      markers.push(new google.maps.Marker({
-        position: d.loc,
-        //position: loc(d.City),
-        optimized: false,
-        title: d.City,
-        icon: "https://www.google.com/mapfiles/marker.png?i=" + (i)
-      }));
-    });
-    
-    markers.forEach(function (m) {
-      google.maps.event.addListener(m, "click", function () {
-        var title = this.title;
-        facts.selectedcities.push(title);
-        facts.cityDim.filterFunction(function (d) {
-          return facts.selectedcities.indexOf(d) > -1;
-        });
-        renderAll(facts);
-        $('img[src="' + this.icon + '"]').stop().animate({
-          opacity: 0
-        });
-      });
-    });
-  */
 }

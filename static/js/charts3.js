@@ -44,7 +44,7 @@ function makeGraphs(error, data) {
   var ndx = crossfilter(data);
   // colour takes 1 array as domain (keys) 1 array as values (colours)
   // overdose death, motor death, died, lived, Male, Female, stolen years
-  var renderAll = function (data) {
+  var renderAll = function (_) {
    agebarschart.update();
    citybarschart.update();
    stolenchart.update();

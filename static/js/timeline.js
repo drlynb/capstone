@@ -54,6 +54,70 @@ function MakeTimeline(facts, renderAll) {
         height = 250 - margin.bottom - margin.top;
     var formatDate = d3.timeFormat("%b %Y");
 
+    // style brush resize handle
+    // https://github.com/crossfilter/crossfilter/blob/gh-pages/index.html#L466
+    var brushResizePath = function (d) {
+        var e = +(d.type === "e"),
+            x = e ? 1 : -1,
+            y = height / 2;
+        return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "Z" + "M" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
+    };
+
+    // scale function
+    var x = d3.scaleTime()
+        .rangeRound([0, width])
+        .clamp(true),
+        y = d3.scaleLinear().rangeRound([height, 0]);
+
+    x.domain(d3.extent(data, function (d) {
+        return d.key;
+    }));
+    y.domain([0, d3.max(data, function (d) {
+        return d.value.dead;
+    })]).nice();
+
+    //brush stuff
+    var brush = d3.brushX()
+        .extent([
+            [0, 0],
+            [width, height]
+        ])
+        .on("start brush end", brushmoved);
+    var gBrush = sliderg.append("g")
+        .attr("class", "brush")
+        .call(brush);
+
+    var handle = gBrush.selectAll(".handle--custom")
+        .data([{
+            type: "w"
+        }, {
+            type: "e"
+        }])
+        .enter().append("path")
+        .attr("class", "handle--custom")
+        .attr("stroke", "#000")
+        .attr("cursor", "ew-resize")
+        .attr("d", brushResizePath);
+
+    function brushmoved() {
+        var s = d3.event.selection;
+        //start and end dates
+        if (s === null) {
+            //no dates selected
+            handle.attr("display", "none");
+            d3.select(".chart-label").text("Click and drag on chart to filter a date range");
+        }
+        else {
+            dateDim.filterFunction(function (d) {
+                return d >= x.invert(s[0]) && d <= x.invert(s[1]);
+            });
+            renderAll(facts);
+            d3.select(".chart-label").text(formatDate(x.invert(s[0])) + " -- " + formatDate(x.invert([s[1]])));
+            handle.attr("display", null).attr("transform", function (d, i) {
+                return "translate(" + [s[i], -height / 4] + ")";
+            });
+        }
+    }
 
     d3.json("/motor", function (error2, motordat) {
 
@@ -67,89 +131,52 @@ function MakeTimeline(facts, renderAll) {
         });
         var motorGroup = motorDim.group();
 
-        // scale function
-        var x = d3.scaleTime()
-            .rangeRound([0, width])
-            .clamp(true),
-            y = d3.scaleLinear().rangeRound([height, 0]);
+        function prepdata() {
+            // combine datasets on AgeGroup
+            // https://stackoverflow.com/questions/23864180/counting-data-items-in-d3-js
+            //group od data
+            var odData = [];
+            data.forEach(function (d, i) {
+                var odObj = {};
+                odObj["type"] = "overdose";
+                odObj["date"] = d.key;
+                odObj["death"] = d.value.dead;
+                odData.push(odObj);
+            });
 
-        //brush stuff
-        var brush = d3.brushX()
-            .extent([
-                [0, 0],
-                [width, height]
-            ])
-            .on("start brush end", brushmoved);
-        var gBrush = sliderg.append("g")
-            .attr("class", "brush")
-            .call(brush);
+            // add motor data to groups
+            var motorData = [];
+            motorGroup.all().forEach(function (d, i) {
+                var motorObj = {};
+                motorObj["type"] = "motor";
+                motorObj["date"] = d.key;
+                motorObj["death"] = d.value;
+                motorData.push(motorObj);
+            });
 
-        // style brush resize handle
-        // https://github.com/crossfilter/crossfilter/blob/gh-pages/index.html#L466
-        var brushResizePath = function (d) {
-            var e = +(d.type === "e"),
-                x = e ? 1 : -1,
-                y = height / 2;
-            return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "Z" + "M" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
-        };
-        var handle = gBrush.selectAll(".handle--custom")
-            .data([{
-                type: "w"
-            }, {
-                type: "e"
-            }])
-            .enter().append("path")
-            .attr("class", "handle--custom")
-            .attr("stroke", "#000")
-            .attr("cursor", "ew-resize")
-            .attr("d", brushResizePath);
+            //nest data
+            var odNest = d3.nest()
+                .key(function (d) {
+                    return d.type;
+                })
+                .entries(odData);
+            var motorNest = d3.nest()
+                .key(function (d) {
+                    return d.type;
+                })
+                .entries(motorData);
+            odNest.push(motorNest[0]);
+
+            return odNest;
+        }
+
         gBrush.call(brush.move, [0.3, 0.5].map(x));
         sliderg.append("text")
             .attr("class", "chart-label")
             .attr("transform", "translate(" + width / 2.5 + ",-10" + ")")
             .text("Click and drag on chart to filter a date range");
 
-        // combine datasets on AgeGroup
-        // https://stackoverflow.com/questions/23864180/counting-data-items-in-d3-js
-        //group od data
-        var odData = [];
-        data.forEach(function (d, i) {
-            var odObj = {};
-            odObj["type"] = "overdose";
-            odObj["date"] = d.key;
-            odObj["death"] = d.value.dead;
-            odData.push(odObj);
-        });
-
-        // add motor data to groups
-        var motorData = [];
-        motorGroup.all().forEach(function (d, i) {
-            var motorObj = {};
-            motorObj["type"] = "motor";
-            motorObj["date"] = d.key;
-            motorObj["death"] = d.value;
-            motorData.push(motorObj);
-        });
-
-        //nest data
-        var odNest = d3.nest()
-            .key(function (d) {
-                return d.type;
-            })
-            .entries(odData);
-        var motorNest = d3.nest()
-            .key(function (d) {
-                return d.type;
-            })
-            .entries(motorData);
-        odNest.push(motorNest[0]);
-        x.domain(d3.extent(data, function (d) {
-            return d.key;
-        }));
-        y.domain([0, d3.max(data, function (d) {
-            return d.value.dead;
-        })]).nice();
-
+        var dat = prepdata();
         // make a line "function"
         var lineGen = d3.line()
             .x(function (d) {
@@ -158,15 +185,15 @@ function MakeTimeline(facts, renderAll) {
             .y(function (d) {
                 return y(d.death);
             });
-        var odline = sliderg.selectAll(".odline").data([odNest[0].values]);
+        var odline = sliderg.selectAll(".odline").data([dat[0].values]);
         odline.enter().append("path")
-            .attr("d", lineGen(odNest[0].values))
+            .attr("d", lineGen(dat[0].values))
             .attr("class", "line odline")
             .attr("stroke-width", 2)
             .attr("fill", "none");
-        var motorline = sliderg.selectAll(".motorline").data([odNest[1].values]);
+        var motorline = sliderg.selectAll(".motorline").data([dat[1].values]);
         motorline.enter().append("path")
-            .attr("d", lineGen(odNest[1].values))
+            .attr("d", lineGen(dat[1].values))
             .attr("class", "line motorline");
 
         // append axes
@@ -206,66 +233,15 @@ function MakeTimeline(facts, renderAll) {
             });
 
         parent.update = function () {
-            var odData = [];
-            odGroup.all().forEach(function (d, i) {
-                var odObj = {};
-                odObj["type"] = "overdose";
-                odObj["date"] = d.key;
-                odObj["death"] = d.value.dead;
-                odData.push(odObj);
-            });
-
-            // add motor data to groups
-            var motorData = [];
-            motorGroup.all().forEach(function (d, i) {
-                var motorObj = {};
-                motorObj["type"] = "motor";
-                motorObj["date"] = d.key;
-                motorObj["death"] = d.value;
-                motorData.push(motorObj);
-            });
-
-            //nest data
-            var odNest = d3.nest()
-                .key(function (d) {
-                    return d.type;
-                })
-                .entries(odData);
-            var motorNest = d3.nest()
-                .key(function (d) {
-                    return d.type;
-                })
-                .entries(motorData);
-            odNest.push(motorNest[0]);
-            odline = sliderg.selectAll(".odline").data([odNest[0].values]);
+            var dat = prepdata();
+            odline = sliderg.selectAll(".odline").data([dat[0].values]);
             odline.transition().duration(500)
-                .attr("d", lineGen(odNest[0].values));
+                .attr("d", lineGen(dat[0].values));
 
-            motorline.data([odNest[1].values])
+            motorline.data([dat[1].values])
                 .transition().duration(500)
-                .attr("d", lineGen(odNest[1].values));
+                .attr("d", lineGen(dat[1].values));
         };
-
-        function brushmoved() {
-            var s = d3.event.selection;
-            //start and end dates
-            if (s === null) {
-                //no dates selected
-                handle.attr("display", "none");
-                d3.select(".chart-label").text("Click and drag on chart to filter a date range");
-            }
-            else {
-                dateDim.filterFunction(function (d) {
-                    return d >= x.invert(s[0]) && d <= x.invert(s[1]);
-                });
-                renderAll(facts);
-                d3.select(".chart-label").text(formatDate(x.invert(s[0])) + " -- " + formatDate(x.invert([s[1]])));
-                handle.attr("display", null).attr("transform", function (d, i) {
-                    return "translate(" + [s[i], -height / 4] + ")";
-                });
-            }
-
-        }
     });
 
     return parent;
