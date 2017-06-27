@@ -237,8 +237,6 @@ function MakeCityBars(facts, renderAll) {
     var t = function (obj, choice) {
         obj.transition().duration(500)
             .attr("x", function (d) {
-                console.log(d);
-                console.log(choice);
                 if (d[0] === 0) {
                     return x(d[0]);
                 }
