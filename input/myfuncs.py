@@ -33,3 +33,6 @@ def randage(age):
         return str(random.randint(70,80)) +','
     else:
         print('error')
+        
+def randomDate(start, end, prop):
+    return timeFunc(start, end, '%m/%Y', prop)

@@ -84,10 +84,6 @@ def latnlng(city):
     elif city == 'Agassiz-Harrison':
         return [ 49.271338,-121.776529]
 
-
-def randomDate(start, end, prop):
-    return timeFunc(start, end, '%m/%Y', prop)
-
 def titles():
     return 'id,' + 'Gender,' + 'Agegroup,'+ 'Age,' + 'Homeless,' + 'City,' + 'EventLat,' + 'EventLng,' + 'Building,' + \
             'SuspectedSubstance,' + 'FirstEvent,' + 'Dead,' + 'DeathLat,' + 'DeathLng,' + 'ConfirmedSubstance,' + \

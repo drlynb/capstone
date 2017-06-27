@@ -237,16 +237,18 @@ function MakeCityBars(facts, renderAll) {
     var t = function (obj, choice) {
         obj.transition().duration(500)
             .attr("x", function (d) {
+                console.log(d);
+                console.log(choice);
                 if (d[0] === 0) {
                     return x(d[0]);
                 }
-                if (choice !== null) {
+                if (choice.length === 1) {
                     return 130 - mfresize(d, choice);
                 }
                 return 130 - (x(d[1]) - x(d[0]));
             })
             .attr("width", function (d) {
-                if (choice !== null) {
+                if (choice.length === 1) {
                     return mfresize(d, choice);
                 }
                 return x(d[1]) - x(d[0]);

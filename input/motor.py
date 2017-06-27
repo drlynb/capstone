@@ -9,9 +9,6 @@ TF = [True, False]
 gender = ['M']*7 + ['F']*3          # 60% male 40% Female
 ages = ['<16']*1 + ['16-25']*8 + ['26-35']*6 + ['36-45']*7 + ['46-55']*6 + ['56-65']*6+ ['66-75']*6 + ['76-85']*12 + ['86+']*14
 
-def randomDate(start, end, prop):
-    return timeFunc(start, end, '%m/%Y', prop)
-
 def titles():
     return 'Date,AgeGroup,Gender'
 

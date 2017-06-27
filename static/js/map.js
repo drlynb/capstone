@@ -16,6 +16,20 @@ function MakeMap(facts, renderAll) {
   var clust = L.markerClusterGroup();
   var info = L.control();
 
+  function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+  }
+
+  function clicked(e) {
+    zoomToFeature(e);
+    var city = e.target.feature.properties.name;
+    facts.cityDim.filter(city);
+    facts.selectedcities = [];
+    facts.selectedcities.push(city);
+    facts.colourbars();
+    renderAll(null);
+  }
+
   //http://bl.ocks.org/mpmckenna8/af23032b41f0ea1212563b523e859228
   d3.json("/map", function (error, topology) {
     //http://bl.ocks.org/awoodruff/728754e48c11a94b522b
@@ -39,20 +53,6 @@ function MakeMap(facts, renderAll) {
       geojson.resetStyle(e.target);
       info.update();
     }
-    
-    function clicked(e){
-      zoomToFeature(e);
-      var city = e.target.feature.properties.name;
-      facts.cityDim.filter(city);
-      facts.selectedcities = [];
-      facts.selectedcities.push(city);
-      facts.colourbars();
-      renderAll(null);
-    }
-
-    function zoomToFeature(e) {
-      map.fitBounds(e.target.getBounds());
-    }
 
     function onEachFeature(feature, layer) {
       layer.on({
@@ -61,17 +61,18 @@ function MakeMap(facts, renderAll) {
         click: clicked
       });
     }
+
     info.onAdd = function (map) {
       this._div = L.DomUtil.create("div", "info");
       this.update();
       return this._div;
     };
-
     info.update = function (props) {
       this._div.innerHTML = "<h4>Cities Within Fraser Health</h4>" +
         (props ? "</br>" + props.name + "</br>" : "Hover " +
           "over a city");
     };
+
     info.addTo(map);
   });
 
