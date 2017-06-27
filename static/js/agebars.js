@@ -235,27 +235,28 @@ function MakeAgeBars(facts, renderAll) {
         .call(yAxis);
 
     function mfresize(d, choice) {
-        if (choice[0] === "M" && choice.length === 1) {
+        if (choice[0] === "M") {
             return (x(d.data.died) - x(d.data.deadmale));
         }
-        else if (choice[0] === "F" && choice.length === 1) {
+        else if (choice[0] === "F") {
             return (x(d.data.died) - x(d.data.deadfemale));
         }
     }
 
-    var t = function (obj, choice) {
+    var t = function (obj, choice=null) {
+        console.log(choice);
         obj.transition().duration(500)
             .attr("x", function (d) {
                 if (d[0] === 0) {
                     return x(d[0]);
                 }
-                if (choice.length === 1) {
+                if (choice !== null  && choice.length == 1) {
                     return 130 - mfresize(d, choice);
                 }
                 return 130 - (x(d[1]) - x(d[0]));
             })
             .attr("width", function (d) {
-                if (choice.length === 1) {
+                if (choice !== null  && choice.length == 1) {
                     return mfresize(d, choice);
                 }
                 return x(d[1]) - x(d[0]);

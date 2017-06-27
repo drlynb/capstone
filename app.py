@@ -28,7 +28,7 @@ def get_motor():
 def get_natural():
 	#read data and put into dataframe
 	df = pd.read_csv(('input/natural.csv'))
-	return df.to_json(orient='records')	
+	return df.to_json(orient='records')
 
 @app.route("/map")
 def get_map():
