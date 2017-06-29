@@ -1,15 +1,7 @@
 /* global d3 */
 function MakeFilters(myset) {
-  var allcount = d3.select("#allf").append("svg")
-    .attr("width", 800)
-    .attr("height", 25);
-
-  var myx = function (d, i) {
-    if (d.length === 5) {
-      return i * (d.length - 2) * 7;
-    }
-    return i * (d.length + 35);
-  };
+ var allcount = d3.select("#allf").append("div")
+    .attr("width", 800);
 
   // function update(data) {
   this.update = function (data) {
@@ -17,7 +9,7 @@ function MakeFilters(myset) {
       .duration(750);
 
     // JOIN new data with old elements.
-    var text = allcount.selectAll("text")
+    var text = allcount.selectAll(".txt")
       .data(data, function (d) {
         return d;
       });
@@ -25,28 +17,39 @@ function MakeFilters(myset) {
     // EXIT old elements not present in new data.
     text.exit()
       .transition(t)
-      .attr("y", 60)
-      .style("fill-opacity", 1e-6)
+      .tween("entering", function(){
+        var y = d3.interpolate(-100, 100);
+        var o = d3.interpolate(1, 0);
+        var node = this;
+        return function(t){
+          node.y = y(t);
+          node.style.opacity = o(t);
+        };
+      })
       .remove();
 
     // UPDATE old elements present in new data.
-    text.attr("y", 20)
-      .style("fill-opacity", 1)
+    /*text.attr("y", 20)
       .transition(t)
-      .attr("x", myx);
+      .attr("color", "blue");*/
 
     // ENTER new elements present in new data.
-    text.enter().append("text")
+    text.enter().append("span")
       .attr("dy", ".13em")
-      .attr("y", -60)
-      .attr("x", myx)
-      .style("fill-opacity", 1e-6)
+      .classed("txt", true)
       .text(function (d) {
         return d;
       })
       .transition(t)
-      .attr("y", 20)
-      .style("fill-opacity", 1);
+      .tween("entering", function(){
+        var y = d3.interpolate(-100, 100);
+        var o = d3.interpolate(0, 1);
+        var node = this;
+        return function(t){
+          node.y = y(t);
+          node.style.opacity = o(t);
+        };
+      });
   };
   // The initial display.
   this.update(myset);
