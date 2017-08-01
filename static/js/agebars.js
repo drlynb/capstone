@@ -3,9 +3,9 @@ function MakeAgeBars(facts, renderAll) {
     var chart = this;
     var ages = [];
     var margin = {
-        top: 60,
+        top: 00,
         right: 50,
-        bottom: 60,
+        bottom: 00,
         left: 90
     };
     chart.ageDim = facts.dimension(function (d) {
@@ -120,8 +120,8 @@ function MakeAgeBars(facts, renderAll) {
     }
 
     var stackgendersvg = d3.select("#stacked-bars-age").append("svg")
-        .attr("width", 400)
-        .attr("height", 250);
+        .attr("width", 350)
+        .attr("height", 100);
     var stackgenderg = stackgendersvg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     stackgendersvg.append("text")
@@ -137,7 +137,7 @@ function MakeAgeBars(facts, renderAll) {
     stackgendersvg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 25)
-        .attr("x", 0 - (+stackgendersvg.attr("height") / 2) + 30)
+        .attr("x", 0 - (+stackgendersvg.attr("height") / 2) + 20)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Age");
@@ -146,9 +146,9 @@ function MakeAgeBars(facts, renderAll) {
         height = +stackgendersvg.attr("height") - margin.top - margin.bottom;
     var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
         x = d3.scaleLinear().rangeRound([0, width]);
-    var xAxis = d3.axisTop().scale(x)
+    /*var xAxis = d3.axisTop().scale(x)
         .ticks(7, "d")
-        .tickFormat(Math.abs);
+        .tickFormat(Math.abs);*/
     var yAxis = d3.axisLeft().scale(y);
 
     // stack cant accept nested objects, need to modify data
@@ -227,9 +227,9 @@ function MakeAgeBars(facts, renderAll) {
     });
 
     //axes
-    stackgenderg.append("g")
+    /*stackgenderg.append("g")
         .attr("class", "axis axis--x")
-        .call(xAxis);
+        .call(xAxis);*/
     stackgenderg.append("g")
         .attr("class", "axis axis--y")
         .call(yAxis);
@@ -242,7 +242,7 @@ function MakeAgeBars(facts, renderAll) {
             return (x(d.data.died) - x(d.data.deadfemale));
         }
     }
-
+    var PAD = 105;
     var t = function (obj, choice=null) {
         obj.transition().duration(500)
             .attr("x", function (d) {
@@ -250,9 +250,9 @@ function MakeAgeBars(facts, renderAll) {
                     return x(d[0]);
                 }
                 if (choice !== null  && choice.length === 1) {
-                    return 130 - mfresize(d, choice);
+                    return PAD - mfresize(d, choice);
                 }
-                return 130 - (x(d[1]) - x(d[0]));
+                return PAD - (x(d[1]) - x(d[0]));
             })
             .attr("width", function (d) {
                 if (choice !== null  && choice.length === 1) {

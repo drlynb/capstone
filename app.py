@@ -3,8 +3,10 @@ import datetime as dt
 import os
 from flask import Flask, json, jsonify
 from flask import render_template
+from flask_mysqldb import MySQL
 
 app = Flask(__name__)
+mysql = MySQL(app)
 
 @app.route("/")
 def index():
@@ -12,6 +14,7 @@ def index():
 
 @app.route("/data")
 def get_data():
+	#cur = mysql.connection.cursor()
 	#read data and put into dataframe
 	df = pd.read_csv(('input/mock.csv'))
 	df['Datetime'] = df['Datetime'].apply(lambda x: dt.datetime.strptime(x,'%m/%Y').date())

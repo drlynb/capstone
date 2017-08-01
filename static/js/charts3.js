@@ -58,6 +58,7 @@ function makeGraphs(error, data) {
     filterlist.update(allfilters);
    }
   };
+  //http://bl.ocks.org/jo/4068610
 
   var filterlist = new MakeFilters(allfilters);
   var stolenchart = new MakeStolenYears(ndx);

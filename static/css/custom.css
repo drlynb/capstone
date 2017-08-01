@@ -33,10 +33,9 @@ div {
 /* map */
 
 #map {
-  width: 550px;
-  height: 350px;
-  margin: 20;
-  /*padding: 20;*/
+  width: 350px;
+  height: 250px;
+  left: 50px;
 }
 
 .tile {
@@ -133,7 +132,6 @@ text {
 
 
 /* stacked bar chart */
-
 .selected {
   fill: GoldenRod;
 }

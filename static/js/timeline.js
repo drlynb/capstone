@@ -3,7 +3,7 @@
 function MakeTimeline(facts, renderAll) {
     var parent = this;
     var margin = {
-        top: 60,
+        top: 30,
         right: 50,
         bottom: 60,
         left: 90

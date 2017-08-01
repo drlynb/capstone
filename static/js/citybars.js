@@ -6,9 +6,9 @@ function MakeCityBars(facts, renderAll) {
     var chart = this;
     var cities = [];
     var margin = {
-        top: 60,
+        top: 20,
         right: 50,
-        bottom: 60,
+        bottom: 30,
         left: 90
     };
     chart.cityDim = facts.dimension(function (d) {
@@ -122,11 +122,11 @@ function MakeCityBars(facts, renderAll) {
     }
 
     var stackedbarsvg = d3.select("#stacked-bar-chart").append("svg")
-        .attr("width", 400)
+        .attr("width", 350)
         .attr("height", 250);
     var stackedbarg = stackedbarsvg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    stackedbarsvg.append("text")
+    /*stackedbarsvg.append("text")
         .attr("transform",
             "translate(" + (+stackedbarsvg.attr("width") / 1.25) + " ," + 20 + ")")
         .style("text-anchor", "middle")
@@ -135,7 +135,7 @@ function MakeCityBars(facts, renderAll) {
         .attr("transform",
             "translate(" + (+stackedbarsvg.attr("width") / 3) + " ," + 20 + ")")
         .style("text-anchor", "middle")
-        .text("Died");
+        .text("Died");*/
     var width = +stackedbarsvg.attr("width") - margin.left - margin.right,
         height = +stackedbarsvg.attr("height") - margin.top - margin.bottom;
     var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
@@ -144,7 +144,9 @@ function MakeCityBars(facts, renderAll) {
         .tickFormat(Math.abs);
     var yAxis = d3.axisLeft().scale(y);
     var stack = makeStack(cityDeadGroup.all());
-    x.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
+    //x.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
+    // TODO: Make range dynamic
+    x.domain([-3000, 3000]).clamp(true).nice();
     y.domain(cities.map(function (d) {
         return d;
     }));
@@ -233,7 +235,7 @@ function MakeCityBars(facts, renderAll) {
             return (x(d.data.died) - x(d.data.deadfemale));
         }
     }
-
+    var PAD = 105;
     var t = function (obj, choice=null) {
         obj.transition().duration(500)
             .attr("x", function (d) {
@@ -241,9 +243,9 @@ function MakeCityBars(facts, renderAll) {
                     return x(d[0]);
                 }
                 if (choice !== null  && choice.length === 1) {
-                    return 130 - mfresize(d, choice);
+                    return PAD - mfresize(d, choice);
                 }
-                return 130 - (x(d[1]) - x(d[0]));
+                return PAD - (x(d[1]) - x(d[0]));
             })
             .attr("width", function (d) {
                 if (choice !== null  && choice.length === 1) {

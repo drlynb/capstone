@@ -3,9 +3,9 @@
 function MakeStolenYears(facts) {
     var parent = this;
     var margin = {
-        top: 60,
+        top: 30,
         right: 50,
-        bottom: 60,
+        bottom: 50,
         left: 90
     };
     var ta = function (obj, area) {
@@ -20,7 +20,7 @@ function MakeStolenYears(facts) {
     var stolenDim = facts.dimension(function (d) {
         return d["Age"];
     });
-
+    var bins = stolenDim.group().all();
     var stolenGroup = stolenDim.group().reduce(
         function (p, v) {
             if (v.Dead === true) {
@@ -65,13 +65,13 @@ function MakeStolenYears(facts) {
     var data = stolenGroup.all();
     var stolensvg = d3.select("#stolen-years").append("svg")
         .attr("width", 900 + margin.left + margin.right)
-        .attr("height", 150 + margin.top + margin.bottom);
+        .attr("height", 200 + margin.top + margin.bottom);
     var stoleng = stolensvg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     stolensvg.append("text")
         .attr("transform",
             "translate(" + (+stolensvg.attr("width") / 2) + " ," +
-            (+stolensvg.attr("height") - 80) + ")")
+            (+stolensvg.attr("height") - 50) + ")")
         .style("text-anchor", "middle")
         .text("Age");
     stolensvg.append("text")
@@ -177,7 +177,7 @@ function MakeStolenYears(facts) {
             d3.select("#tooltip")
                 .style("left", xPosition + "px")
                 .style("top", yPosition + "px")
-                .html("Age: " + d.key + "<br>Years Lost: " + (84 - d.key));
+                .html("Age: " + d.key + "<br>Lost Years: " + (84 - d.key)*bins[d.key].value);
             //Show the tooltip 
             d3.select("#tooltip").classed("hidden", false);
         });
