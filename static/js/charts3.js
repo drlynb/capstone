@@ -34,6 +34,7 @@ function makeGraphs(error, data) {
   function resetAll() {
    location.reload(); //refresh page
   }
+
   function checked() {
    stolenchart.updatecheck();
    citybarschart.updatecheck();
@@ -58,6 +59,40 @@ function makeGraphs(error, data) {
     filterlist.update(allfilters);
    }
   };
+
+  function makeLegend() {
+   // add legend
+   // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
+   var slidercolour = d3.scaleOrdinal(["#f92525", "#5d24f9", "#f92525", "#FDF2EE"]);
+   var legendRectSize = 18;
+   var legendSpacing = 4;
+   var legend = d3.select("#legend").append("svg")
+    .attr("width", 400)
+    .attr("height", 20)
+    .selectAll(".legend")
+    .data(["Overdose", "Motor", "Lost Years", "Average Life Expectancy"])
+    .enter().append("g")
+    .attr("class", "legend")
+    .attr("transform", function (d, i) {
+     var height = legendRectSize + legendSpacing;
+     var offset = height * slidercolour.domain().length / 2;
+     var vert = i * height + offset;
+     return "translate(" + 4*(vert) + "," + 0 + ")";
+    });
+   legend.append("rect")
+    .attr("width", legendRectSize)
+    .attr("height", legendRectSize)
+    .style("fill", slidercolour)
+    .style("stroke", slidercolour);
+   legend.append("text")
+    .attr("x", legendRectSize + legendSpacing)
+    .attr("y", legendRectSize - legendSpacing)
+    .text(function (d) {
+     return d.toUpperCase();
+    });
+  }
+  makeLegend();
+  //http://bl.ocks.org/jo/4068610
 
   var filterlist = new MakeFilters(allfilters);
   var stolenchart = new MakeStolenYears(ndx);

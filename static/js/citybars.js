@@ -6,10 +6,10 @@ function MakeCityBars(facts, renderAll) {
     var chart = this;
     var cities = [];
     var margin = {
-        top: 60,
-        right: 50,
-        bottom: 60,
-        left: 90
+        top: 110,
+        right: 90,
+        bottom: 30,
+        left: 35
     };
     chart.cityDim = facts.dimension(function (d) {
         if (cities.indexOf(d["City"]) === -1) {
@@ -21,7 +21,7 @@ function MakeCityBars(facts, renderAll) {
     var cityDeadGroup = chart.cityDim.group().reduce(
         function (p, v) {
             if (v.Dead === true) {
-                ++p.deaths;
+                ++p.died;
                 if (v.Gender === "M") {
                     ++p.deadmale;
                 }
@@ -30,7 +30,7 @@ function MakeCityBars(facts, renderAll) {
                 }
             }
             else {
-                ++p.events;
+                ++p.lived;
                 if (v.Gender === "M") {
                     ++p.livmale;
                 }
@@ -43,7 +43,7 @@ function MakeCityBars(facts, renderAll) {
         },
         function (p, v) {
             if (v.Dead === true) {
-                --p.deaths;
+                --p.died;
                 if (v.Gender === "M") {
                     --p.deadmale;
                 }
@@ -52,7 +52,7 @@ function MakeCityBars(facts, renderAll) {
                 }
             }
             else {
-                --p.events;
+                --p.lived;
                 if (v.Gender === "M") {
                     --p.livmale;
                 }
@@ -65,12 +65,12 @@ function MakeCityBars(facts, renderAll) {
         },
         function () {
             return {
-                deaths: 0,
+                died: 0,
                 livmale: 0,
                 livfemale: 0,
                 deadmale: 0,
                 deadfemale: 0,
-                events: 0,
+                lived: 0,
                 total: 0
             };
         });
@@ -105,10 +105,10 @@ function MakeCityBars(facts, renderAll) {
         dat.forEach(function (d) {
             var tempObj = {};
             tempObj["cities"] = d.key;
-            tempObj["lived"] = -d.value.events;
+            tempObj["lived"] = -d.value.lived;
             tempObj["livmale"] = -d.value.livmale;
             tempObj["livfemale"] = -d.value.livfemale;
-            tempObj["died"] = d.value.deaths;
+            tempObj["died"] = d.value.died;
             tempObj["deadmale"] = d.value.deadmale;
             tempObj["deadfemale"] = d.value.deadfemale;
             tempObj["total"] = d.value.total;
@@ -122,11 +122,11 @@ function MakeCityBars(facts, renderAll) {
     }
 
     var stackedbarsvg = d3.select("#stacked-bar-chart").append("svg")
-        .attr("width", 400)
-        .attr("height", 250);
+        .attr("width", 300)
+        .attr("height", 350);
     var stackedbarg = stackedbarsvg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    stackedbarsvg.append("text")
+    /*stackedbarsvg.append("text")
         .attr("transform",
             "translate(" + (+stackedbarsvg.attr("width") / 1.25) + " ," + 20 + ")")
         .style("text-anchor", "middle")
@@ -135,17 +135,23 @@ function MakeCityBars(facts, renderAll) {
         .attr("transform",
             "translate(" + (+stackedbarsvg.attr("width") / 3) + " ," + 20 + ")")
         .style("text-anchor", "middle")
-        .text("Died");
+        .text("Died");*/
     var width = +stackedbarsvg.attr("width") - margin.left - margin.right,
         height = +stackedbarsvg.attr("height") - margin.top - margin.bottom;
-    var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
-        x = d3.scaleLinear().rangeRound([0, width]);
-    var xAxis = d3.axisTop().scale(x).ticks(7, "d")
+    var x = d3.scaleBand().rangeRound([0, height]).padding(0.1),
+        y = d3.scaleLinear().rangeRound([0, width]);
+    var xAxis = d3.axisTop().scale(x);
+    var yAxis = d3.axisLeft().scale(y).ticks(7, "d")
         .tickFormat(Math.abs);
-    var yAxis = d3.axisLeft().scale(y);
     var stack = makeStack(cityDeadGroup.all());
-    x.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
+    //x.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
+    // TODO: Make range dynamic
+    /*x.domain([-3000, 3000]).clamp(true).nice();
     y.domain(cities.map(function (d) {
+        return d;
+    }));*/
+    y.domain([3000, -3000]).clamp(true).nice();
+    x.domain(cities.map(function (d) {
         return d;
     }));
 
@@ -193,63 +199,78 @@ function MakeCityBars(facts, renderAll) {
         .enter().append("rect")
         .attr("class", "bar city")
         .on("click", function (d, i) {
-            //add/remove city from list
-            var temp = chart.selectedcities.indexOf(d.data.cities);
-            if (temp === -1) {
-                chart.selectedcities.push(d.data.cities);
+            if (d3.event.ctrlKey) {
+                //add/remove city from list
+                var temp = chart.selectedcities.indexOf(d.data.cities);
+                if (temp === -1) {
+                    chart.selectedcities.push(d.data.cities);
+                }
+                else {
+                    chart.selectedcities.splice(temp, 1);
+                } //remove city from list
             }
             else {
-                chart.selectedcities.splice(temp, 1);
-            } //remove city from list
+                chart.selectedcities = (_.contains(chart.selectedcities, d.data.cities) ? [] : [d.data.cities]);
+            }
+
             // inside onclick function
             chart.colourbars();
             renderAll(facts);
         });
 
-    rects.attr("y", function (d) {
-            return y(d.data.cities);
+    rects.attr("x", function (d) {
+            return x(d.data.cities);
         })
-        .attr("x", function (d) {
-            return x(d[0]);
+        .attr("y", function (d) {
+            return y(d[1]);
         })
-        .attr("width", function (d) {
-            return x(d[1]) - x(d[0]);
+        .attr("height", function (d) {
+            return y(d[0]) - y(d[1]);
         })
-        .attr("height", y.bandwidth());
+        .attr("width", x.bandwidth());
+    /*.attr("width", function (d) {
+        return x(d[1]) - x(d[0]);
+    })
+    .attr("height", y.bandwidth());*/
 
     //axes
     stackedbarg.append("g")
+        .attr("class", "axis axis--x")
+        .call(xAxis)
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-1em")
+        .attr("dy", "1.1em")
+        .attr("transform", "rotate(90)");
+    stackedbarg.append("g")
         .attr("class", "axis axis--y")
         .call(yAxis);
-    stackedbarg.append("g")
-        .attr("class", "axis axis--x")
-        .call(xAxis);
 
     function mfresize(d, choice) {
-        if (choice[0] === "M") {
-            return (x(d.data.died) - x(d.data.deadmale));
+        if (d[0] === 0) {
+            return y(0) - y((d.data.deadmale * (!_.contains(choice, "M")) + d.data.deadfemale * (!_.contains(choice, "F"))) * !_.contains(choice, "D"));
         }
-        else if (choice[0] === "F") {
-            return (x(d.data.died) - x(d.data.deadfemale));
+        else {
+            return y((d.data.livmale * (!_.contains(choice, "M")) + d.data.livfemale * (!_.contains(choice, "F"))) * !_.contains(choice, "L")) - y(0);
         }
     }
-
-    var t = function (obj, choice=null) {
+    var PAD = 88;
+    var t = function (obj, choice = null) {
         obj.transition().duration(500)
-            .attr("x", function (d) {
-                if (d[0] === 0) {
-                    return x(d[0]);
+            .attr("y", function (d) {
+                if (d[1] === 0) {
+                    return y(d[1]);
                 }
-                if (choice !== null  && choice.length === 1) {
-                    return 130 - mfresize(d, choice);
+                if (choice !== null && choice.length <= 4) {
+                    return PAD - mfresize(d, choice);
                 }
-                return 130 - (x(d[1]) - x(d[0]));
+                return PAD - (y(d[0]) - y(d[1]));
             })
-            .attr("width", function (d) {
-                if (choice !== null  && choice.length === 1) {
+            .attr("height", function (d) {
+                if (choice !== null && choice.length <= 4) {
                     return mfresize(d, choice);
                 }
-                return x(d[1]) - x(d[0]);
+                return y(d[0]) - y(d[1]);
             });
         return obj;
     };

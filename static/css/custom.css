@@ -1,6 +1,16 @@
+/*colour variables*/
+:root{
+  --bgcol: #9B9B9B;
+  --alivebars: SaddleBrown;
+  --diedbars: #f92525;
+  --bar-hover: GoldenRod;
+  --urlcol: #4FDEF2;
+  --axiscol: gray;
+}
+
 body {
   padding-top: 70px;
-  background-color: #9B9B9B;
+  background-color: var(--bgcol);
   font-size: 14px;
   font-family: 'Raleway', sans-serif;
 }
@@ -14,16 +24,16 @@ div {
 }
 
 .lived {
-  fill: #f92525;
+  fill: var(--alivebars);
 }
 
 .died {
-  fill: SaddleBrown;
+  fill: var(--diedbars);
 }
 
 .bar:hover {
   opacity: 1;
-  fill: GoldenRod;
+  fill: var(--bar-hover);
 }
 
 .axis {
@@ -33,15 +43,15 @@ div {
 /* map */
 
 #map {
-  width: 550px;
-  height: 350px;
-  margin: 20;
-  /*padding: 20;*/
+  width: 350px;
+  height: 250px;
+  margin: 50;
+  margin-left: 0;
 }
 
 .tile {
   fill: #000;
-  fillOpacity: .0;
+  fill-opacity: 0.0;
   weight: .8;
 }
 
@@ -52,7 +62,16 @@ div {
   fillOpacity: .7;
 }
 
-.events,
+.circle {
+  /*width: 50px;
+  height: 50px; <- change using iconSize property*/
+  -webkit-border-radius: 25px;
+  -moz-border-radius: 25px;
+  border-radius: 25px;
+  background: red;
+  text-align: center;
+}
+/*.events,
 .events svg {
   position: absolute;
 }
@@ -68,7 +87,7 @@ div {
   fill: brown;
   stroke: black;
   stroke-width: 1.5px;
-}
+}*/
 
 /* filter list */
 .txt{
@@ -78,17 +97,17 @@ div {
 
 /* slider */
 
-p {
+/*p {
   color: white;
   margin: 50px;
-}
+}*/
 
 a {
-  color: #4FDEF2;
+  color: var(--urlcol);
 }
 
 .axis {
-  fill: gray;
+  fill: var(--axiscol);
   /* Prevent axes from taking mouse events */
   -webkit-user-select: none;
   /* Chrome, Opera, Safari */

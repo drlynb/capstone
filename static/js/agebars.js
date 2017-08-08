@@ -3,9 +3,9 @@ function MakeAgeBars(facts, renderAll) {
     var chart = this;
     var ages = [];
     var margin = {
-        top: 60,
-        right: 50,
-        bottom: 60,
+        top: 110,
+        right: 00,
+        bottom: 30,
         left: 90
     };
     chart.ageDim = facts.dimension(function (d) {
@@ -24,10 +24,10 @@ function MakeAgeBars(facts, renderAll) {
                 else {
                     ++p.deadfemale;
                 }
-                ++p.dead;
+                ++p.died;
             }
             else {
-                ++p.living;
+                ++p.lived;
                 if (v.Gender === "M") {
                     ++p.livmale;
                 }
@@ -46,10 +46,10 @@ function MakeAgeBars(facts, renderAll) {
                 else {
                     --p.deadfemale;
                 }
-                --p.dead;
+                --p.died;
             }
             else {
-                --p.living;
+                --p.lived;
                 if (v.Gender === "M") {
                     --p.livmale;
                 }
@@ -66,8 +66,8 @@ function MakeAgeBars(facts, renderAll) {
                 livfemale: 0,
                 deadmale: 0,
                 deadfemale: 0,
-                living: 0,
-                dead: 0
+                lived: 0,
+                died: 0
             };
         }
     );
@@ -102,10 +102,10 @@ function MakeAgeBars(facts, renderAll) {
         dat.forEach(function (d) {
             var tempObj = {};
             tempObj["age"] = d.key;
-            tempObj["lived"] = -d.value.living;
+            tempObj["lived"] = -d.value.lived;
             tempObj["livmale"] = -d.value.livmale;
             tempObj["livfemale"] = -d.value.livfemale;
-            tempObj["died"] = d.value.dead;
+            tempObj["died"] = d.value.died;
             tempObj["deadmale"] = d.value.deadmale;
             tempObj["deadfemale"] = d.value.deadfemale;
             tempObj["total"] = d.value.total;
@@ -120,42 +120,38 @@ function MakeAgeBars(facts, renderAll) {
     }
 
     var stackgendersvg = d3.select("#stacked-bars-age").append("svg")
-        .attr("width", 400)
-        .attr("height", 250);
+        .attr("width", 267)
+        .attr("height", 300);
     var stackgenderg = stackgendersvg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    stackgendersvg.append("text")
+    /*stackgendersvg.append("text")
         .attr("transform",
-            "translate(" + (+stackgendersvg.attr("width") / 1.25) + " ," + 20 + ")")
-        .style("text-anchor", "middle")
+            "translate(" + 50 + " ," + ((+stackgendersvg.attr("width")) ) + ") rotate(-90)")
         .text("Lived");
     stackgendersvg.append("text")
         .attr("transform",
-            "translate(" + (+stackgendersvg.attr("width") / 3) + " ," + 20 + ")")
-        .style("text-anchor", "middle")
-        .text("Died");
+            "translate(" + 50 + " ," + (+stackgendersvg.attr("width") / 2.5) + ") rotate(-90)")
+        .text("Died");*/
     stackgendersvg.append("text")
-        .attr("transform", "rotate(-90)")
         .attr("y", 25)
-        .attr("x", 0 - (+stackgendersvg.attr("height") / 2) + 30)
+        .attr("x", 0 - (+stackgendersvg.attr("width") / 2) + 20)
         .attr("dy", "1em")
-        .style("text-anchor", "middle")
         .text("Age");
 
     var width = +stackgendersvg.attr("width") - margin.left - margin.right,
         height = +stackgendersvg.attr("height") - margin.top - margin.bottom;
-    var y = d3.scaleBand().rangeRound([0, height]).padding(0.1),
-        x = d3.scaleLinear().rangeRound([0, width]);
-    var xAxis = d3.axisTop().scale(x)
-        .ticks(7, "d")
-        .tickFormat(Math.abs);
-    var yAxis = d3.axisLeft().scale(y);
+    var x = d3.scaleBand().rangeRound([0, height]).padding(0.1),
+        y = d3.scaleLinear().rangeRound([0, width]);
+    //var yAxis = d3.axisTop().scale(y);
+    //.ticks(7, "d")
+    //.tickFormat(Math.abs);
+    var xAxis = d3.axisTop().scale(x);
 
     // stack cant accept nested objects, need to modify data
     // https://stackoverflow.com/questions/42039506/d3-stack-vs-nested-objects
     var stack = makeStack(ageGroup.top(Infinity));
-    x.domain([-d3.max(stack, stackMax), d3.max(stack, stackMax)]).clamp(true).nice();
-    y.domain(["10-18",
+    y.domain([d3.max(stack, stackMax), -d3.max(stack, stackMax)]).clamp(true).nice();
+    x.domain(["10-18",
         "19-29",
         "30-39",
         "40-49",
@@ -177,27 +173,18 @@ function MakeAgeBars(facts, renderAll) {
         })
         .enter().append("rect")
         .attr("class", "bar agegroup");
-    rects.attr("y", function (d) {
-            return y(d.data.age);
+    rects.attr("x", function (d) {
+            return x(d.data.age);
         })
-        .attr("x", function (d) {
-            return x(d[0]);
+        .attr("y", function (d) {
+            return y(d[1]);
         })
-        .attr("width", function (d) {
-            return x(d[1]) - x(d[0]);
+        .attr("height", function (d) {
+            return y(d[0]) - y(d[1]);
         })
-        .attr("height", y.bandwidth());
+        .attr("width", x.bandwidth());
 
-    chart.selectedage = [];
-    rects.on("click", function (d, i) {
-        //add/remove agegroup from list
-        var temp = chart.selectedage.indexOf(d.data.age);
-        if (temp === -1) {
-            chart.selectedage.push(d.data.age);
-        }
-        else {
-            chart.selectedage.splice(temp, 1);
-        } //remove agegroup from list
+    chart.colourbars = function () {
         var bars = d3.selectAll(".agegroup");
         bars.each(function (d) {
             var tmp = d3.select(this);
@@ -224,41 +211,104 @@ function MakeAgeBars(facts, renderAll) {
             chart.ageDim.filter(null);
         }
         renderAll(facts);
+    };
+
+    chart.selectedage = [];
+    rects.on("click", function (d, i) {
+        if (d3.event.ctrlKey) {
+            //add/remove city from list
+            var temp = chart.selectedage.indexOf(d.data.age);
+            if (temp === -1) {
+                chart.selectedage.push(d.data.age);
+            }
+            else {
+                chart.selectedage.splice(temp, 1);
+            } //remove city from list
+        }
+        else {
+            chart.selectedage = (_.contains(chart.selectedage, d.data.age) ? [] : [d.data.age]);
+        }
+
+        // inside onclick function
+        chart.colourbars();
+        renderAll(facts);
     });
 
+    /*    rects.on("click", function (d, i) {
+            //add/remove agegroup from list
+            var temp = chart.selectedage.indexOf(d.data.age);
+            if (temp === -1) {
+                chart.selectedage.push(d.data.age);
+            }
+            else {
+                chart.selectedage.splice(temp, 1);
+            } //remove agegroup from list
+            var bars = d3.selectAll(".agegroup");
+            bars.each(function (d) {
+                var tmp = d3.select(this);
+                if (chart.selectedage.indexOf(d.data.age) > -1) {
+                    tmp.classed("selected", true)
+                        .classed("notselected", false);
+                }
+                else {
+                    tmp.classed("selected", false)
+                        .classed("notselected", true);
+                }
+            });
+            if (chart.selectedage.length !== 0) {
+                chart.ageDim.filterFunction(function (d) {
+                    return chart.selectedage.indexOf(d) > -1;
+                });
+            }
+            else {
+                bars.each(function (d) {
+                    d3.select(this)
+                        .classed("selected", false)
+                        .classed("notselected", false);
+                });
+                chart.ageDim.filter(null);
+            }
+            renderAll(facts);
+        });*/
+
     //axes
+    /*stackgenderg.append("g")
+        .attr("class", "axis axis--y")
+        .call(yAxis);*/
     stackgenderg.append("g")
         .attr("class", "axis axis--x")
-        .call(xAxis);
-    stackgenderg.append("g")
-        .attr("class", "axis axis--y")
-        .call(yAxis);
+        .call(xAxis)
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-1em")
+        .attr("dy", "1em")
+        .attr("transform", "rotate(90)");
 
     function mfresize(d, choice) {
-        if (choice[0] === "M") {
-            return (x(d.data.died) - x(d.data.deadmale));
+        if (d[0] === 0) {
+            return y(0) - y((d.data.deadmale * (!_.contains(choice, "M")) + d.data.deadfemale * (!_.contains(choice, "F"))) * !_.contains(choice, "D"));
         }
-        else if (choice[0] === "F") {
-            return (x(d.data.died) - x(d.data.deadfemale));
+        else {
+            return y((d.data.livmale * (!_.contains(choice, "M")) + d.data.livfemale * (!_.contains(choice, "F"))) * !_.contains(choice, "L")) - y(0);
         }
     }
-
-    var t = function (obj, choice=null) {
+    var PAD = 89;
+    var t = function (obj, choice = null) {
         obj.transition().duration(500)
-            .attr("x", function (d) {
-                if (d[0] === 0) {
-                    return x(d[0]);
+            .attr("y", function (d) {
+                if (d[1] === 0) {
+                    return y(d[1]);
                 }
-                if (choice !== null  && choice.length === 1) {
-                    return 130 - mfresize(d, choice);
+                if (choice !== null && choice.length <= 4) {
+                    return PAD - mfresize(d, choice);
                 }
-                return 130 - (x(d[1]) - x(d[0]));
+                return PAD - (y(d[0]) - y(d[1]));
             })
-            .attr("width", function (d) {
-                if (choice !== null  && choice.length === 1) {
+            .attr("height", function (d) {
+                if (choice !== null && choice.length <= 4) {
                     return mfresize(d, choice);
                 }
-                return x(d[1]) - x(d[0]);
+                return y(d[0]) - y(d[1]);
             });
         return obj;
     };

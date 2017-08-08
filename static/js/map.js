@@ -11,10 +11,15 @@ function MakeMap(facts, renderAll) {
     maxZoom: 18,
     attribution: osmAttrib
   });
-  var map = L.map("map").setView([49.2, -122.3], 9).addLayer(osm);
-  //var data = facts.cityDim.top(Infinity);
-  var clust = L.markerClusterGroup();
-  var info = L.control();
+  var map = L.map("map").setView([49.2, -122.3], 8).addLayer(osm);
+
+  var clust = L.markerClusterGroup({
+    iconCreateFunction: function (cluster) {
+      return L.divIcon({ className: "circle", html: cluster.getChildCount(), iconSize: [30, 30] });
+    },
+    maxClusterRadius: 50
+  });
+  //var info = L.control();
 
   function zoomToFeature(e) {
     map.fitBounds(e.target.getBounds());
@@ -46,12 +51,12 @@ function MakeMap(facts, renderAll) {
       if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
         layer.bringToFront();
       }
-      info.update(layer.feature.properties);
+      //info.update(layer.feature.properties);
     }
 
     function resetHighlight(e) {
       geojson.resetStyle(e.target);
-      info.update();
+      //info.update();
     }
 
     function onEachFeature(feature, layer) {
@@ -62,18 +67,18 @@ function MakeMap(facts, renderAll) {
       });
     }
 
-    info.onAdd = function (map) {
+    /*info.onAdd = function (map) {
       this._div = L.DomUtil.create("div", "info");
       this.update();
       return this._div;
     };
     info.update = function (props) {
-      this._div.innerHTML = "<h4>Cities Within Fraser Health</h4>" +
+      this._div.outerHTML = "<h4>Cities Within Fraser Health</h4>" +
         (props ? "</br>" + props.name + "</br>" : "Hover " +
           "over a city");
     };
 
-    info.addTo(map);
+    info.addTo(map);*/
   });
 
   chart.update = function (choice = []) {
@@ -82,18 +87,30 @@ function MakeMap(facts, renderAll) {
     // https://github.com/Leaflet/Leaflet.markercluster/issues/59#issuecomment-9320628
     clust.clearLayers();
     var temp = [];
-    if (choice.length === 1) {
-      data.forEach(function (d) {
-        if (d.Gender === choice[0]) {
-          temp.push(L.marker(d.loc));
-        }
-      });
-    }
-    else {
-      data.forEach(function (d) {
+    data.forEach(function (d) {
+      var living = -1;
+      var dead = -1;
+      var tmp = ["M", "F"];
+      if (_.contains(choice, "L")) {
+        living = true;
+      }
+      if (_.contains(choice, "D")) {
+        dead = false;
+      }
+      if (_.contains(choice, "M") || _.contains(choice, "F")) {
+        tmp = choice;
+      }
+      if (_.contains(tmp, d.Gender) && living === -1 && dead === -1) {
         temp.push(L.marker(d.loc));
-      });
-    }
+      }
+      else if (_.contains(tmp, d.Gender) && living === d.Dead && dead === -1) {
+        temp.push(L.marker(d.loc));
+      }
+      else if (_.contains(tmp, d.Gender) && dead === d.Dead && living === -1) {
+        temp.push(L.marker(d.loc));
+      }
+    });
+
     clust.addLayers(temp);
     map.addLayer(clust);
   };

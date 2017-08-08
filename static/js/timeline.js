@@ -3,7 +3,7 @@
 function MakeTimeline(facts, renderAll) {
     var parent = this;
     var margin = {
-        top: 60,
+        top: 30,
         right: 50,
         bottom: 60,
         left: 90
@@ -207,7 +207,7 @@ function MakeTimeline(facts, renderAll) {
 
         // add legend
         // http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-        var slidercolour = d3.scaleOrdinal(["#f92525", "#5d24f9"]);
+        /*var slidercolour = d3.scaleOrdinal(["#f92525", "#5d24f9"]);
         var legendRectSize = 18;
         var legendSpacing = 4;
         var legend = slidersvg.selectAll(".legend")
@@ -230,7 +230,7 @@ function MakeTimeline(facts, renderAll) {
             .attr("y", legendRectSize - legendSpacing)
             .text(function (d) {
                 return d.toUpperCase();
-            });
+            });*/
 
         parent.update = function () {
             var dat = prepdata();
